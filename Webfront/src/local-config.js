@@ -1,0 +1,1 @@
+NewkitConf.modules.push({ module: 'intern-eggrolls', path: 'intern-eggrolls' })

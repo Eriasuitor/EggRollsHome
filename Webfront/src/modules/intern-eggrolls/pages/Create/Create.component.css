@@ -1,0 +1,128 @@
+.ntk-Create {
+    width: 1000px;
+    margin:auto;
+}
+
+.ntk-Create .CreateQuestionnaire{
+    text-align: center;
+    margin-bottom: 5px;
+    border-bottom: 1px bold #000000;
+}
+
+.ntk-Create .CreateQuestionnaire h1{
+    text-align: center;
+    margin-bottom: 5px;
+    border-bottom: 1px bold #000000;
+    font-weight: bold;
+}
+
+.ntk-Create .QuestionnaireLimited{
+    
+    margin: 20px 0 20px 0;
+}
+
+.ntk-Create .QuestionnaireLimited .datePicker{
+    width: 300px;
+}
+
+.ntk-Create .QuestionnaireLimited .IsRealName{
+    font-size: 15px;
+    font-weight: bold;
+}
+
+
+.ntk-Create .QuestionnaireLimited .DueTime{
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.ntk-Create .QuestionnaireTitle{
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 15px;
+    border-bottom: 1px bold #000000;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.ntk-Create .QuestionnaireTitle input{
+    width: 350px;
+    height: 30px;
+}
+
+.ntk-Create .QuestionnaireDescription{
+    
+    font-size: 15px;
+}
+
+.ntk-Create .QuestionnaireBody{
+    
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border: 1px dotted #969fb6;
+}
+
+.ntk-Create .QuestionnaireBody .createBtnGroup{
+    text-align: center;
+}
+
+.ntk-Create .QuestionnaireBody .createBtnGroup button{
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.ntk-Create .QuestionnaireBody #boxForm .formList{
+    margin:30px;
+}
+
+.ntk-Create .QuestionnaireBody #boxForm .spanTextTitle{
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.ntk-Create .QuestionnaireBody #boxForm .formList .itemFormList .topicLabel{
+    display: inline-block;
+    position: relative;
+    left: 15px;
+    font-size: 16px;
+}
+
+.ntk-Create .QuestionnaireBody #boxForm .formList .itemFormList .topicLabel input{
+    position: relative;
+    left: 5px;
+    width: 500px;
+}
+
+.ntk-Create .QuestionnaireBody #boxForm .formList .itemFormList button{
+    float: right;
+}
+
+.ntk-Create .QuestionnaireBody #boxForm .formList .itemFormList .isRequired{
+    display: inline-block;
+    position: relative;
+    left: 23px;
+}
+.ntk-Create .QuestionnaireBody #boxForm .formList .itemFormList .isLimited{
+    display: inline-block;
+    position: relative;
+    left: 23px;
+}
+
+.ntk-Create .QuestionnaireBody #boxForm .formList .itemFormList .isLimited input{
+   width: 20px;
+}
+
+.ntk-Create .QuestionnaireBody #boxForm #formControlItem{
+    border: 1px solid #79b95b;
+    padding: 5px;
+}
+
+.ntk-Create .ControlButton .setBtn{
+    float: right;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    width: 80px;
+    height: 40px;
+}

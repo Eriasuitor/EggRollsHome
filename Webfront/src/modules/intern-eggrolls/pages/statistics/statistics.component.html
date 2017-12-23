@@ -1,0 +1,154 @@
+<navigationBar></navigationBar>
+<div class="mainTain" *ngIf="statistics != undefined">
+    <div class="row buttoned">
+        <a href="javascript:;" (click)="download()"><i class="fa">Export the result</i></a>
+    </div>
+    <div class="row title">{{statistics.Title}}</div>
+    <div class="row information">
+        {{statistics.IsRealName? "Real name":"Anonymous"}} &nbsp;&nbsp;Deadline: {{getStanderdDate(statistics.DueDate)}} &nbsp;&nbsp;Link:
+        <a class="a" style="text-decoration : none" target="_blank" href="intern-eggrolls/questionnaire?questionnaireID={{statistics.QuestionnaireID}}">http://10.16.75.27:8211/intern-eggrolls/questionnaire?questionnaireID={{statistics.QuestionnaireID}}</a>
+    </div>
+    <div class="row description wordBreak" id="description"></div>
+    <div *ngFor="let topic of statistics.Topics;" class="topic">
+        <div *ngIf="topic.Type != 'Text'">
+            <div class="row topicTitle">
+                <div class="col-md-9">
+                    {{topic.TopicID}}.{{topic.TopicTitle}}
+                    <span class="tips">
+                            {{topic.Type == 'Checkbox'? ' Multiple choice ' : ''}}
+                            {{topic.Type != 'Checkbox' || topic.Limited == 0|| topic.Limited == undefined? '':', have to choose ' + topic.Limited + ' options'}}
+                            {{topic.IsRequired? ' *':''}}
+                        </span>
+                </div>
+                <div class="col-md-3">
+                    <a *ngIf="!topicsBy(topic.TopicID)" href="javascript:;" (click)="byPerson(topic.TopicID)" class="optioned chosen" style="text-decoration : none"><i>By person</i></a>
+                    <a *ngIf="!topicsBy(topic.TopicID)" href="javascript:;" (click)="byDepartment(topic.TopicID)" class="optioned" style="text-decoration : none"><i>By department</i></a>
+                    <a *ngIf="topicsBy(topic.TopicID)" href="javascript:;" (click)="byPerson(topic.TopicID)" class="optioned" style="text-decoration : none"><i>By person</i></a>
+                    <a *ngIf="topicsBy(topic.TopicID)" href="javascript:;" (click)="byDepartment(topic.TopicID)" class="optioned chosen" style="text-decoration : none"><i>By department</i></a>
+                </div>
+            </div>
+            <div *ngIf="!topicsBy(topic.TopicID)" class="staticPanel col-md-12">
+                <div class="row staticTitle">
+                    <div class="col-md-6">
+                        Option
+                    </div>
+                    <div class="staticCol">
+                        Detail
+                    </div>
+                    <div class="staticCol">
+                        Percentage
+                    </div>
+                    <div class="staticCol">
+                        Number
+                    </div>
+                </div>
+                <div class="row staticOption" *ngFor="let option of topic.Options;">
+                    <div class="col-md-6">
+                        {{option.OptionID}}.{{option.OptionTitle}}
+                    </div>
+                    <div class="staticCol">
+                        <a *ngIf="statistics.IsRealName == true" href="javascript:;" (click)="getPersonnelList(topic.TopicID, option.OptionID)"><i class="fa">Personnel list</i></a>
+                        <a *ngIf="statistics.IsRealName == false">Anonymous</a>
+                    </div>
+                    <div class="staticCol">
+                        {{option.PersonalUnits}}
+                    </div>
+                    <div class="staticCol">
+                        {{option.ChosenNumber}}
+                    </div>
+                </div>
+            </div>
+            <div *ngIf="topicsBy(topic.TopicID)" class="staticPanel col-md-12">
+                <div class="row staticTitle">
+                    <div class="col-md-4">
+                        Option
+                    </div>
+                    <div *ngFor="let department of topic.Options[0].DepartmentUnits;" class="staticCol">
+                        {{department.Department}}
+                    </div>
+                </div>
+                <div class="row staticOption" *ngFor="let option of topic.Options;">
+                    <div class="col-md-4">
+                        {{option.OptionID}}.{{option.OptionTitle}}
+                    </div>
+                    <div *ngFor="let department of option.DepartmentUnits;" class="staticCol">
+                        {{department.ChosenNumber}} ({{department.Percentage}})
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div *ngIf="topic.Type == 'Text'">
+            <div class="row topicTitle">
+                <div class="col-md-10">
+                    {{topic.TopicID}}.{{topic.TopicTitle}}<span class="tips">{{topic.IsRequired? ' *':''}}</span>
+                </div>
+                <div class="col-md-2">
+                    <a *ngIf="!topicsBy(topic.TopicID)" href="javascript:;" (click)="showDetail(topic.TopicID)" class="optioned"><i>Detail</i></a>
+                    <a *ngIf="topicsBy(topic.TopicID)" href="javascript:;" (click)="showDetail(topic.TopicID)" class="optioned chosen"><i>Detail</i></a>
+                </div>
+            </div>
+            <div *ngIf="topicsBy(topic.TopicID)" class="staticPanel col-md-12">
+                <div class="row staticTitle">
+                    <div class="col-md-5">
+                        <div class="staticColText">
+                            ShortName
+                        </div>
+                        <div class="staticColText">
+                            FullName
+                        </div>
+                        <div class="staticColText">
+                            Department
+                        </div>
+                    </div>
+                    <div class="col-md-6 wordBreak">
+                        Answer
+                    </div>
+                </div>
+                <div *ngIf="getDetail(topic.TopicID) == undefined">
+                    <div class="row staticOption">
+                        <div class="staticCol404">
+                            No one answered this question
+                        </div>
+                    </div>
+                </div>
+                <div *ngIf="getDetail(topic.TopicID) != undefined">
+                    <div *ngIf="statistics.IsRealName == true">
+                        <div class="row staticOption" *ngFor="let answer of getDetail(topic.TopicID);">
+                            <div class="col-md-5">
+                                <div class="staticColText">
+                                    {{answer.ShortName}}
+                                </div>
+                                <div class="staticColText">
+                                    {{answer.FullName}}
+                                </div>
+                                <div class="staticColText">
+                                    {{answer.Department}}
+                                </div>
+                            </div>
+                            <div class="col-md-6 wordBreak">
+                                {{answer.Ans}}
+                            </div>
+                        </div>
+                    </div>
+                    <div *ngIf="statistics.IsRealName != true">
+                        <div class="row staticOption" *ngFor="let answer of getDetail(topic.TopicID);">
+                            <div class="col-md-5">
+                                <div class="staticColText">
+                                    Anonymous
+                                </div>
+                                <div class="staticColText">
+                                    Anonymous
+                                </div>
+                                <div class="staticColText">
+                                    {{answer.Department}}
+                                </div>
+                            </div>
+                            <div class="col-md-6 wordBreak">
+                                {{answer.Ans}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>

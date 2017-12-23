@@ -1,0 +1,15 @@
+{
+  "name": "egg_rolls",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "init": "newkit init",
+    "start": "newkit start"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@newkit/development-package": "^0.2.13"
+  }
+}

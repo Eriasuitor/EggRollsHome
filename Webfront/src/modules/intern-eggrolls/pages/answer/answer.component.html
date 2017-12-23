@@ -1,0 +1,77 @@
+<div id="back">
+</div>
+<div class="mainTain" id="mainTain">
+    <div *ngIf="questionnaire != undefined">
+        <div class="row title">{{questionnaire.Title}}</div>
+        <div class="row information">
+            {{questionnaire.IsRealName? "Real name":"Anonymous"}} &nbsp;&nbsp;Deadline: {{getStanderdDate(questionnaire.DueDate)}}
+        </div>
+        <div class="row description wordBreak" id="description"></div>
+        <div *ngFor="let topic of questionnaire.Topics;">
+            <div>
+                <div class="row topicTitle" id={{topic.TopicID}}>
+                    {{topic.TopicID}}.{{topic.TopicTitle}}
+                    <span class="tips" id="{{topic.TopicID}}tips">
+                        {{topic.Type == 'Checkbox'? ' Multiple choice ':''}}
+                        {{topic.Type != 'Checkbox' || topic.Limited == 0 || topic.Limited == undefined? '':', have to choose ' + topic.Limited + ' options'}}
+                 {{topic.IsRequired? ' *':''}}</span>
+                </div>
+                <div [ngSwitch]="topic.Type">
+                    <div *ngSwitchCase="'Radio'" class="row">
+                        <form class="optionForm" (click)="reduction(topic.TopicID)">
+                            <div *ngFor="let option of topic.Options;" (click)="selected(topic.TopicID,option.OptionID)">
+                                <label (mouseover)="mouseIn(topic.TopicID,option.OptionID)" (mouseout)="mouseOut(topic.TopicID,option.OptionID)" id="d{{topic.TopicID+option.OptionID}}">
+                                <div class="checkPadding">
+                                    <i id="i{{topic.TopicID+option.OptionID}}" class="fa fa-check iCheck"></i>
+                                </div>
+                                <input class='input' type="checkbox" name={{topic.TopicID}} id={{topic.TopicID+option.OptionID}} value={{option.OptionID}}>
+                                {{option.OptionID}}.{{option.OptionTitle}}
+                            </label>
+                            </div>
+                        </form>
+                    </div>
+                    <div *ngSwitchCase="'Checkbox'" class="row">
+                        <form class="optionForm" (click)="reduction(topic.TopicID)">
+                            <div *ngFor="let option of topic.Options;" (click)="checkSelected(topic.TopicID,option.OptionID)">
+                                <label (mouseover)="mouseIn(topic.TopicID,option.OptionID)" (mouseout)="mouseOut(topic.TopicID,option.OptionID)" id="d{{topic.TopicID+option.OptionID}}">
+                                <div class="checkPadding">
+                                    <i id="i{{topic.TopicID+option.OptionID}}" class="fa fa-check iCheck"></i>
+                                </div>
+                                <input class='input' type="checkbox" name={{topic.TopicID}} id={{topic.TopicID+option.OptionID}} value={{option.OptionID}}>
+                                {{option.OptionID}}.{{option.OptionTitle}}
+                            </label>
+                            </div>
+                        </form>
+                    </div>
+                    <div *ngSwitchCase="'Text'" class="row">
+                        <form class="optionForm" (click)="reduction(topic.TopicID)">
+                            <textarea class="textarea" name={{topic.TopicID}} maxlength="1000em"></textarea>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <a href="javascript:;" (click)="doSubmit()" class="buttoned submitButton">
+            Submit
+        </a>
+    </div>
+    <div id="" class="row backAfter"></div>
+</div>
+<div id="thanksBoard">
+    <div class="row" id="thanks">
+        <div *ngIf="thanks">
+            <div class="thanksTitle">
+                {{thanksInf.title}}
+                <!-- <i *ngIf="submitting" class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i> -->
+            </div>
+            <div class="thanksFor">
+                {{thanksInf.inf}}
+            </div>
+            <div class="thanksEnd">
+                &nbsp;{{thanksInf.end}}&nbsp;
+            </div>
+        </div>
+    </div>
+</div>

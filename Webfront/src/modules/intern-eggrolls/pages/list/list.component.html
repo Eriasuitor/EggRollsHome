@@ -1,0 +1,71 @@
+<navigationBar></navigationBar>
+<div style="width:1000px; margin:auto" class="mainTent">
+  <div class="row">
+
+    <div class="col-md-4" style="padding-right:2px">
+      <input type="text" size="52em" maxlength="25" [(ngModel)]="title" (keydown.enter)="search()" placeholder="Type to search the questionnaire title"
+        style="padding-left:10px;padding-right:5px;z-index:1;position: absolute;border:1px solid rgb(222, 236, 255);border-radius:10px;-moz-border-radius:10px;height: 30px">
+      <a href="javascript:;" (click)="search()" class="fa fa-search " style="text-decoration : none;margin-top:5px;font-size:20px;position: relative ;margin-left: 311px;padding-right:6px;padding-left:3px;z-index:100;background-color:white;border-radius:10px;-moz-border-radius:10px;"></a>
+    </div>
+    <div class="col-md-4" style="padding-top:7px">
+      <select id="pageSettings" (change)="changePageSize()" class="radius5">
+        <option *ngIf="searchObj.PageSize == 5" selected="selected" value="5" >5</option>
+        <option *ngIf="searchObj.PageSize != 5" value="5" >5</option>
+        <option *ngIf="searchObj.PageSize == 10" selected="selected" value="10" >10</option>
+        <option *ngIf="searchObj.PageSize != 10" value="10" >10</option>
+        <option *ngIf="searchObj.PageSize == 15" selected="selected" value="15" >15</option>
+        <option *ngIf="searchObj.PageSize != 15" value="15" >15</option>
+        <option *ngIf="searchObj.PageSize == 20" selected="selected" value="20" >20</option>
+        <option *ngIf="searchObj.PageSize != 20" value="20" >20</option>
+      </select> &nbsp;items per page.&nbsp;&nbsp;Show page
+      <input type="text" [(ngModel)]="PageIndexDis" size="1em" class="radius5" (keydown.enter)="adjustment()" (click)="toBlack()">      of&nbsp;
+      <span id="pages">{{pages}}&nbsp;</span>
+      <a href="javascript:;" (click)="adjustment()" style="margin-right:10px;color:rgb(150, 153, 159)"><i class="fa fa-paper-plane-o">&nbsp;Go</i></a>
+    </div>
+    <div class="col-md-3" style="padding-top:9px">
+      <a href="javascript:;" (click)="previous()" style="margin-right:10px;color:rgb(150, 153, 159);text-decoration : none"><i class="fa fa-chevron-left">&nbsp;Previous</i></a>
+      <span *ngFor="let page of pagesOrder;">
+          <a *ngIf="page == this.questionnaireList.PageIndex + 1" href="javascript:;" (click)="pageJump(page)" style="margin-right:10px;color:rgb(0, 0, 0);font-weight:bold">{{page}}</a>
+          <a *ngIf="page != this.questionnaireList.PageIndex + 1" href="javascript:;" (click)="pageJump(page)" style="margin-right:10px;color:rgb(150, 153, 159)">{{page}}</a>
+        </span>
+      <a href="javascript:;" (click)="next()" style="margin-right:10px;color:rgb(150, 153, 159);text-decoration : none">Next&nbsp;<i class="fa fa-chevron-right"></i></a>
+    </div>
+  </div>
+  <div *ngIf="questionnaireList.Title !== undefined">
+    <div style="font-size: 15px; padding:20px">
+      No questionnaire found
+    </div>
+  </div>
+  <div *ngIf="questionnaireList.Title == undefined">
+    <div *ngFor="let message of questionnaireList.Questionnaires;" class="col-md-12 lists">
+      <div class="row" style="background:rgb(222, 236, 255);font-size: 15px; padding:10px">
+        <div class="col-md-6" style="font-size:15px;padding-top:2px;">
+          <div [ngSwitch]="message.Status">
+            <div *ngSwitchCase="'Draft'" style="color:#A57D7D"><i class="fa fa-square-o"></i>&nbsp;Draft</div>
+            <div *ngSwitchCase="'Processing'" style="color:orange"><i class="fa fa-circle-o-notch fa-spin"></i>&nbsp;Processing</div>
+            <div *ngSwitchCase="'Ended'" style="color:#2B802B"><i class="fa fa-lemon-o"></i>&nbsp;Ended</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <span style="display:inline-block; width:8em">{{message.IsRealName? "Real name":"Anonymous"}}</span>
+          <span style="display:inline-block; width:8em">Volumes: {{message.Participants}}</span>
+          <span>Deadline: {{message.DueDate == undefined?"":getStanderdDate(message.DueDate)}}</span>
+        </div>
+      </div>
+      <div class="row" style=" font-size: 16px;margin:15px;margin-left:0px">
+        <div class="col-md-7">
+          <a href="javascript:;" (click)="doPreview(message.QuestionnaireID)" style="margin-right:10px;color:black;text-decoration : none">{{message.Title}}</a>
+        </div>
+        <div class="col-md-5" style=" font-size: 14px;padding-top:2px">
+          <div style="float:right">
+            <a href="javascript:;" (click)="doDetails(message.QuestionnaireID)" *ngIf="message.Status != 'Draft' && message.IsRealName" style="margin-right:25px;color:rgb(150, 153, 159);display:inline-block;width:63px"><i class="fa fa-file-text-o">&nbsp;Details</i></a>
+            <a href="javascript:;" (click)="doEdit(message.QuestionnaireID)" *ngIf="message.Status == 'Draft'" style="margin-right:25px;color:rgb(150, 153, 159);display:inline-block;width:63px"><i class="fa fa-edit">&nbsp;Edit</i></a>
+            <a href="javascript:;" (click)="doStatistics(message.QuestionnaireID)" *ngIf="message.Status != 'Draft'" style="margin-right:25px;color:rgb(150, 153, 159);display:inline-block;width:63px"><i class="fa fa-line-chart">&nbsp;Statistics</i></a>
+            <a href="javascript:;" (click)="doCopy(message.QuestionnaireID)" style="margin-right:25px;color:rgb(150, 153, 159);display:inline-block;width:63px"><i class="fa fa-clone">&nbsp;Copy</i></a>
+            <a href="javascript:;" (click)="doDelete(message.QuestionnaireID,message.Title)" style="margin-right:25px;color:rgb(150, 153, 159);display:inline-block;width:63px"><i class="fa fa-trash-o">&nbsp;Delete</i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

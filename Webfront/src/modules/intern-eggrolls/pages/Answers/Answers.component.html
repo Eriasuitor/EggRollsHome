@@ -1,0 +1,64 @@
+<div id="back">
+</div>
+
+<div class="mainTain" id="mainTain" >
+    <div>
+        <div class="row title">{{formControl.Title}}</div>
+        <div class="row information">
+            {{formControl.IsRealName? "Real name":"Anonymous"}} &nbsp;&nbsp;Deadline: {{formControl.dueDate == "Invalid Date"? "":formControl.dueDate|
+            date:"y-MM-dd HH:mm"}} &nbsp;&nbsp;Link:
+            <a class="a" style="text-decoration : none" target="_blank" href="intern-eggrolls/questionnaire?questionnaireID={{formControl.QuestionnaireID}}">http://10.16.75.27:8211/intern-eggrolls/questionnaire?questionnaireID={{formControl.QuestionnaireID}}</a>
+        </div>
+        <div id="divDescription2" class="row description wordBreak"></div>
+        <div *ngFor="let topic of formControl.Topics;">
+            <div>
+                <div class="row topicTitle" id={{topic.TopicID}}>
+                    {{topic.TopicID}}.{{topic.TopicTitle}}
+                    <span class="tips">
+                        {{topic.Type == 'Checkbox'? ' Multiple choice ':''}}
+                        {{topic.Type != 'Checkbox' || topic.Limited == 0 || topic.Limited == undefined? '':', have to choose ' + topic.Limited + ' options'}}
+                        {{topic.IsRequired? ' *':''}}</span>
+                </div>
+                <div [ngSwitch]="topic.Type">
+                    <div *ngSwitchCase="'Radio'" class="row">
+                        <form class="optionForm">
+                            <div *ngFor="let option of topic.Options;">
+                                <label id="d{{topic.TopicID+option.OptionID}}">
+                                <div class="checkPadding">
+                                    <i *ngIf="option.isAnswer == true" class="fa fa-check"></i>
+                                </div>
+                                <input class='input' type="radio" name={{topic.TopicID}} id={{topic.TopicID+option.OptionID}} value={{option.OptionID}}>
+                                {{option.OptionID}}.{{option.OptionTitle}}
+                            </label>
+                            </div>
+                        </form>
+                    </div>
+                    <div *ngSwitchCase="'Checkbox'" class="row">
+                        <form class="optionForm">
+                            <div *ngFor="let option of topic.Options;">
+                                <label id="d{{topic.TopicID+option.OptionID}}">
+                                <div class="checkPadding">
+                                    <i *ngIf="option.isAnswer == true" id="i{{topic.TopicID+option.OptionID}}" class="fa fa-check"></i>
+                                </div>
+                                <input class='input' type="checkbox" name={{topic.TopicID}} id={{topic.TopicID+option.OptionID}} value={{option.OptionID}}>
+                                {{option.OptionID}}.{{option.OptionTitle}}
+                            </label>
+                            </div>
+                        </form>
+                    </div>
+                    <div *ngSwitchCase="'Text'" class="row">
+                        <form class="optionForm">
+                            <textarea class="textarea" name={{topic.TopicID}} maxlength="1000em">{{topic.answer}}</textarea>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <a href="javascript:;" (click)="gobackDetails()" class="buttoned submitButton">
+            Back
+        </a>
+    </div>
+    <div id="" class="row backAfter"></div>
+</div>

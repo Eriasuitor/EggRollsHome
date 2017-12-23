@@ -1,0 +1,35 @@
+.plPanel{
+    border:3px solid rgb(198, 221, 252);
+    color:black;
+    border-radius:5px;
+    -moz-border-radius:5px;
+}
+.plTitle{
+    padding: 5px;
+    background-color: rgb(198, 221, 252);
+}
+.plOption{
+    padding-top:7px;
+    margin-top: -5px;
+    padding-left: 5px;
+    padding-bottom: 5px;
+    border-top: 3px solid rgb(198, 221, 252);
+}
+.plCol{
+    width: 100px;
+    display: inline-block;
+}
+.plCol2{
+    width: 150px;
+    display: inline-block;
+}
+.main{
+    width: 400px;
+    display: block;
+    margin: auto;
+}
+.fixButton{
+    color: black;
+    position: fixed;
+    margin-left: 80px;
+}

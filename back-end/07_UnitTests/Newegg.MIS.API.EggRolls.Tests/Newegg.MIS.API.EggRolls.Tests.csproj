@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{412C6008-C4D5-409A-86F0-28AA36A30053}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Newegg.MIS.API.EggRolls.Tests</RootNamespace>
+    <AssemblyName>Newegg.MIS.API.EggRolls.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Newegg.API.Framework, Version=1.2.9.0, Culture=neutral, PublicKeyToken=null" />
+    <Reference Include="NSubstitute, Version=1.10.0.0, Culture=neutral, PublicKeyToken=92dd2e9066daa5ca, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\NSubstitute.1.10.0.0\lib\net45\NSubstitute.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Business\AnswerSheetBusinessTest.cs" />
+    <Compile Include="Business\QuestionnaireBusinessTest.cs" />
+    <Compile Include="DataAccess\AnswerDaoTest.cs" />
+    <Compile Include="DataAccess\OptionDaoTest.cs" />
+    <Compile Include="DataAccess\TopicDaoTest.cs" />
+    <Compile Include="DataAccess\QuestionnaireDaoTest.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\AnswerPaticipatorServiceTest.cs" />
+    <Compile Include="Services\AnswerSheetServiceTest.cs" />
+    <Compile Include="Services\AnswerSheetStatisticsServiceTest.cs" />
+    <Compile Include="Services\QuestionnaireParticipatorServiceTest.cs" />
+    <Compile Include="Services\QuestionnaireServiceTest.cs" />
+    <Compile Include="Services\QuestionnaireSearchServiceTest.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\01_Resources\Common\EggRolls\Newegg.MIS.API.EggRolls.csproj">
+      <Project>{7151370b-1bea-4172-963f-635e904e8f9c}</Project>
+      <Name>Newegg.MIS.API.EggRolls</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\02_Common\Utilities\Newegg.MIS.API.Utilities.csproj">
+      <Project>{4f1ff1f6-2de2-40dc-95ce-1b6bf35ab884}</Project>
+      <Name>Newegg.MIS.API.Utilities</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

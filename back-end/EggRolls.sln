@@ -1,0 +1,60 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2003
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01_Resources", "01_Resources", "{1C08520C-EA70-4607-BD6A-C84783EBB538}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{2E096E0F-F64A-4CEB-96F5-9BDF0D8CEB82}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "05_WebHost", "05_WebHost", "{B2931435-7151-47BB-B7AA-F68ADB221E05}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "07_UnitTests", "07_UnitTests", "{43E127D8-96A2-46CA-B903-980A01841F4A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02_Common", "02_Common", "{AB4D5186-B40D-4909-8EAD-F5EB1475B6A0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Newegg.MIS.API.Utilities", "02_Common\Utilities\Newegg.MIS.API.Utilities.csproj", "{4F1FF1F6-2DE2-40DC-95CE-1B6BF35AB884}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Newegg.MIS.API.EggRolls", "01_Resources\Common\EggRolls\Newegg.MIS.API.EggRolls.csproj", "{7151370B-1BEA-4172-963F-635E904E8F9C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Newegg.MIS.API.EggRolls.Tests", "07_UnitTests\Newegg.MIS.API.EggRolls.Tests\Newegg.MIS.API.EggRolls.Tests.csproj", "{412C6008-C4D5-409A-86F0-28AA36A30053}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EggRolls.WebHost", "05_WebHost\EggRolls.WebHost\EggRolls.WebHost.csproj", "{FD92B9D9-006B-449B-B269-54FC8ED55A48}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4F1FF1F6-2DE2-40DC-95CE-1B6BF35AB884}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F1FF1F6-2DE2-40DC-95CE-1B6BF35AB884}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F1FF1F6-2DE2-40DC-95CE-1B6BF35AB884}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F1FF1F6-2DE2-40DC-95CE-1B6BF35AB884}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7151370B-1BEA-4172-963F-635E904E8F9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7151370B-1BEA-4172-963F-635E904E8F9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7151370B-1BEA-4172-963F-635E904E8F9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7151370B-1BEA-4172-963F-635E904E8F9C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{412C6008-C4D5-409A-86F0-28AA36A30053}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{412C6008-C4D5-409A-86F0-28AA36A30053}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{412C6008-C4D5-409A-86F0-28AA36A30053}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{412C6008-C4D5-409A-86F0-28AA36A30053}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD92B9D9-006B-449B-B269-54FC8ED55A48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD92B9D9-006B-449B-B269-54FC8ED55A48}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD92B9D9-006B-449B-B269-54FC8ED55A48}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD92B9D9-006B-449B-B269-54FC8ED55A48}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{2E096E0F-F64A-4CEB-96F5-9BDF0D8CEB82} = {1C08520C-EA70-4607-BD6A-C84783EBB538}
+		{4F1FF1F6-2DE2-40DC-95CE-1B6BF35AB884} = {AB4D5186-B40D-4909-8EAD-F5EB1475B6A0}
+		{7151370B-1BEA-4172-963F-635E904E8F9C} = {2E096E0F-F64A-4CEB-96F5-9BDF0D8CEB82}
+		{412C6008-C4D5-409A-86F0-28AA36A30053} = {43E127D8-96A2-46CA-B903-980A01841F4A}
+		{FD92B9D9-006B-449B-B269-54FC8ED55A48} = {B2931435-7151-47BB-B7AA-F68ADB221E05}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9CE4E63A-8786-4BEE-BE64-ADF90D635372}
+	EndGlobalSection
+EndGlobal

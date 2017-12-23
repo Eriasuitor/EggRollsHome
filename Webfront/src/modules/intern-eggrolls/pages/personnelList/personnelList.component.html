@@ -1,0 +1,27 @@
+<div class="main">
+        <div class="plPanel col-md-12">
+                <div class="row plTitle">
+                        <div class="plCol">
+                                ShortName
+                        </div>
+                        <div class="plCol2">
+                                FullName
+                        </div>
+                        <div class="plCol">
+                                Department
+                        </div>
+                </div>
+                <div class="row plOption" *ngFor="let option of getPersonnelList();">
+                        <div class="plCol">
+                                {{option.ShortName}}
+                        </div>
+                        <div class="plCol2">
+                                {{option.FullName}}
+                        </div>
+                        <div class="plCol">
+                                {{option.Department}}
+                        </div>
+                </div>
+        </div>
+        <a class="buttoned submitButton fixButton" (click)="back()" href="javascript:;">&nbsp;Back</a>
+</div>

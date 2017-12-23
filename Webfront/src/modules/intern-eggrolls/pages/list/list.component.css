@@ -1,0 +1,31 @@
+.myFolder {
+    background: red
+}
+
+.s1{
+    background:rgb(0, 110, 255);
+    font-size: 20px; padding:10px
+}
+
+.radius5{
+    border:1px solid rgb(222, 236, 255);
+    border-radius:5px;
+    -moz-border-radius:10px;
+}
+.lists{
+    margin-top: 10px;
+    color:rgb(150, 148, 148);
+    background:white;
+    border-radius:10px;
+    -moz-border-radius:10px; /* Old Firefox */
+    border:3px solid rgb(230, 239, 251);
+}
+.mainTent{
+    font-family: "Microsoft YaHei" ! important;
+}
+a{
+    text-decoration : none;
+}
+a:hover{
+    text-decoration:none;
+    }

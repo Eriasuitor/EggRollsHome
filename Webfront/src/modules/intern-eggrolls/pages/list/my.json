@@ -1,0 +1,247 @@
+﻿{
+    "products": {
+        "ResponseCode":200,
+        "PageIndex": 1,
+        "PageSize": 5,
+        "Pages": 2,
+        "Questionnaires": [
+            {
+                "QuestionnaireID": 1,
+                "Title": "问卷名称",
+                "Status": 0,
+                "Participants": 0,
+                "IsRealName": true,
+                "DueDate": "0000-00-00: 00:00:00"
+            },
+            {
+                "QuestionnaireID": 2,
+                "Title": "问卷名称2",
+                "Status": 1,
+                "Participants": 1,
+                "IsRealName": false,
+                "DueDate": "0000-00-00: 00:00:00"
+            },
+            {
+                "QuestionnaireID": 3,
+                "Title": "问卷名称3",
+                "Status": 2,
+                "IsRealName": true,
+                "Participants": 49,
+                "DueDate": "0000-00-00: 00:00:00"
+            }
+        ]
+    },
+    "products2": {
+        "ResponseCode":200,
+        "Status": 1,
+        "Title": "问卷名称",
+        "Description": "此处为说明信息，涉及图片传输",
+        "BackgroundImageUrl": "背景图片，此处需要讨论是否添加，且设计图片传输；若预设，则不涉及图片传输,建议预设",
+        "IsRealName": true,
+        "DueDate": "0000-00-0000: 00: 00",
+        "Topics": [
+            {
+                "TopicID": 1,
+                "IsRequired": true,
+                "Type": "Radio",
+                "TopicTitle": "题目名称1",
+                "Options": [
+                    {
+                        "OptionID": "A",
+                        "OptionTitle": "选项内容A",
+                        "ChosenNumber": 10,
+                        "PersonalUnits": "50%",
+                        "DepartmentUnits": [
+                            {
+                                "Department": "MIS",
+                                "ChosenNumber": 25,
+                                "Percentage": "50%"
+                            },
+                            {
+                                "Department": "DBA",
+                                "Chosen": 25,
+                                "Percentage": "50%"
+                            }
+                        ]
+                    },
+                    {
+                        "OptionID": "B",
+                        "OptionTitle": "选项内容B",
+                        "ChosenNumber": 10,
+                        "PersonalUnits": "50%",
+                        "DepartmentUnits": [
+                            {
+                                "Department": "MIS",
+                                "ChosenNumber": 25,
+                                "Percentage": "50%"
+                            },
+                            {
+                                "Department": "DBA",
+                                "ChosenNumber": 25,
+                                "Percentage": "50%"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "TopicID": 2,
+                "Type": "Checkbox",
+                "IsRequired": true,
+                "Limited":3,
+                "TopicTitle": "题目名称2",
+                "Options": [
+                    {
+                        "OptionID": "A",
+                        "OptionTitle": "选项内容A",
+                        "ChosenNumber": 10,
+                        "PersonalUnits": "50%",
+                        "DepartmentUnits": [
+                            {
+                                "Department": "MIS",
+                                "ChosenNumber": 25,
+                                "Percentage": "50%"
+                            },
+                            {
+                                "Department": "DBA",
+                                "Chosen": 25,
+                                "Percentage": "50%"
+                            }
+                        ]
+                    },
+                    {
+                        "OptionID": "B",
+                        "OptionTitle": "选项内容B",
+                        "ChosenNumber": 10,
+                        "PersonalUnits": "50%",
+                        "DepartmentUnits": [
+                            {
+                                "Department": "MIS",
+                                "ChosenNumber": 25,
+                                "Percentage": "50%"
+                            },
+                            {
+                                "Department": "DBA",
+                                "Chosen": 25,
+                                "Percentage": "50%"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "TopicID": 3,
+                "Type": "Text",
+                "TopicTitle": "题目名称3"
+            }
+        ]
+    },
+    "products3": {
+        "ResponseCode":200,
+        "Answers": [
+            {
+                "ShortName": "用户短名",
+                "FullName": "所属用户完整名",
+                "Department": "所属部门",
+                "Answers": "用户答案"
+            },
+            {
+                "ShortName": "用户短名",
+                "FullName": "所属用户完整名",
+                "Department": "所属部门",
+                "Answers": "用户答案"
+            },
+            {
+                "ShortName": "用户短名",
+                "FullName": "所属用户完整名",
+                "Department": "所属部门",
+                "Answers": "用户答案"
+            },
+            {
+                "ShortName": "用户短名",
+                "FullName": "所属用户完整名",
+                "Department": "所属部门",
+                "Answers": "用户答案"
+            },
+            {
+                "ShortName": "用户短名",
+                "FullName": "所属用户完整名",
+                "Department": "所属部门",
+                "Answers": "用户答案"
+            }
+        ]
+    },
+    "products4": {
+        "ResponseCode":200,
+        "Person": [
+            {
+                "ShortName": "用户短名",
+                "FullName":"所属用户完整名",
+                "Department": "所属部门"
+            },
+            {
+                "ShortName": "用户短名",
+                "FullName":"所属用户完整名",
+                "Department": "所属部门"
+            }
+        ]
+    },
+    "products5": {
+        "ResponseCode":200,
+        "Questionnaire": {
+            "Status": 1,
+            "ShortName": "所属用户短名或其他",
+            "QuestionnaireID": 1,
+            "Title": "问卷名称",
+            "Description": "此处为说明信息，涉及图片传输",
+            "BackgroundImageUrl": "http://pic.pptbz.com/pptpic/201201/20120124080211530.jpg",
+            "IsRealName":true,
+            "DueDate": "0000-00-0000: 00: 00",
+            "Topics": [
+                {
+                    "TopicID": 1,
+                    "Type": "Radio",
+                    "IsRequired": true,
+                    "TopicTitle": "题目名称",
+                    "Options": [
+                        {
+                            "OptionID": "A",
+                            "OptionTitle": "选项内容"
+                        },
+                        {
+                            "OptionID": "B",
+                            "OptionTitle": "选项内容"
+                        }
+                    ]
+                },
+                {
+                    "TopicID": 2,
+                    "Type": "Checkbox",
+                    "IsRequired": false,
+                    "Limited": 2,
+                    "TopicTitle": "题目名称",
+                    "Options": [
+                        {
+                            "OptionID": "A",
+                            "OptionTitle": "选项内容"
+                        },
+                        {
+                            "OptionID": "B",
+                            "OptionTitle": "选项内容"
+                        },
+                        {
+                            "OptionID": "C",
+                            "OptionTitle": "选项内容"
+                        }
+                    ]
+                },
+                {
+                    "TopicID": 3,
+                    "Type": "Text",
+                    "IsRequired": true,
+                    "TopicTitle": "题目名称"
+                }
+            ]
+        }
+    }
+}

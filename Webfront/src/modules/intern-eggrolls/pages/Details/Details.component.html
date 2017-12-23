@@ -1,0 +1,27 @@
+<!-->-引入公用Header组件-</!-->
+<navigationBar></navigationBar>
+<div class="ntk-Details">
+    <div>
+        <table class="table table-bordered">
+            <caption>Details of the person who answered this questionnaire</caption>
+            <thead>
+                <tr>
+                    <th>Index</th>
+                    <th>Shortname</th>
+                    <th>Fullname</th>
+                    <th>Department</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let itemAnswer of answerDetails; let i = index">
+                    <td>{{i+1}}</td>
+                    <td>{{itemAnswer.shortName}}</td>
+                    <td>{{itemAnswer.fullName}}</td>
+                    <td>{{itemAnswer.department}}</td>
+                    <td><a [routerLink]="['/intern-eggrolls/answers',questionnaireID]" [queryParams]="{shortname:itemAnswer.shortName}">Click to view</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
