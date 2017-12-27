@@ -186,7 +186,11 @@ export class CreateComponent implements OnInit {
 
 		for (var i = 0; i < refreshSources.length; i++) {
 			refreshSources[i].addEventListener('dragstart', function (ev) {
-				dragElement = this;                                    // 用于存放拖动元素
+				dragElement = this;
+				// console.log("dragstart: " + dragElement.offsetX);
+				// console.log("dragstart: " + dragElement.offsetWidth )  
+				// console.log("dragstart: " + dragElement.screenX ) 
+				// console.log("dragstart: " + dragElement.clientX )                                // 用于存放拖动元素
 				//this.style.backgroundColor = '#f8f8f8';                 // 设置拖动元素的背景
 			}, false);
 
@@ -196,12 +200,30 @@ export class CreateComponent implements OnInit {
 			}, false)
 
 			refreshSources[i].addEventListener('dragenter', function (ev) {
+				var eve = window.event;
+				console.log("dragenter Mouse: " + eve.clientX );
+				console.log("dragenter Mouse: " + eve.clientY );
+				console.log("dragenter Mouse: " + eve.pageX  );
+				console.log("dragenter Mouse: " + eve.pageY );
+				console.log("dragenter: " + this.offsetTop);
+				console.log("dragenter: " + document.documentElement.scrollTop)  
+				console.log("dragenter: " + this.clientWidth   ) 
+				console.log("dragenter: " + this.clientHeight + "\n/n")
 				if (dragElement != this) {
+					console.log("dragElement X: ")
 					this.parentNode.insertBefore(dragElement, this);     // 把拖动元素添加到当前元素的前面
 				}
 			}, false)
 
 			refreshSources[i].addEventListener('dragleave', function (ev) {
+				// console.log("dragleave: " + dragElement.parentNode.topicID);
+				// console.log("dragleave: " + dragElement.parentNode.offsetWidth )  
+				// console.log("dragleave: " + dragElement.parentNode.screenX ) 
+				// console.log("dragleave: " + dragElement.parentNode.clientX )
+				// console.log("dragleave: " + refreshSources[i].parentNode.offsetX);
+				// console.log("dragleave: " + refreshSources[i].parentNode.offsetWidth )  
+				// console.log("dragleave: " + refreshSources[i].parentNode.screenX ) 
+				// console.log("dragleave: " + refreshSources[i].parentNode.clientX )
 				if (dragElement != this) {
 					if (this.lock && (this == this.parentNode.lastElementChild || this == this.parentNode.lastChild)) {    // 当前元素时最后一个元素
 						this.parentNode.appendChild(dragElement);       // 把拖动元素添加最后面

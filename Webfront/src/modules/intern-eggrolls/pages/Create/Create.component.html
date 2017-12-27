@@ -1,252 +1,151 @@
-<!-->-引入公用Header组件-</!-->
 <navigationBar></navigationBar>
-<div class="ntk-Create">
-    <div class="CreateQuestionnaire">
-        <h1>New Questionnaire</h1>
+<div class="mainTain">
+    <div class="row title">
+        <input name="questionnaire" [(ngModel)]="formControl.title" type="text" placeholder="Click here to edit the title of the questionnaire"
+            maxlength="50em">
     </div>
-    <!-->--------------------新建调查问卷-功能页面------------------------</!-->
-    <!-->-调查问卷标题部分：-</!-->
-    <div class="QuestionnaireTitle">
-        <input kendoTextBox name="questionnaire" [(ngModel)]="formControl.title" required maxlength="50" placeholder="Type the title here"
-            #questionnaireTitleLimit="ngModel" />
-        <div *ngIf="questionnaireTitleLimit.invalid && (questionnaireTitleLimit.dirty || questionnaireTitleLimit.touched)" class="alert alert-danger">
-            <div *ngIf="questionnaireTitleLimit.errors.required">
-                Questionnaire-title is required.
-            </div>
-            <div *ngIf="questionnaireTitleLimit.errors.maxlength">
-                Questionnaire-title must be less than 50 characters long.
-            </div>
-        </div>
-    </div>
-    <!-->-调查问卷限制部分：包括是否实名限制和截至时间限制-</!-->
-    <div class="QuestionnaireLimited row">
-
-        <label class="IsRealName" for="">
-                Real name survey
-                <input name="isRealName" type="checkbox" checked="true" [(ngModel)]="formControl.isRealName"/>
-            </label>
-
-        <label for="" class="DueTime">
-                Deadline
+    <div class="row information">
+        <label for="">
+            Real name
+            <input name="isRealName" type="checkbox" checked="true" [(ngModel)]="formControl.isRealName" />
+        </label>
+        &nbsp;&nbsp;
+        <label for="">
+            Deadline:
             <kendo-datepicker class="datePicker" [min]="dateTimePickerMin" [format]="'dd-MM-yyyy HH:mm'" name="createDueDate" [(ngModel)]="formControl.dueDate"></kendo-datepicker>
-            </label>
-
+        </label>
+    </div>
+    <div class="QuestionnaireDescription row">
+        <div class="span">Please edit the description of the questionnaire below</div>
+        <ck-editor class="editor" title="" name="editor1" [config]="{skin:'office2003',uiColor: '#ffe4c4',toolbar:'Basic',toolbarCanCollapse:true}"
+            [readonly]="false" (on)="formControl.description = $event.values" debounce="500" [(ngModel)]="formControl.description"
+            language="en" removePlugins='elementspath' height="300px" config.toolbar='Basic'></ck-editor>
     </div>
 
-    <!-->-调查问卷输入描述部分：富文本编辑器-</!-->
-    <div class="QuestionnaireDescription">
-        <span style="font-weight:bold;text-align:left;">Description</span>
-        <ck-editor name="editor1" [config]="{uiColor: '#ffffff', toolbar:'Basic'}" [readonly]="false" (on)="formControl.description = $event.values"
-            debounce="500" [(ngModel)]="formControl.description"></ck-editor>
 
-
-        <div id="test2" neg-editor="" ng-model="html" fullpage="true"></div>
-    </div>
-    <!-->-调查问卷主题部分：通过功能按钮组编辑调查问卷-</!-->
-    <div class="QuestionnaireBody">
-        <!-->-调查问卷按钮组部分：包括添加单选题，多选题，问答题，以及设置问卷背景图片-</!-->
-        <div class="createBtnGroup">
-            <div class="btn-group btn-group-lg" role="group" aria-label="Basic example">
-                <button type="button" class="btn btn-default" (click)="addFormControl('Radio')">Single choice</button>
-                <button type="button" class="btn btn-default" (click)="addFormControl('Checkbox')">Multiple choice</button>
-                <button type="button" class="btn btn-default" (click)="addFormControl('Text')">Subjective questions</button>
-                <button type="button" class="btn btn-default" (click)="setAppearance(true)">Background image</button>
-                <!-->-弹出的模态层：用于设置背景图片-</!-->
-                <nk-modal [(shown)]="setAppearanceView" header="设置外观" (onOk)="setAppearance(false)">
-                    <label for="">
-                        New Year's Day
-                        <input name="setAppearanceUrl" type="radio" [value]="'http://10.1.24.133/EaaS/Message/EggRolls_NewYear.jpg'" [(ngModel)]="formControl.backgroundImageUrl"/>
-                    </label>
-                    <label for="">
-                        Chinese New Year
-                        <input name="setAppearanceUrl" type="radio" [value]="'http://10.1.24.133/EaaS/Message/EggRolls_ChineseNewYear.jpg'" [(ngModel)]="formControl.backgroundImageUrl"/>
-                    </label>
-                    <label for="">
-                        Flower
-                        <input name="setAppearanceUrl" type="radio" [value]="'http://10.1.24.133/EaaS/Message/EggRolls_Flower.jpg'" [(ngModel)]="formControl.backgroundImageUrl"/>
-                    </label>
-                    <label for="">
-                        Grass
-                        <input name="setAppearanceUrl" type="radio" [value]="'http://10.1.24.133/EaaS/Message/EggRolls_Grass.jpg'" [(ngModel)]="formControl.backgroundImageUrl"/>
-                    </label>
-                    <label for="">
-                        Cloud
-                        <input name="setAppearanceUrl" type="radio" [value]="'http://10.1.24.133/EaaS/Message/EggRolls_Cloud.jpg'" [(ngModel)]="formControl.backgroundImageUrl"/>
-                    </label>
-                    <label for="">
-                        Antiquity
-                        <input name="setAppearanceUrl" type="radio" [value]="'http://10.1.24.133/EaaS/Message/EggRolls_Antiquity.jpg'" [(ngModel)]="formControl.backgroundImageUrl"/>
-                    </label>
-                    <label for="">
-                        Dream
-                        <input name="setAppearanceUrl" type="radio" [value]="'http://10.1.24.133/EaaS/Message/EggRolls_Dream.jpg'" [(ngModel)]="formControl.backgroundImageUrl"/>
-                    </label>
-                    <label for="">
-                        ChineseNewYear2
-                        <input name="setAppearanceUrl" type="radio" [value]="'http://10.1.24.133/EaaS/Message/EggRolls_ChineseNewYear2.jpg'" [(ngModel)]="formControl.backgroundImageUrl"/>
-                    </label>
-                    <label for="">
-                        Christmas
-                        <input name="setAppearanceUrl" type="radio" [value]="'http://10.1.24.133/EaaS/Message/EggRolls_Christmas.jpg'" [(ngModel)]="formControl.backgroundImageUrl"/>
-                    </label>
-                    <label for="">
-                        Mountaineering
-                        <input name="setAppearanceUrl" type="radio" [value]="'http://10.1.24.133/EaaS/Message/EggRolls_Mountaineering.jpg'" [(ngModel)]="formControl.backgroundImageUrl"/>
-                    </label>
-                    <label for="">
-                        Watercolor
-                        <input name="setAppearanceUrl" type="radio" [value]="'http://10.1.24.133/EaaS/Message/EggRolls_Watercolor.jpg'" [(ngModel)]="formControl.backgroundImageUrl"/>
-                    </label>
-                    <label for="">
-                        Gift
-                        <input name="setAppearanceUrl" type="radio" [value]="'http://10.1.24.133/EaaS/Message/EggRolls_Gift.jpg'" [(ngModel)]="formControl.backgroundImageUrl"/>
-                    </label>
-                    <img src="{{formControl.backgroundImageUrl}}" alt="PreviewImg" width="350px" height="200px">
-                </nk-modal>
+    <div *ngFor="let item of formControl.topics; let j = index">
+        <div class="topicForm row formList" draggable="true">
+            <a href="javascript:;" class="fa fa-remove floatRight" (click)="deleteTopicControl(j)"></a>
+            <label>
+                    <input name="isRequired{{j}}" id="isRequired{{j}}" type="checkbox" checked="true" [(ngModel)]="formControl.topics[j].isRequired">Required
+                </label>
+                <span *ngIf="item.Type == 'Checkbox'">
+                    Limit
+                    <input class="width2Char" name="isLimited{{j}}" id="isLimited{{j}}" type="text" [(ngModel)]="formControl.topics[j].limited">
+                </span>
+            <div class="row topicTitle">
+                {{j}}.
+                <input ondragstart="e.stopPropagation()" class="topicInput" type="text" placeholder="Enter the title here" [(ngModel)]="formControl.topics[j].topicTitle">
+                <span class="tips">
+                    {{item.Type == 'Checkbox'? ' Multiple choice ':''}} {{item.Type != 'Checkbox' || item.Limited == 0 || item.Limited == undefined?
+                    '':', have to choose ' + item.Limited + ' options'}} {{item.IsRequired? ' *':''}} &nbsp;&nbsp;&nbsp;
+                </span>
             </div>
-        </div>
-
-
-        <!-->-调查问卷组件显示部分：包括显示单选题，多选题，问答题，以及跳转顺序-</!-->
-        <div class="form" id="boxForm">
-
-            <!-->--------------------新建调查问卷-动态添加单选，多选，问答题功能------------------------</!-->
-            <!-->///循环遍历调查问卷的实体，让实体和页面输入双向绑定</!-->
-            <div class="form-group form-group-sm formList" *ngFor="let item of formControl.topics; let j = index" [ngSwitch]="item.type"
-                id="formControlItem" #formControlItem draggable="true">
-                <!-->///循环遍历调查问卷实体的问题，通过匹配点击的按钮是要添加哪个类型，使用switch匹配添加</!-->
-                <div class="add-radio itemFormList" *ngSwitchCase="'Radio'">
-                    <span class="spanTextTitle" title="{{j}}">{{j}}</span>
-                    <button type="button" class="btn btn-secondary fa fa-remove" (click)="deleteTopicControl(j)"></button>
-                    <label class="topicLabel">
-                    Topic title:
-                        <input kendoTextBox name="topicTitle" [(ngModel)]="formControl.topics[j].topicTitle" required maxlength="50" #topicTitleLimit="ngModel"
-                        />
-                        <!-->///对上面的输入框做输入检查，检查：是否输入，是否超过最大长度限制</!-->
-                        <div *ngIf="topicTitleLimit.invalid && (topicTitleLimit.dirty || topicTitleLimit.touched)" class="alert alert-danger">
-                            <div *ngIf="topicTitleLimit.errors.required">
-                                Topic-title is required.
-                            </div>
-                            <div *ngIf="topicTitleLimit.errors.maxlength">
-                                Topic-title must be less than 50 characters long.
-                            </div>
-                        </div>
-                    </label>
-                    <label class="isRequired"><input name="isRequired{{j}}" id="isRequired{{j}}" type="checkbox" checked="true" [(ngModel)]="formControl.topics[j].isRequired">Required</label>
-                    <div class="radio" *ngFor="let itemOption of item.options; let k = index">
-                        <label class="labelOption">
-                                    <span class="spanText">{{k|Num2LetterBySort}}</span>
-                                    Option Content:
-                                        <input kendoTextBox name="optionTitle" [(ngModel)]="formControl.topics[j].options[k].optionTitle" required maxlength="40" #optionTitleLimit="ngModel"/>
-                                        <!-->///对上面的输入框做输入检查，检查：是否输入，是否超过最大长度限制</!-->
-                                        <div *ngIf="optionTitleLimit.invalid && (optionTitleLimit.dirty || optionTitleLimit.touched)" class="alert alert-danger">
-                                            <div *ngIf="optionTitleLimit.errors.required">
-                                                Option-title is required.
-                                            </div>
-                                            <div *ngIf="optionTitleLimit.errors.maxlength">
-                                                Option-title must be less than 50 characters long.
-                                            </div>
-                                        </div>
-                                    
-                                    <!-->///选项的增删功能按钮</!-->
-                                    <div class="btn-group" role="group" aria-label="Basic example">
-                                        <button type="button" class="btn btn-secondary" (click)="addOptionControl(j,k)" >+</button>
-                                        <button type="button" class="btn btn-secondary" (click)="deleteOptionControl(j,k)" >-</button>
-                                    </div>
-                            </label>
-                    </div>
-                </div>
-                <!-->///循环遍历调查问卷实体的问题，通过匹配点击的按钮是要添加哪个类型，使用switch匹配添加</!-->
-                <div class="add-checkBox itemFormList" *ngSwitchCase="'Checkbox'">
-                    <span class="spanTextTitle" title="{{j}}">{{j}}</span>
-                    <button type="button" class="btn btn-secondary fa fa-remove" (click)="deleteTopicControl(j)"></button>
-                    <label class="topicLabel">
-                    Topic title:
-                        <input kendoTextBox name="topicTitle" [(ngModel)]="formControl.topics[j].topicTitle" required maxlength="50" #topicTitleLimit="ngModel"
-                        />
-                        <!-->///对上面的输入框做输入检查，检查：是否输入，是否超过最大长度限制</!-->
-                        <div *ngIf="topicTitleLimit.invalid && (topicTitleLimit.dirty || topicTitleLimit.touched)" class="alert alert-danger">
-                            <div *ngIf="topicTitleLimit.errors.required">
-                                Topic-title is required.
-                            </div>
-                            <div *ngIf="topicTitleLimit.errors.maxlength">
-                                Topic-title must be less than 50 characters long.
-                            </div>
-                        </div>
-                   </label>
-
-                    <label class="isRequired"><input name="isRequired{{j}}" id="isRequired{{j}}" type="checkbox" checked="true" [(ngModel)]="formControl.topics[j].isRequired">Required</label>
-                    <label class="isLimited">Limit <input name="isLimited{{j}}" id="isLimited{{j}}" type="text" [(ngModel)]="formControl.topics[j].limited">&nbsp;selected</label>
-                    <div class="checkbox" *ngFor="let itemOption of item.options; let k = index">
-                        <label class="labelOption">
-                            <span class="spanText">{{k|Num2LetterBySort}}</span>
-                            Option Content:
-                                <input kendoTextBox name="optionTitle" [(ngModel)]="formControl.topics[j].options[k].optionTitle" required maxlength="40" #optionTitleLimit="ngModel"/>
-                                <!-->///对上面的输入框做输入检查，检查：是否输入，是否超过最大长度限制</!-->
-                                <div *ngIf="optionTitleLimit.invalid && (optionTitleLimit.dirty || optionTitleLimit.touched)" class="alert alert-danger">
-                                            <div *ngIf="optionTitleLimit.errors.required">
-                                                Option-title is required.
-                                            </div>
-                                            <div *ngIf="optionTitleLimit.errors.maxlength">
-                                                Option-title must be less than 50 characters long.
-                                            </div>
-                                        </div>
-                            
+                <div *ngIf="item.Type != 'Text'" class="row">
+                    <div class="optionForm">
+                        <div *ngFor="let itemOption of item.options; let k = index">
+                            {{k|Num2LetterBySort}}
+                            <input class="optionInput" type="text" placeholder="Enter the option here" [(ngModel)]="formControl.topics[j].options[k].optionTitle">
                             <div class="btn-group" role="group" aria-label="Basic example">
-                                        <button type="button" class="btn btn-secondary" (click)="addOptionControl(j,k)" >+</button>
-                                        <button type="button" class="btn btn-secondary" (click)="deleteOptionControl(j,k)" >-</button>
-                            </div>
-                        </label>
-                    </div>
-                </div>
-                <!-->///循环遍历调查问卷实体的问题，通过匹配点击的按钮是要添加哪个类型，使用switch匹配添加</!-->
-                <div class="add-input itemFormList" *ngSwitchCase="'Text'">
-                    <span class="spanTextTitle" title="{{j}}">{{j}}</span>
-                    <button type="button" class="btn btn-secondary fa fa-remove" (click)="deleteTopicControl(j)"></button>
-                    <label class="topicLabel">
-                    Topic title:
-                        <input kendoTextBox name="topicTitle" [(ngModel)]="formControl.topics[j].topicTitle" required maxlength="50" #topicTitleLimit="ngModel"
-                        />
-                        <!-->///对上面的输入框做输入检查，检查：是否输入，是否超过最大长度限制</!-->
-                        <div *ngIf="topicTitleLimit.invalid && (topicTitleLimit.dirty || topicTitleLimit.touched)" class="alert alert-danger">
-                            <div *ngIf="topicTitleLimit.errors.required">
-                                Topic-title is required.
-                            </div>
-                            <div *ngIf="topicTitleLimit.errors.maxlength">
-                                Topic-title must be less than 50 characters long.
+                                <button type="button" class="btn btn-secondary" (click)="addOptionControl(j,k)">+</button>
+                                <button type="button" class="btn btn-secondary" (click)="deleteOptionControl(j,k)">-</button>
                             </div>
                         </div>
-                    </label>
-
-                    <label class="isRequired"><input name="isRequired{{j}}" id="isRequired{{j}}" type="checkbox" checked="true" [(ngModel)]="formControl.topics[j].isRequired">Required</label>
-                    <!--><input type="text" class="form-control" id="formGroupExampleInput2" placeholder="此处是回答区域"></!-->
-                    <textarea rows="10" cols="30" class="form-control inputTextItem" readonly="true" placeholder="此处为回答区域"></textarea>
+                    </div>
+                </div>
+                <!-- <div *ngSwitchCase="'Checkbox'" class="row">
+                    <div class="optionForm">
+                        <div *ngFor="let itemOption of item.options; let k = index">
+                            {{k|Num2LetterBySort}}
+                            <input class="optionInput" type="text" placeholder="Enter the option here" [(ngModel)]="formControl.topics[j].options[k].optionTitle">
+                            <div class="btn-group" role="group" aria-label="Basic example">
+                                <button type="button" class="btn btn-secondary" (click)="addOptionControl(j,k)">+</button>
+                                <button type="button" class="btn btn-secondary" (click)="deleteOptionControl(j,k)">-</button>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+                <div *ngIf="item.Type == 'Text'" class="row">
+                    <div class="optionForm">
+                        <textarea class="textarea2" readonly="true" placeholder=" The respondent will answer here"></textarea>
+                    </div>
                 </div>
             </div>
-            <!-->--------------------新建调查问卷-动态添加单选，多选，问答题功能------------------------</!-->
+
+    </div>
+
+    <div class="buttonAddForm">
+        <div class="btn-group btn-group-lg buttonAddTopic row" role="group" aria-label="Basic example">
+            <button type="button" class="btn btn-default" (click)="addFormControl('Radio')">Single choice</button>
+            <button type="button" class="btn btn-default" (click)="addFormControl('Checkbox')">Multiple choice</button>
+            <button type="button" class="btn btn-default" (click)="addFormControl('Text')">Subjective questions</button>
+            <button type="button" class="btn btn-default" (click)="setAppearance(true)">Background image</button>
+            <!-->-弹出的模态层：用于设置背景图片-</!-->
         </div>
-    </div>
+        <div class="createBtnGroup">
+            <nk-modal [(shown)]="setAppearanceView" header="设置外观" (onOk)="setAppearance(false)">
+                <label for="">
+                    New Year's Day
+                    <input name="setAppearanceUrl" type="radio" [value]="'http://10.1.24.133/EaaS/Message/EggRolls_NewYear.jpg'" [(ngModel)]="formControl.backgroundImageUrl"
+                    />
+                </label>
+                <label for="">
+                    Chinese New Year
+                    <input name="setAppearanceUrl" type="radio" [value]="'http://10.1.24.133/EaaS/Message/EggRolls_ChineseNewYear.jpg'" [(ngModel)]="formControl.backgroundImageUrl"
+                    />
+                </label>
+                <label for="">
+                    Flower
+                    <input name="setAppearanceUrl" type="radio" [value]="'http://10.1.24.133/EaaS/Message/EggRolls_Flower.jpg'" [(ngModel)]="formControl.backgroundImageUrl"
+                    />
+                </label>
+                <label for="">
+                    Grass
+                    <input name="setAppearanceUrl" type="radio" [value]="'http://10.1.24.133/EaaS/Message/EggRolls_Grass.jpg'" [(ngModel)]="formControl.backgroundImageUrl"
+                    />
+                </label>
+                <label for="">
+                    Cloud
+                    <input name="setAppearanceUrl" type="radio" [value]="'http://10.1.24.133/EaaS/Message/EggRolls_Cloud.jpg'" [(ngModel)]="formControl.backgroundImageUrl"
+                    />
+                </label>
+                <label for="">
+                    Antiquity
+                    <input name="setAppearanceUrl" type="radio" [value]="'http://10.1.24.133/EaaS/Message/EggRolls_Antiquity.jpg'" [(ngModel)]="formControl.backgroundImageUrl"
+                    />
+                </label>
+                <label for="">
+                    Dream
+                    <input name="setAppearanceUrl" type="radio" [value]="'http://10.1.24.133/EaaS/Message/EggRolls_Dream.jpg'" [(ngModel)]="formControl.backgroundImageUrl"
+                    />
+                </label>
+                <label for="">
+                    ChineseNewYear2
+                    <input name="setAppearanceUrl" type="radio" [value]="'http://10.1.24.133/EaaS/Message/EggRolls_ChineseNewYear2.jpg'" [(ngModel)]="formControl.backgroundImageUrl"
+                    />
+                </label>
+                <label for="">
+                    Christmas
+                    <input name="setAppearanceUrl" type="radio" [value]="'http://10.1.24.133/EaaS/Message/EggRolls_Christmas.jpg'" [(ngModel)]="formControl.backgroundImageUrl"
+                    />
+                </label>
+                <label for="">
+                    Mountaineering
+                    <input name="setAppearanceUrl" type="radio" [value]="'http://10.1.24.133/EaaS/Message/EggRolls_Mountaineering.jpg'" [(ngModel)]="formControl.backgroundImageUrl"
+                    />
+                </label>
+                <label for="">
+                    Watercolor
+                    <input name="setAppearanceUrl" type="radio" [value]="'http://10.1.24.133/EaaS/Message/EggRolls_Watercolor.jpg'" [(ngModel)]="formControl.backgroundImageUrl"
+                    />
+                </label>
+                <label for="">
+                    Gift
+                    <input name="setAppearanceUrl" type="radio" [value]="'http://10.1.24.133/EaaS/Message/EggRolls_Gift.jpg'" [(ngModel)]="formControl.backgroundImageUrl"
+                    />
+                </label>
+                <img src="{{formControl.backgroundImageUrl}}" alt="PreviewImg" width="350px" height="200px">
+            </nk-modal>
 
-    <!-->-调查问卷操作按钮部分：包括保存，发布，预览按钮-</!-->
-    <div class="ControlButton">
-        <button type="button" class="btn btn-default setBtn" (click)="priviewTheQuestionnaire()">Preview</button>
-        <button type="button" class="btn btn-primary setBtn" (click)="saveAndCreateQuestionnaire(0)" [disabled]="!isControl">Save</button>
-        <button type="button" class="btn btn-success setBtn" (click)="saveAndCreateQuestionnaire(1)" [disabled]="!isControl || !allowCreate">Publish</button>
-        <!-->///发布成功后的问卷调查页面</!-->
-        <nk-modal [(shown)]="setLinkView" header="Succeed" (onOk)="setLink(false)" (onCancel)="setLinkClose()" (onHidden)="setLinkClose()" okText="Send Email">
-            <label for="">
-               Your questionnaire link is:
-            </label>
-            <label for="">
-                {{questionnaireLink}}
-            </label>
-            <br>
-            <label for="">
-                Send email to(if there is more than one, please split with ";"): <br>
-                 <input kendoTextBox style="width:300px;" name="email" [(ngModel)]="emailControl.to"/>
-            </label>
-        </nk-modal>
-    </div>
-    <!-->--------------------新建调查问卷-功能页面------------------------</!-->
 
-</div>
+        </div>

@@ -22,7 +22,7 @@
 }
 
 .ntk-Create .QuestionnaireLimited .datePicker{
-    width: 300px;
+    width: 1000px;
 }
 
 .ntk-Create .QuestionnaireLimited .IsRealName{
@@ -125,4 +125,76 @@
     margin-bottom: 20px;
     width: 80px;
     height: 40px;
+}
+
+.title input{
+    width: 100%;
+    text-align: center;
+    border: 0px solid;
+}
+.information label{
+    display: inline;
+}
+.datePicker{
+    width: 250px;
+}
+.editor{
+    width: 100%;
+}
+.QuestionnaireDescription{
+    margin-top: 20px;
+}
+.span{
+    margin-bottom: 10px;
+}
+.topicInput{
+    outline: none;
+    background-color:transparent;
+    width: 60%;
+    border: 0px solid;
+    border-bottom: #000000 solid thin;
+}
+.optionInput{
+    outline: none;
+    background-color:transparent;
+    width: 60%;
+    border: 0px solid;
+    height:24px;
+    margin-bottom: 10px;
+    border-bottom: #000000 solid thin ;
+}
+.topicForm label{
+    display: inline-block;
+}
+.floatRight{
+    float: right;
+}
+.buttonAddTopic{
+    margin-top: 20px;
+}
+.buttonAddForm{
+    text-align: center;
+}
+.topicForm{
+    margin-top: 20px;
+    background-color: #ffe4c4ce;
+    padding-left:30px;
+    padding-right:30px;
+}
+.width2Char{
+    outline: none;
+    background-color:transparent;
+    width: 20px;
+    border: 0px solid;
+    border-bottom: #000000 solid thin;
+}
+.textarea2{
+    margin-top: 20px;
+    outline: none;
+    width: 100%;
+    overflow: auto;  
+    word-break: break-all;
+    border: #000000 0px;
+    text-align: center;
+    background-color:transparent
 }

@@ -1,5 +1,5 @@
 .navigationBar{
-    padding: 10px;
+    padding: 5px;
     margin: 0px;
     margin-bottom: 10px;
     font-family: "Microsoft YaHei";
@@ -16,11 +16,15 @@
     max-height:50px;
 }
 .buttoned{
+    margin-top:4px;
     padding: 12px;
     color:black;
     background-color:rgb(162, 210, 160);
     border-radius:5px;
     -moz-border-radius:5px;
+}
+.newButton{
+    float: right;
 }
 a{
     text-decoration : none;

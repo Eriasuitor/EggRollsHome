@@ -7,7 +7,7 @@
         style="padding-left:10px;padding-right:5px;z-index:1;position: absolute;border:1px solid rgb(222, 236, 255);border-radius:10px;-moz-border-radius:10px;height: 30px">
       <a href="javascript:;" (click)="search()" class="fa fa-search " style="text-decoration : none;margin-top:5px;font-size:20px;position: relative ;margin-left: 311px;padding-right:6px;padding-left:3px;z-index:100;background-color:white;border-radius:10px;-moz-border-radius:10px;"></a>
     </div>
-    <div class="col-md-4" style="padding-top:7px">
+    <div class="col-md-4" style="padding-top:7px; padding-right:0px">
       <select id="pageSettings" (change)="changePageSize()" class="radius5">
         <option *ngIf="searchObj.PageSize == 5" selected="selected" value="5" >5</option>
         <option *ngIf="searchObj.PageSize != 5" value="5" >5</option>
@@ -22,7 +22,7 @@
       <span id="pages">{{pages}}&nbsp;</span>
       <a href="javascript:;" (click)="adjustment()" style="margin-right:10px;color:rgb(150, 153, 159)"><i class="fa fa-paper-plane-o">&nbsp;Go</i></a>
     </div>
-    <div class="col-md-3" style="padding-top:9px">
+    <div class="col-md-4" style="padding-top:9px">
       <a href="javascript:;" (click)="previous()" style="margin-right:10px;color:rgb(150, 153, 159);text-decoration : none"><i class="fa fa-chevron-left">&nbsp;Previous</i></a>
       <span *ngFor="let page of pagesOrder;">
           <a *ngIf="page == this.questionnaireList.PageIndex + 1" href="javascript:;" (click)="pageJump(page)" style="margin-right:10px;color:rgb(0, 0, 0);font-weight:bold">{{page}}</a>
