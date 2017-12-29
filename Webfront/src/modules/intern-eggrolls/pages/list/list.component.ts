@@ -7,6 +7,7 @@ import { MyService } from '../../services';
 
 import './my.component.styl';
 import './list.component.css';
+import { QuestionnaireSearch } from '../../components/Model/QuestionnaireSearch';
 
 @Component({
 	selector: 'list',
@@ -15,13 +16,12 @@ import './list.component.css';
 
 export class ListComponent implements OnInit {
 
-	public questionnaireList:any = {}
 	public state: any = { skip: 0, take: 5, sort: [] };
 	public searchObj = { PageSize: 5, PageIndex: 0, ShortName: "", Title: "" };
 	public PageIndexDis = 1;
 	public title = "";
 	public pages = 5;
-	s:JSON;
+	public questionnaireList:QuestionnaireSearch = new QuestionnaireSearch();
 	public pagesOrder: any[] = [];
 	constructor(
 		private router: Router,
@@ -119,12 +119,11 @@ export class ListComponent implements OnInit {
 					this.getPagedQuestionnaires();
 				}
 				else {
-					this.questionnaireList = {};
+					this.questionnaireList = new QuestionnaireSearch();
 					this.questionnaireList.PageIndex = 0;
 					this.questionnaireList.Pages = 1;
 					this.pages = 1;
 					this.PageIndexDis = 1;
-					this.questionnaireList.Title = "";
 					this.pagesOrder = [];
 					this.pagesOrder[0] = 1;
 				}

@@ -6,7 +6,7 @@ export class MyService {
 
     // private api_url = 'http://wcmis366';
     private api_url = 'http://10.16.75.24:3000/egg-rolls/v1';
-    // private api_url = 'http://10.16.85.94:3000';
+    // private api_url = 'http://localhost:29405';
 
     private reqOptions = {
         hideLoading: true, // 默认false

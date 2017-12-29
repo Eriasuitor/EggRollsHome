@@ -8,6 +8,7 @@ export class Questionnaire{
     private Description: string;
     private BackgroundImageUrl: string;
     private IsRealName: boolean;
+    private Participants:number;
     private DueDate:Date;
     private Topics:Topic[];
 
@@ -93,4 +94,10 @@ export class Questionnaire{
         this.Topics = tmpTopics;
     }
 
+    get participants() : number{
+        return this.Participants;
+    }
+    set participants(tmpParticipants : number){
+        this.Participants = tmpParticipants;
+    }
 }

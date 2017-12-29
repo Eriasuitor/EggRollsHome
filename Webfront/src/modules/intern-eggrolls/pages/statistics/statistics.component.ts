@@ -6,6 +6,7 @@ import { MyService } from '../../services';
 
 import './statistics.component.css';
 import { start } from 'repl';
+import { Questionnaire } from '../../components/Model/Questionnaire';
 
 @Component({
 	selector: 'statistics',
@@ -19,6 +20,7 @@ export class StatisticsComponent implements OnInit {
 	public detail: any = {};
 	public questionnaireID: number;
 	public url = null;
+	public questionnaire:Questionnaire;
 
 	constructor(
 		private router: Router,
@@ -37,6 +39,10 @@ export class StatisticsComponent implements OnInit {
 			this.statistics = data.AnswerSheet
 			document.getElementById("description").innerHTML = this.statistics.Description;
 		}, error => this.statistics = undefined);
+		this._service.getQuestionnaire(this.questionnaireID).then(({data}) => {
+			this.questionnaire = data.Questionnaire;
+			console.log(this.questionnaire);
+		})
 	}
 
 	public download() {

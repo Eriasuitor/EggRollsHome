@@ -35,5 +35,4 @@ export class Option {
     set isAnswer(tmpIsAnswer: boolean) {
         this.IsAnswer = tmpIsAnswer;
     }
-
 }

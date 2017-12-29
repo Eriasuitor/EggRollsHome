@@ -31,12 +31,12 @@
       <a href="javascript:;" (click)="next()" style="margin-right:10px;color:rgb(150, 153, 159);text-decoration : none">Next&nbsp;<i class="fa fa-chevron-right"></i></a>
     </div>
   </div>
-  <div *ngIf="questionnaireList.Title !== undefined">
+  <div *ngIf="questionnaireList.questionnaires !== undefined">
     <div style="font-size: 15px; padding:20px">
       No questionnaire found
     </div>
   </div>
-  <div *ngIf="questionnaireList.Title == undefined">
+  <div *ngIf="questionnaireList.questionnaires == undefined">
     <div *ngFor="let message of questionnaireList.Questionnaires;" class="col-md-12 lists">
       <div class="row" style="background:rgb(222, 236, 255);font-size: 15px; padding:10px">
         <div class="col-md-6" style="font-size:15px;padding-top:2px;">
