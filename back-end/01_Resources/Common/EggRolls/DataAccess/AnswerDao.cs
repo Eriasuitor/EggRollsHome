@@ -1,8 +1,6 @@
-﻿using System;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Newegg.MIS.API.EggRolls.Entities;
 using Newegg.MIS.API.EggRolls.RequestEntities;
 using Newegg.MIS.API.Utilities.DataAccess;
@@ -14,8 +12,9 @@ namespace Newegg.MIS.API.EggRolls.DataAccess
     {
         void Add(AnswerSheetRequest request, string country, string area, string supportCenter);
         int Delete(int questionnaireID);
+        bool QueryExisted(int questionnaireID, string shortName);
         List<Answer> Query(int questionnaireID, string shortName);
-        List<Units> Statistics(int questionnaireID);
+        List<IList> Statistics(int questionnaireID);
         List<Participator> QueryParticipator(int questionnaireID);
         List<Answer> Query(int questionnaireID, int topicID);
         List<Answer> Query(int questionnaireID, int topicID,string optionID);
@@ -34,8 +33,7 @@ namespace Newegg.MIS.API.EggRolls.DataAccess
 
         public void Add(AnswerSheetRequest request, string country,string area,string supportCenter)
         {
-            var answerList = request.Topics.SelectMany(topic => topic.Answers).ToList();
-            var answerListSerialize = SerializationHelper.Serialize(answerList, null);
+            var answerListSerialize = SerializationHelper.Serialize(request.AnswerList, null);
             var command = DataCommandFactory.Get("EggRolls_Common_Answer_Add_Bunch")
                 .SetParameterValue("@QuestionnaireID", request.QuestionnaireID)
                 .SetParameterValue("@AnswerListSerialize", answerListSerialize)
@@ -55,6 +53,15 @@ namespace Newegg.MIS.API.EggRolls.DataAccess
                 .SetParameterValue("@QuestionnaireID", questionnaireID);
 
             return command.ExecuteNonQuery();
+        }
+
+        public bool QueryExisted(int questionnaireID, string shortName)
+        {
+            var command = DataCommandFactory.Get("MIS_EggRolls_Answer_Sheet_Exists")
+                .SetParameterValue("@QuestionnaireID", questionnaireID)
+                .SetParameterValue("@ShortName", shortName);
+
+            return command.ExecuteScalar<int>() == 1 ? true : false;
         }
 
         public List<Answer> Query(int questionnaireID, string shortName)
@@ -93,12 +100,20 @@ namespace Newegg.MIS.API.EggRolls.DataAccess
             return command.ExecuteEntityList<Participator>();
         }
 
-        public List<Units> Statistics(int questionnaireID)
+        public List<IList> Statistics(int questionnaireID)
         {
-            var command = DataCommandFactory.Get("MIS_EggRolls_Answer_Sheet_Statistics")
+            var command = DataCommandFactory.Get("MIS_EggRolls_Answer_Sheet_Statistics_New_Or_Old")
                 .SetParameterValue("@QuestionnaireID", questionnaireID);
 
-            return command.ExecuteEntityList<Units>();
+            var participatorStatisticsLists = new List<IList>();
+
+            using (var reader = command.ExecuteMultiple())
+            {
+                participatorStatisticsLists.Add(reader.Read<ParticipatorStatistics>().ToList());
+                participatorStatisticsLists.Add(reader.Read<AnswerStatistics>().ToList());
+            }
+
+            return participatorStatisticsLists;
         }
     }
 }

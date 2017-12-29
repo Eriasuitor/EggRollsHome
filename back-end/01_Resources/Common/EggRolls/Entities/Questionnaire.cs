@@ -4,17 +4,15 @@ using System.Collections.Generic;
 namespace Newegg.MIS.API.EggRolls.Entities
 {
     /// <summary>
-    /// Questionnaire  has Topics
+    /// Questionnaire has Topics
     /// </summary>
     public class Questionnaire
     {
-        public string EmailAddress { get; set; }
         public int QuestionnaireID { get; set; }
         public string Title { get; set; }
         public QuestionnaireStatus Status { get; set; }
         public bool IsRealName { get; set; }
         public DateTime? DueDate { get; set; }
-        public string Department { get; set; }
         public string Description { get; set; }
         public string ShortName { get; set; }
         public string FullName { get; set; }

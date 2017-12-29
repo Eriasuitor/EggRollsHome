@@ -73,7 +73,7 @@ namespace Newegg.MIS.API.EggRolls.Tests.Services
             var request = new AnswerSheetRequest();
 
             AnswerSheetBusiness.Instance
-                .When(x => x.Query(request))
+                .When(x => x.Query(request.QuestionnaireID,request.ShortName))
                 .Do(x => throw new ApplicationException());
 
             var actualResp = new AnswerSheetService().OnGet(request);

@@ -35,18 +35,18 @@ namespace Newegg.MIS.API.EggRolls.Tests.Services
         [Test]
         public void Test_Get_Right()
         {
-            var answerSheet = new AnswerSheet();
+            var paticipatorList = new List<ParticipatorStatistics>();
 
             AnswerSheetBusiness.Instance
                 .Statistics(1)
-                .Returns(answerSheet);
+                .Returns(paticipatorList);
 
             var actualResp = new AnswerSheetStatisticsService().OnGet(new AnswerSheetStatisticsRequest
             {
                 QuestionnaireID = 1
             });
 
-            Assert.AreEqual(actualResp.TranslateTo<AnswerSheetStatisticsResponse>().AnswerSheet, answerSheet);
+            Assert.AreEqual(actualResp.TranslateTo<AnswerSheetStatisticsResponse>().ParticipatorStatisticsList, paticipatorList);
         }
 
         [Test]
@@ -62,8 +62,8 @@ namespace Newegg.MIS.API.EggRolls.Tests.Services
             });
 
             Assert.AreNotEqual(actualResp, null);
-            Assert.AreEqual(actualResp.TranslateTo<AnswerParticipatorResponse>().Succeeded, false);
-            Assert.AreNotEqual(actualResp.TranslateTo<AnswerParticipatorResponse>().Errors, null);
+            Assert.AreEqual(actualResp.TranslateTo<AnswerSheetStatisticsResponse>().Succeeded, false);
+            Assert.AreNotEqual(actualResp.TranslateTo<AnswerSheetStatisticsResponse>().Errors, null);
         }
     }
 }

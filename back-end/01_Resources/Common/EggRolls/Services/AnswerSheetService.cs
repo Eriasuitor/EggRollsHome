@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Newegg.API.Interfaces;
 using Newegg.MIS.API.EggRolls.Business;
 using Newegg.MIS.API.EggRolls.RequestEntities;
@@ -33,7 +29,7 @@ namespace Newegg.MIS.API.EggRolls.Services
             var resp = new AnswerSheetResponse();
             try
             {
-                resp.AnswerSheet = AnswerSheetBusiness.Instance.Query(request);
+                resp.AnswerList = AnswerSheetBusiness.Instance.Query(request.QuestionnaireID,request.ShortName);
             }
             catch (Exception ex)
             {

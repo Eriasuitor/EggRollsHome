@@ -4,7 +4,6 @@ using Newegg.MIS.API.EggRolls.RequestEntities;
 using Newegg.MIS.API.Utilities.DataAccess;
 using Newegg.MIS.API.Utilities.Helpers;
 
-
 namespace Newegg.MIS.API.EggRolls.DataAccess
 {
     public interface ITopicDao

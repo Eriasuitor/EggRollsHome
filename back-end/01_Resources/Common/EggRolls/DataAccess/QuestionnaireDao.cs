@@ -15,6 +15,8 @@ namespace Newegg.MIS.API.EggRolls.DataAccess
         int Delete(int questionnaireID);
         int Update(QuestionnaireRequest request);
         Questionnaire Query(int questionnaireID);
+        bool QuestionnaireExistenceJudgment(int questionnaireID);
+        int StatusRefresh();
     }
 
     public class QuestionnaireDao : IQuestionnaireDao
@@ -99,10 +101,27 @@ namespace Newegg.MIS.API.EggRolls.DataAccess
 
         public Questionnaire Query(int questionnaireID)
         {
-            var command = DataCommandFactory.Get("MIS_EggRolls_QueryQuestionnaire")
+            var command = DataCommandFactory
+                .Get("MIS_EggRolls_QueryQuestionnaire")
                 .SetParameterValue("@QuestionnaireID", questionnaireID);
             
             return command.ExecuteEntity<Questionnaire>();
+        }
+
+        public bool QuestionnaireExistenceJudgment(int questionnaireID)
+        {
+            var command = DataCommandFactory
+                .Get("MIS_EggRolls_Questionnaire_Exists")
+                .SetParameterValue("@QuestionnaireID", questionnaireID);
+            
+            return command.ExecuteScalar<int>() == 1;
+        }
+
+        public int StatusRefresh()
+        {
+            var command = DataCommandFactory.Get("MIS_EggRolls_Questionnaire_Status_Refresh");
+
+            return command.ExecuteNonQuery();
         }
     }
 }

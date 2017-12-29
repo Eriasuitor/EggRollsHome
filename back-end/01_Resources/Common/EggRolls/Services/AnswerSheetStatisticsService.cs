@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Newegg.API.Interfaces;
 using Newegg.MIS.API.EggRolls.Business;
 using Newegg.MIS.API.EggRolls.RequestEntities;
@@ -18,7 +14,7 @@ namespace Newegg.MIS.API.EggRolls.Services
             var resp = new AnswerSheetStatisticsResponse();
             try
             {
-                resp.AnswerSheet = AnswerSheetBusiness.Instance.Statistics(request.QuestionnaireID);
+                resp.ParticipatorStatisticsList = AnswerSheetBusiness.Instance.Statistics(request.QuestionnaireID);
             }
             catch (Exception ex)
             {

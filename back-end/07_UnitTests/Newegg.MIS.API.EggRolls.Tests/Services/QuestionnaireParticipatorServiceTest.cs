@@ -22,14 +22,14 @@ namespace Newegg.MIS.API.EggRolls.Tests.Services
         [SetUp]
         public void Setup()
         {
-            var answerSheetBusiness = Substitute.For<IAnswerSheetBusiness>();
-            InstanceManager.Register<IAnswerSheetBusiness>().Use(answerSheetBusiness);
+            var questionnaireBusiness = Substitute.For<IQuestionnaireBusiness>();
+            InstanceManager.Register<IQuestionnaireBusiness>().Use(questionnaireBusiness);
         }
 
         [TearDown]
         public void Clearup()
         {
-            InstanceManager.Register<IAnswerSheetBusiness>().Reset();
+            InstanceManager.Register<IQuestionnaireBusiness>().Reset();
         }
 
         [Test]
@@ -37,7 +37,7 @@ namespace Newegg.MIS.API.EggRolls.Tests.Services
         {
             var participatorList = new List<Participator>();
 
-            AnswerSheetBusiness.Instance
+            QuestionnaireBusiness.Instance
                 .QueryParticipator(1)
                 .Returns(participatorList);
 
@@ -52,7 +52,7 @@ namespace Newegg.MIS.API.EggRolls.Tests.Services
         [Test]
         public void Test_Get_Wrong()
         {
-            AnswerSheetBusiness.Instance
+            QuestionnaireBusiness.Instance
                 .QueryParticipator(1)
                 .Throws(new ApplicationException());
 

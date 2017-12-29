@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Newegg.FrameworkAPI.SDK.Mail;
 using Newegg.MIS.API.EggRolls.Business;
 using Newegg.MIS.API.EggRolls.DataAccess;
 using Newegg.MIS.API.EggRolls.Entities;
@@ -8,6 +9,7 @@ using Newegg.MIS.API.EggRolls.ResponseEntities;
 using Newegg.MIS.API.Utilities.Helpers;
 using NUnit.Framework;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace Newegg.MIS.API.EggRolls.Tests.Business
 {
@@ -74,6 +76,8 @@ namespace Newegg.MIS.API.EggRolls.Tests.Business
                 Description = "<p>Description</p>",
                 IsRealName = true,
                 DueDate = DateTime.Now.AddDays(1),
+                BackgroundImageUrl = "123",
+                MailTo = "Lory.Y.j@newegg.com",
                 Participants = 0,
                 Topics = new List<Topic>
                 {
@@ -97,10 +101,73 @@ namespace Newegg.MIS.API.EggRolls.Tests.Business
             QuestionnaireDao.Instance
                 .Add(request)
                 .Returns(154);
+            var mailSenderHelper = Substitute.For<IMailSenderHelper>();
+            InstanceManager.Register<IMailSenderHelper>().Use(mailSenderHelper);
+
+            MailSenderHelper.Instance.Send(Arg.Any<MailRequest>())
+                .Returns(new MailSendResult()
+                {
+                    IsSendSuccess = true
+                });
 
             var actualResp = QuestionnaireBusiness.Instance.Add(request);
 
             Assert.AreEqual(actualResp.Questionnaire.QuestionnaireID, 154);
+            Assert.AreEqual(actualResp.MailSucceeded, true);
+
+            QuestionnaireDao.Instance.Received(1).Add(request);
+            TopicDao.Instance.Received(1).Add(request);
+            OptionDao.Instance.Received(1).Add(request);
+        }
+
+        [Test]
+        public void Test_Add_Questionnaire_But_Main_Wrong()
+        {
+            var request = new QuestionnaireRequest()
+            {
+                ShortName = "tr29",
+                Title = "123",
+                FullName = "Se.E.As",
+                Status = QuestionnaireStatus.Draft,
+                Description = "<p>Description</p>",
+                IsRealName = true,
+                DueDate = DateTime.Now.AddDays(1),
+                BackgroundImageUrl = "123",
+                MailTo = "Lory.Y.j@newegg.com",
+                Participants = 0,
+                Topics = new List<Topic>
+                {
+                    new Topic()
+                    {
+                        TopicTitle = "Topic1",
+                        TopicID = 1,
+                        Options = new List<Option>
+                        {
+                            new Option()
+                            {
+                                OptionTitle = "option1",
+                                OptionID = "A"
+                            }
+                        }
+                    }
+                }
+            };
+
+            //Mock
+            QuestionnaireDao.Instance
+                .Add(request)
+                .Returns(154);
+            var mailSenderHelper = Substitute.For<IMailSenderHelper>();
+            InstanceManager.Register<IMailSenderHelper>().Use(mailSenderHelper);
+
+            MailSenderHelper.Instance.Send(Arg.Any<MailRequest>())
+                .Throws(new ApplicationException());
+
+            var actualResp = QuestionnaireBusiness.Instance.Add(request);
+
+            Assert.AreEqual(actualResp.Questionnaire.QuestionnaireID, 154);
+            Assert.AreEqual(actualResp.MailSucceeded, false);
+
             QuestionnaireDao.Instance.Received(1).Add(request);
             TopicDao.Instance.Received(1).Add(request);
             OptionDao.Instance.Received(1).Add(request);
@@ -456,7 +523,8 @@ namespace Newegg.MIS.API.EggRolls.Tests.Business
             var questionnaire = new Questionnaire
             {
                 QuestionnaireID = 255,
-                Title = "Yes this is title."
+                Title = "Yes this is title.",
+                Participants = 0
             };
             var topics = new List<Topic>
             {
@@ -511,6 +579,9 @@ namespace Newegg.MIS.API.EggRolls.Tests.Business
             var actualResp = QuestionnaireBusiness.Instance.Query(request.QuestionnaireID);
 
             Assert.AreEqual(actualResp, questionnaire);
+            Assert.AreEqual(actualResp.Participants, questionnaire.Participants);
+
+
             QuestionnaireDao.Instance.Received(1).Query(request.QuestionnaireID);
             TopicDao.Instance.Received(1).Query(request.QuestionnaireID);
             OptionDao.Instance.Received(1).Query(request.QuestionnaireID);
@@ -540,6 +611,29 @@ namespace Newegg.MIS.API.EggRolls.Tests.Business
             Assert.Throws<ApplicationException>(() => QuestionnaireBusiness.Instance.Query(request.QuestionnaireID));
 
             QuestionnaireDao.Instance.Received(1).Query(request.QuestionnaireID);
+        }
+
+        [Test]
+        public void Test_Query_Questionnaire_Participator()
+        {
+            var expectResp = new List<Participator>();
+
+            AnswerDao.Instance.QueryParticipator(3)
+                .Returns(expectResp);
+
+            var actualResp = QuestionnaireBusiness.Instance.QueryParticipator(3);
+
+            Assert.AreEqual(actualResp, expectResp);
+        }
+
+        [Test]
+        public void Test_Query_Questionnaire_Status_Refresh()
+        {
+            QuestionnaireDao.Instance.StatusRefresh().Returns(1);
+
+            var actualResp = QuestionnaireBusiness.Instance.QuestionnaireStatusRefresh();
+
+            Assert.AreEqual(actualResp, 1);
         }
     }
 }

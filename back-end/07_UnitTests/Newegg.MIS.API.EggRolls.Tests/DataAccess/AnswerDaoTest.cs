@@ -1,8 +1,5 @@
-﻿using System;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Newegg.MIS.API.EggRolls.DataAccess;
 using Newegg.MIS.API.EggRolls.Entities;
 using Newegg.MIS.API.EggRolls.RequestEntities;
@@ -44,12 +41,25 @@ namespace Newegg.MIS.API.EggRolls.Tests.DataAccess
                 Department = "MIS",
                 ShortName = "sd52",
                 FullName = "Sd.Red.Ya",
-                Topics = new List<Topic>
+                AnswerList = new List<Answer>
                 {
-                    new Topic()
+                    new Answer
                     {
-                        Options = new List<Option>(),
-                        Answers = new List<Answer>()
+                        QuestionnaireID = 255,
+                        TopicID = 1,
+                        Ans = "A"
+                    },
+                    new Answer
+                    {
+                        QuestionnaireID = 255,
+                        TopicID = 1,
+                        Ans = "B"
+                    },
+                    new Answer
+                    {
+                        QuestionnaireID = 255,
+                        TopicID = 2,
+                        Ans = "B"
                     }
                 }
 
@@ -57,8 +67,7 @@ namespace Newegg.MIS.API.EggRolls.Tests.DataAccess
             var country = "CN";
             var area = "CD";
             var supportCenter = "ENSC";
-            var answerList = request.Topics.SelectMany(topic => topic.Answers).ToList();
-            var answerListSerialize = SerializationHelper.Serialize(answerList, null);
+            var answerListSerialize = SerializationHelper.Serialize(request.AnswerList, null);
 
             AnswerDao.Instance.Add(request, country, area, supportCenter);
 
@@ -82,15 +91,7 @@ namespace Newegg.MIS.API.EggRolls.Tests.DataAccess
                 Department = "MIS",
                 ShortName = "sd52",
                 FullName = "Sd.Red.Ya",
-                Topics = new List<Topic>
-                {
-                    new Topic()
-                    {
-                        Options = new List<Option>(),
-                        Answers = new List<Answer>()
-                    }
-                }
-
+                AnswerList = new List<Answer>()
             };
 
             AnswerDao.Instance.Delete(request.QuestionnaireID);
@@ -113,14 +114,7 @@ namespace Newegg.MIS.API.EggRolls.Tests.DataAccess
                 Department = "MIS",
                 ShortName = "sd52",
                 FullName = "Sd.Red.Ya",
-                Topics = new List<Topic>
-                {
-                    new Topic()
-                    {
-                        Options = new List<Option>(),
-                        Answers = new List<Answer>()
-                    }
-                }
+                AnswerList = new List<Answer>()
 
             };
 
@@ -186,16 +180,45 @@ namespace Newegg.MIS.API.EggRolls.Tests.DataAccess
         public void test_Statistics_Answer_Sheet()
         {
             var cmd = DataCommandFactory.Get("MIS_EggRolls_Answer_Sheet_Statistics");
-            var exceptResp = new List<Units>();
+            var participator = new List<ParticipatorStatistics>();
+            var department = new List<AnswerStatistics>();
+            var exceptResp = new List<IList>
+            {
+                participator,department
+            };
 
-            cmd.ExecuteEntityList<Units>()
-                .Returns(exceptResp);
+            var reader = Substitute.For<IGridReader>();
+
+            reader.Read<ParticipatorStatistics>()
+                .Returns(participator);
+
+            reader.Read<AnswerStatistics>()
+                .Returns(department);
+
+            cmd.ExecuteMultiple()
+                .Returns(reader);
 
             var actualResp = AnswerDao.Instance.Statistics(12);
 
             cmd.Received(1).SetParameterValue("@QuestionnaireID", 12);
 
             Assert.AreEqual(exceptResp, actualResp);
+        }
+
+        [Test]
+        public void test_Query_Existed()
+        {
+            var cmd = DataCommandFactory.Get("MIS_EggRolls_Answer_Sheet_Exists");
+
+            cmd.ExecuteScalar<int>()
+                .Returns(1);
+
+            var actualResp = AnswerDao.Instance.QueryExisted(255,"Loo");
+
+            cmd.Received(1).SetParameterValue("@QuestionnaireID", 255);
+            cmd.Received(1).SetParameterValue("@ShortName", "Loo");
+
+            Assert.AreEqual(actualResp, true);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Newegg.API.Common;
 using Newegg.MIS.API.EggRolls.Business;
@@ -22,10 +23,12 @@ namespace Newegg.MIS.API.EggRolls.Tests.Business
             var topicDao = Substitute.For<ITopicDao>();
             var optionDao = Substitute.For<IOptionDao>();
             var answerDao = Substitute.For<IAnswerSheetDao>();
+            var questionnaireBussiness = Substitute.For<IQuestionnaireBusiness>();
             InstanceManager.Register<IQuestionnaireDao>().Use(questionnaireDao);
             InstanceManager.Register<ITopicDao>().Use(topicDao);
             InstanceManager.Register<IOptionDao>().Use(optionDao);
             InstanceManager.Register<IAnswerSheetDao>().Use(answerDao);
+            InstanceManager.Register<IQuestionnaireBusiness>().Use(questionnaireBussiness);
         }
 
         [TearDown]
@@ -35,6 +38,7 @@ namespace Newegg.MIS.API.EggRolls.Tests.Business
             InstanceManager.Register<ITopicDao>().Reset();
             InstanceManager.Register<IOptionDao>().Reset();
             InstanceManager.Register<IAnswerSheetDao>().Reset();
+            InstanceManager.Register<IQuestionnaireBusiness>().Reset();
         }
 
         [Test]
@@ -43,15 +47,71 @@ namespace Newegg.MIS.API.EggRolls.Tests.Business
             var request = new AnswerSheetRequest
             {
                 QuestionnaireID = 255,
-                Department = "CN CD NESC MIS"
+                Department = "CN CD NESC MIS",
+                ShortName = "En.J.Hij",
+                AnswerList = new List<Answer>
+                {
+                    new Answer
+                    {
+                        TopicID = 1,
+                        Ans = "A"
+                    },
+                    new Answer
+                    {
+                        TopicID = 2,
+                        Ans = "A"
+                    },
+                    new Answer
+                    {
+                        TopicID = 3,
+                        Ans = "A"
+                    }
+                }
             };
             var questionnaire = new Questionnaire()
             {
                 QuestionnaireID = 255,
+                Topics = new List<Topic>
+                {
+                    new Topic
+                    {
+                        TopicID = 1,
+                        IsRequired = true,
+                        Type = TopicType.Radio,
+                        Options = new List<Option>
+                        {
+                            new Option
+                            {
+                                OptionID = "A"
+                            }
+                        }
+                    },
+                    new Topic
+                    {
+                        TopicID = 2,
+                        Limited = 0,
+                        IsRequired = true,
+                        Type = TopicType.Checkbox,
+                        Options = new List<Option>
+                        {
+                            new Option
+                            {
+                                OptionID = "A"
+                            }
+                        }
+                    },
+                    new Topic
+                    {
+                        TopicID = 3,
+                        IsRequired = true,
+                        Type = TopicType.Text,
+                    }
+                },
                 Status = QuestionnaireStatus.Processing
             };
 
-            QuestionnaireDao.Instance
+
+            QuestionnaireBusiness.Instance
                 .Query(request.QuestionnaireID)
                 .Returns(questionnaire);
             AnswerDao.Instance
@@ -64,6 +124,666 @@ namespace Newegg.MIS.API.EggRolls.Tests.Business
         }
 
         [Test]
+        public void Test_Add_Radio_Not_Found()
+        {
+            var request = new AnswerSheetRequest
+            {
+                QuestionnaireID = 255,
+                Department = "CN CD NESC MIS",
+                ShortName = "En.J.Hij",
+                AnswerList = new List<Answer>
+                {
+                    new Answer
+                    {
+                        TopicID = 1,
+                        Ans = "A"
+                    }
+                }
+            };
+            var questionnaire = new Questionnaire()
+            {
+                QuestionnaireID = 255,
+                Topics = new List<Topic>
+                {
+                    new Topic
+                    {
+                        Type = TopicType.Radio,
+                        TopicID = 1,
+                        Options = new List<Option>
+                        {
+                            new Option
+                            {
+                                OptionID = "B"
+                            }
+                        }
+                    }
+                },
+                Status = QuestionnaireStatus.Processing
+            };
+
+
+            QuestionnaireBusiness.Instance
+                .Query(request.QuestionnaireID)
+                .Returns(questionnaire);
+
+            AnswerDao.Instance
+                .Query(request.QuestionnaireID, request.ShortName)
+                .Returns(new List<Answer>());
+
+            Assert.Throws<ApplicationException>(() => AnswerSheetBusiness.Instance.Add(request));
+        }
+
+        [Test]
+        public void Test_Add_Checkbox_Not_Found()
+        {
+            var request = new AnswerSheetRequest
+            {
+                QuestionnaireID = 255,
+                Department = "CN CD NESC MIS",
+                ShortName = "En.J.Hij",
+                AnswerList = new List<Answer>
+                {
+                    new Answer
+                    {
+                        TopicID = 1,
+                        Ans = "A"
+                    }
+                }
+            };
+            var questionnaire = new Questionnaire()
+            {
+                QuestionnaireID = 255,
+                Topics = new List<Topic>
+                {
+                    new Topic
+                    {
+                        Type = TopicType.Checkbox,
+                        TopicID = 1,
+                        Options = new List<Option>
+                        {
+                            new Option
+                            {
+                                OptionID = "B"
+                            }
+                        }
+                    }
+                },
+                Status = QuestionnaireStatus.Processing
+            };
+
+
+            QuestionnaireBusiness.Instance
+                .Query(request.QuestionnaireID)
+                .Returns(questionnaire);
+
+            AnswerDao.Instance
+                .Query(request.QuestionnaireID, request.ShortName)
+                .Returns(new List<Answer>());
+
+            Assert.Throws<ApplicationException>(() => AnswerSheetBusiness.Instance.Add(request));
+        }
+
+        [Test]
+        public void Test_Add_Radio_No_Answer()
+        {
+            var request = new AnswerSheetRequest
+            {
+                QuestionnaireID = 255,
+                Department = "CN CD NESC MIS",
+                ShortName = "En.J.Hij",
+                AnswerList = new List<Answer>()
+            };
+            var questionnaire = new Questionnaire()
+            {
+                QuestionnaireID = 255,
+                Topics = new List<Topic>
+                {
+                    new Topic
+                    {
+                        IsRequired = true,
+                        Type = TopicType.Radio,
+                        TopicID = 1,
+                        Options = new List<Option>
+                        {
+                            new Option
+                            {
+                                OptionID = "B"
+                            }
+                        }
+                    }
+                },
+                Status = QuestionnaireStatus.Processing
+            };
+
+
+            QuestionnaireBusiness.Instance
+                .Query(request.QuestionnaireID)
+                .Returns(questionnaire);
+
+            AnswerDao.Instance
+                .Query(request.QuestionnaireID, request.ShortName)
+                .Returns(new List<Answer>());
+
+            Assert.Throws<ApplicationException>(() => AnswerSheetBusiness.Instance.Add(request));
+        }
+
+        [Test]
+        public void Test_Add_Chechbox_No_Answer()
+        {
+            var request = new AnswerSheetRequest
+            {
+                QuestionnaireID = 255,
+                Department = "CN CD NESC MIS",
+                ShortName = "En.J.Hij",
+                AnswerList = new List<Answer>()
+            };
+            var questionnaire = new Questionnaire()
+            {
+                QuestionnaireID = 255,
+                Topics = new List<Topic>
+                {
+                    new Topic
+                    {
+                        IsRequired = true,
+                        Type = TopicType.Checkbox,
+                        TopicID = 1,
+                        Options = new List<Option>
+                        {
+                            new Option
+                            {
+                                OptionID = "B"
+                            }
+                        }
+                    }
+                },
+                Status = QuestionnaireStatus.Processing
+            };
+
+
+            QuestionnaireBusiness.Instance
+                .Query(request.QuestionnaireID)
+                .Returns(questionnaire);
+
+            AnswerDao.Instance
+                .Query(request.QuestionnaireID, request.ShortName)
+                .Returns(new List<Answer>());
+
+            Assert.Throws<ApplicationException>(() => AnswerSheetBusiness.Instance.Add(request));
+        }
+
+        [Test]
+        public void Test_Add_Text_No_Answer()
+        {
+            var request = new AnswerSheetRequest
+            {
+                QuestionnaireID = 255,
+                Department = "CN CD NESC MIS",
+                ShortName = "En.J.Hij",
+                AnswerList = new List<Answer>()
+            };
+            var questionnaire = new Questionnaire()
+            {
+                QuestionnaireID = 255,
+                Topics = new List<Topic>
+                {
+                    new Topic
+                    {
+                        IsRequired = true,
+                        Type = TopicType.Text,
+                        TopicID = 1,
+                        Options = new List<Option>
+                        {
+                            new Option
+                            {
+                                OptionID = "B"
+                            }
+                        }
+                    }
+                },
+                Status = QuestionnaireStatus.Processing
+            };
+
+
+            QuestionnaireBusiness.Instance
+                .Query(request.QuestionnaireID)
+                .Returns(questionnaire);
+
+            AnswerDao.Instance
+                .Query(request.QuestionnaireID, request.ShortName)
+                .Returns(new List<Answer>());
+
+            Assert.Throws<ApplicationException>(() => AnswerSheetBusiness.Instance.Add(request));
+        }
+
+        [Test]
+        public void Test_Add_Text_No_Answer_Is_Null()
+        {
+            var request = new AnswerSheetRequest
+            {
+                QuestionnaireID = 255,
+                Department = "CN CD NESC MIS",
+                ShortName = "En.J.Hij",
+                AnswerList = new List<Answer>
+                {
+                    new Answer()
+                    {
+                        TopicID = 1,
+                        Ans = "    "
+                    }
+                }
+            };
+            var questionnaire = new Questionnaire()
+            {
+                QuestionnaireID = 255,
+                Topics = new List<Topic>
+                {
+                    new Topic
+                    {
+                        IsRequired = true,
+                        Type = TopicType.Text,
+                        TopicID = 1,
+                        Options = new List<Option>
+                        {
+                            new Option
+                            {
+                                OptionID = "B"
+                            }
+                        }
+                    }
+                },
+                Status = QuestionnaireStatus.Processing
+            };
+
+
+            QuestionnaireBusiness.Instance
+                .Query(request.QuestionnaireID)
+                .Returns(questionnaire);
+
+            AnswerDao.Instance
+                .Query(request.QuestionnaireID, request.ShortName)
+                .Returns(new List<Answer>());
+
+            Assert.Throws<ApplicationException>(() => AnswerSheetBusiness.Instance.Add(request));
+        }
+
+        [Test]
+        public void Test_Add_Radio_Answer_Out()
+        {
+            var request = new AnswerSheetRequest
+            {
+                QuestionnaireID = 255,
+                Department = "CN CD NESC MIS",
+                ShortName = "En.J.Hij",
+                AnswerList = new List<Answer>
+                {
+                    new Answer
+                    {
+                        TopicID = 1,
+                        Ans = "A"
+                    },
+                    new Answer
+                    {
+                        TopicID = 1,
+                        Ans = "B"
+                    }
+                }
+            };
+            var questionnaire = new Questionnaire()
+            {
+                QuestionnaireID = 255,
+                Topics = new List<Topic>
+                {
+                    new Topic
+                    {
+                        IsRequired = false,
+                        Type = TopicType.Radio,
+                        TopicID = 1,
+                        Options = new List<Option>
+                        {
+                            new Option
+                            {
+                                OptionID = "A"
+                            },
+                            new Option
+                            {
+                                OptionID = "B"
+                            }
+                        }
+                    }
+                },
+                Status = QuestionnaireStatus.Processing
+            };
+
+
+            QuestionnaireBusiness.Instance
+                .Query(request.QuestionnaireID)
+                .Returns(questionnaire);
+
+            AnswerDao.Instance
+                .Query(request.QuestionnaireID, request.ShortName)
+                .Returns(new List<Answer>());
+
+            Assert.Throws<ApplicationException>(() => AnswerSheetBusiness.Instance.Add(request));
+        }
+
+        [Test]
+        public void Test_Add_Radio_Answer_NotRequired_Right()
+        {
+            var request = new AnswerSheetRequest
+            {
+                QuestionnaireID = 255,
+                Department = "CN CD NESC MIS",
+                ShortName = "En.J.Hij",
+                AnswerList = new List<Answer>
+                {
+                    new Answer
+                    {
+                        TopicID = 1,
+                        Ans = "A"
+                    }
+                }
+            };
+            var questionnaire = new Questionnaire()
+            {
+                QuestionnaireID = 255,
+                Topics = new List<Topic>
+                {
+                    new Topic
+                    {
+                        IsRequired = false,
+                        Type = TopicType.Radio,
+                        TopicID = 1,
+                        Options = new List<Option>
+                        {
+                            new Option
+                            {
+                                OptionID = "A"
+                            },
+                            new Option
+                            {
+                                OptionID = "B"
+                            }
+                        }
+                    }
+                },
+                Status = QuestionnaireStatus.Processing
+            };
+
+
+            QuestionnaireBusiness.Instance
+                .Query(request.QuestionnaireID)
+                .Returns(questionnaire);
+
+            AnswerDao.Instance
+                .Query(request.QuestionnaireID, request.ShortName)
+                .Returns(new List<Answer>());
+
+            AnswerSheetBusiness.Instance.Add(request);
+        }
+
+        [Test]
+        public void Test_Add_Check_Answer_Num_Not_Much()
+        {
+            var request = new AnswerSheetRequest
+            {
+                QuestionnaireID = 255,
+                Department = "CN CD NESC MIS",
+                ShortName = "En.J.Hij",
+                AnswerList = new List<Answer>
+                {
+                    new Answer
+                    {
+                        TopicID = 1,
+                        Ans = "A"
+                    },
+                    new Answer
+                    {
+                        TopicID = 1,
+                        Ans = "B"
+                    }
+                }
+            };
+            var questionnaire = new Questionnaire()
+            {
+                QuestionnaireID = 255,
+                Topics = new List<Topic>
+                {
+                    new Topic
+                    {
+                        IsRequired = true,
+                        Limited = 3,
+                        Type = TopicType.Checkbox,
+                        TopicID = 1,
+                        Options = new List<Option>
+                        {
+                            new Option
+                            {
+                                OptionID = "B"
+                            }
+                        }
+                    }
+                },
+                Status = QuestionnaireStatus.Processing
+            };
+
+
+            QuestionnaireBusiness.Instance
+                .Query(request.QuestionnaireID)
+                .Returns(questionnaire);
+
+            AnswerDao.Instance
+                .Query(request.QuestionnaireID, request.ShortName)
+                .Returns(new List<Answer>());
+
+            Assert.Throws<ApplicationException>(() => AnswerSheetBusiness.Instance.Add(request));
+        }
+
+        [Test]
+        public void Test_Add_Check_Answer_Req_Limit_Right()
+        {
+            var request = new AnswerSheetRequest
+            {
+                QuestionnaireID = 255,
+                Department = "CN CD NESC MIS",
+                ShortName = "En.J.Hij",
+                AnswerList = new List<Answer>
+                {
+                    new Answer
+                    {
+                        TopicID = 1,
+                        Ans = "A"
+                    }
+                }
+            };
+            var questionnaire = new Questionnaire()
+            {
+                QuestionnaireID = 255,
+                Topics = new List<Topic>
+                {
+                    new Topic
+                    {
+                        IsRequired = true,
+                        Limited = 1,
+                        Type = TopicType.Checkbox,
+                        TopicID = 1,
+                        Options = new List<Option>
+                        {
+                            new Option
+                            {
+                                OptionID = "A"
+                            }
+                        }
+                    }
+                },
+                Status = QuestionnaireStatus.Processing
+            };
+
+
+            QuestionnaireBusiness.Instance
+                .Query(request.QuestionnaireID)
+                .Returns(questionnaire);
+
+            AnswerDao.Instance
+                .Query(request.QuestionnaireID, request.ShortName)
+                .Returns(new List<Answer>());
+
+            AnswerSheetBusiness.Instance.Add(request);
+        }
+
+        [Test]
+        public void Test_Add_Check_Answer_Req_ULimit_Wrong()
+        {
+            var request = new AnswerSheetRequest
+            {
+                QuestionnaireID = 255,
+                Department = "CN CD NESC MIS",
+                ShortName = "En.J.Hij",
+                AnswerList = new List<Answer>()
+            };
+            var questionnaire = new Questionnaire()
+            {
+                QuestionnaireID = 255,
+                Topics = new List<Topic>
+                {
+                    new Topic
+                    {
+                        IsRequired = true,
+                        Limited = 0,
+                        Type = TopicType.Checkbox,
+                        TopicID = 1,
+                        Options = new List<Option>
+                        {
+                            new Option
+                            {
+                                OptionID = "A"
+                            }
+                        }
+                    }
+                },
+                Status = QuestionnaireStatus.Processing
+            };
+
+
+            QuestionnaireBusiness.Instance
+                .Query(request.QuestionnaireID)
+                .Returns(questionnaire);
+
+            AnswerDao.Instance
+                .Query(request.QuestionnaireID, request.ShortName)
+                .Returns(new List<Answer>());
+
+            Assert.Throws<ApplicationException>(() => AnswerSheetBusiness.Instance.Add(request));
+        }
+
+        [Test]
+        public void Test_Add_Check_Answer_Ureq_Limit_Wrong()
+        {
+            var request = new AnswerSheetRequest
+            {
+                QuestionnaireID = 255,
+                Department = "CN CD NESC MIS",
+                ShortName = "En.J.Hij",
+                AnswerList = new List<Answer>
+                {
+                    new Answer
+                    {
+                        TopicID = 1,
+                        Ans = "A"
+                    }
+                }
+            };
+            var questionnaire = new Questionnaire()
+            {
+                QuestionnaireID = 255,
+                Topics = new List<Topic>
+                {
+                    new Topic
+                    {
+                        IsRequired = false,
+                        Limited = 2,
+                        Type = TopicType.Checkbox,
+                        TopicID = 1,
+                        Options = new List<Option>
+                        {
+                            new Option
+                            {
+                                OptionID = "A"
+                            },
+                            new Option
+                            {
+                                OptionID = "B"
+                            }
+                        }
+                    }
+                },
+                Status = QuestionnaireStatus.Processing
+            };
+
+
+            QuestionnaireBusiness.Instance
+                .Query(request.QuestionnaireID)
+                .Returns(questionnaire);
+
+            AnswerDao.Instance
+                .Query(request.QuestionnaireID, request.ShortName)
+                .Returns(new List<Answer>());
+
+            Assert.Throws<ApplicationException>(() => AnswerSheetBusiness.Instance.Add(request));
+        }
+
+        [Test]
+        public void Test_Add_Check_Answer_Ureq_Limit_Right()
+        {
+            var request = new AnswerSheetRequest
+            {
+                QuestionnaireID = 255,
+                Department = "CN CD NESC MIS",
+                ShortName = "En.J.Hij",
+                AnswerList = new List<Answer>
+                {
+                    new Answer
+                    {
+                        TopicID = 1,
+                        Ans = "A"
+                    }
+                }
+            };
+            var questionnaire = new Questionnaire()
+            {
+                QuestionnaireID = 255,
+                Topics = new List<Topic>
+                {
+                    new Topic
+                    {
+                        IsRequired = false,
+                        Limited = 0,
+                        Type = TopicType.Checkbox,
+                        TopicID = 1,
+                        Options = new List<Option>
+                        {
+                            new Option
+                            {
+                                OptionID = "A"
+                            }
+                        }
+                    }
+                },
+                Status = QuestionnaireStatus.Processing
+            };
+
+
+            QuestionnaireBusiness.Instance
+                .Query(request.QuestionnaireID)
+                .Returns(questionnaire);
+
+            AnswerDao.Instance
+                .Query(request.QuestionnaireID, request.ShortName)
+                .Returns(new List<Answer>());
+
+            AnswerSheetBusiness.Instance.Add(request);
+        }
+
+        [Test]
         public void Test_Add_Not_Found()
         {
             var request = new AnswerSheetRequest
@@ -72,7 +792,7 @@ namespace Newegg.MIS.API.EggRolls.Tests.Business
                 Department = "CN CD NESC MIS"
             };
 
-            QuestionnaireDao.Instance
+            QuestionnaireBusiness.Instance
                 .Query(request.QuestionnaireID)
                 .Throws(new ApplicationException());
 
@@ -87,21 +807,34 @@ namespace Newegg.MIS.API.EggRolls.Tests.Business
                 QuestionnaireID = 255,
                 Department = "CN CD NESC MIS"
             };
+
             var questionnaire = new Questionnaire()
             {
                 QuestionnaireID = 255,
+                Topics = new List<Topic>
+                {
+                    new Topic
+                    {
+                        TopicID = 1,
+                        Options = new List<Option>
+                        {
+                            new Option
+                            {
+                                OptionID = "A"
+                            }
+                        }
+                    }
+                },
                 Status = QuestionnaireStatus.Processing
             };
 
-            QuestionnaireDao.Instance
+            QuestionnaireBusiness.Instance
                 .Query(request.QuestionnaireID)
                 .Returns(questionnaire);
+
             AnswerDao.Instance
-                .Query(request.QuestionnaireID, request.ShortName)
-                .Returns(new List<Answer>
-                {
-                    new Answer()
-                });
+                .QueryExisted(request.QuestionnaireID, request.ShortName)
+                .Returns(true);
 
             Assert.Throws<ApplicationException>(() => AnswerSheetBusiness.Instance.Add(request));
         }
@@ -120,7 +853,7 @@ namespace Newegg.MIS.API.EggRolls.Tests.Business
                 Status = QuestionnaireStatus.Draft
             };
 
-            QuestionnaireDao.Instance
+            QuestionnaireBusiness.Instance
                 .Query(request.QuestionnaireID)
                 .Returns(questionnaire);
 
@@ -141,7 +874,7 @@ namespace Newegg.MIS.API.EggRolls.Tests.Business
                 Status = QuestionnaireStatus.Ended
             };
 
-            QuestionnaireDao.Instance
+            QuestionnaireBusiness.Instance
                 .Query(request.QuestionnaireID)
                 .Returns(questionnaire);
 
@@ -162,7 +895,7 @@ namespace Newegg.MIS.API.EggRolls.Tests.Business
                 Status = QuestionnaireStatus.Processing
             };
 
-            QuestionnaireDao.Instance
+            QuestionnaireBusiness.Instance
                 .Query(request.QuestionnaireID)
                 .Returns(questionnaire);
             AnswerDao.Instance
@@ -180,33 +913,6 @@ namespace Newegg.MIS.API.EggRolls.Tests.Business
                 QuestionnaireID = 255,
                 ShortName = "sd45"
             };
-            var questionnaire = new Questionnaire
-            {
-                QuestionnaireID = 255
-            };
-            var topics = new List<Topic>()
-            {
-                new Topic()
-                {
-                    TopicID = 1,
-                    TopicTitle = "Topic 1's title"
-                }
-            };
-            var options = new List<Option>()
-            {
-                new Option
-                {
-                    TopicID = 1,
-                    OptionID = "A",
-                    OptionTitle = "Option A's title"
-                },
-                new Option
-                {
-                    TopicID = 1,
-                    OptionID = "B",
-                    OptionTitle = "Option B's title"
-                }
-            };
             var answers = new List<Answer>
             {
                 new Answer
@@ -217,28 +923,19 @@ namespace Newegg.MIS.API.EggRolls.Tests.Business
             };
 
             QuestionnaireDao.Instance
-                .Query(request.QuestionnaireID)
-                .Returns(questionnaire);
-            TopicDao.Instance
-                .Query(request.QuestionnaireID)
-                .Returns(topics);
-            OptionDao.Instance
-                .Query(request.QuestionnaireID)
-                .Returns(options);
+                .QuestionnaireExistenceJudgment(request.QuestionnaireID)
+                .Returns(true);
+
             AnswerDao.Instance
                 .Query(request.QuestionnaireID, request.ShortName)
                 .Returns(answers);
 
-            var actualResp = AnswerSheetBusiness.Instance.Query(request);
+            var actualResp = AnswerSheetBusiness.Instance.Query(request.QuestionnaireID, request.ShortName);
 
             AnswerDao.Instance.Received(1).Query(request.QuestionnaireID, request.ShortName);
 
             Assert.AreNotEqual(actualResp, null);
-            Assert.AreEqual(actualResp.QuestionnaireID, 255);
-            Assert.AreEqual(actualResp.Topics.Count, 1);
-            Assert.AreEqual(actualResp.Topics[0].Options.Count, 2);
-            Assert.AreEqual(actualResp.Topics[0].Answers.Count, 1);
-            Assert.AreEqual(actualResp.Topics[0].Answers[0].Ans, "A");
+            Assert.AreEqual(actualResp, answers);
         }
 
         [Test]
@@ -251,10 +948,10 @@ namespace Newegg.MIS.API.EggRolls.Tests.Business
             };
 
             QuestionnaireDao.Instance
-                .Query(request.QuestionnaireID)
-                .Throws(new ApplicationException());
+                .QuestionnaireExistenceJudgment(request.QuestionnaireID)
+                .Returns(false);
 
-            Assert.Throws<ApplicationException>(() => AnswerSheetBusiness.Instance.Query(request));
+            Assert.Throws<ApplicationException>(() => AnswerSheetBusiness.Instance.Query(request.QuestionnaireID,request.ShortName));
 
             AnswerDao.Instance.Received(0).Query(request.QuestionnaireID, request.ShortName);
         }
@@ -267,49 +964,16 @@ namespace Newegg.MIS.API.EggRolls.Tests.Business
                 QuestionnaireID = 255,
                 ShortName = "sd45"
             };
-            var questionnaire = new Questionnaire
-            {
-                QuestionnaireID = 255
-            };
-            var topics = new List<Topic>()
-            {
-                new Topic()
-                {
-                    TopicID = 1,
-                    TopicTitle = "Topic 1's title"
-                }
-            };
-            var options = new List<Option>()
-            {
-                new Option
-                {
-                    TopicID = 1,
-                    OptionID = "A",
-                    OptionTitle = "Option A's title"
-                },
-                new Option
-                {
-                    TopicID = 1,
-                    OptionID = "B",
-                    OptionTitle = "Option B's title"
-                }
-            };
             var answers = new List<Answer>();
 
             QuestionnaireDao.Instance
-                .Query(request.QuestionnaireID)
-                .Returns(questionnaire);
-            TopicDao.Instance
-                .Query(request.QuestionnaireID)
-                .Returns(topics);
-            OptionDao.Instance
-                .Query(request.QuestionnaireID)
-                .Returns(options);
+                .QuestionnaireExistenceJudgment(request.QuestionnaireID)
+                .Returns(true);
             AnswerDao.Instance
                 .Query(request.QuestionnaireID, request.ShortName)
                 .Returns(answers);
 
-            Assert.Throws<ApplicationException>(() => AnswerSheetBusiness.Instance.Query(request));
+            Assert.Throws<ApplicationException>(() => AnswerSheetBusiness.Instance.Query(request.QuestionnaireID,request.ShortName));
 
             AnswerDao.Instance.Received(1).Query(request.QuestionnaireID, request.ShortName);
         }
@@ -317,7 +981,17 @@ namespace Newegg.MIS.API.EggRolls.Tests.Business
         [Test]
         public void Test_Query_Topic_Participator()
         {
-            var expectResp = new List<Answer>();
+            var expectResp = new List<Answer>
+            {
+                new Answer
+                {
+                    Department = "MIS",
+                    TopicID = 1,
+                    Ans = "A",
+                    FullName = "Lo",
+                    ShortName = "L"
+                }
+            };
 
             AnswerDao.Instance.Query(3, 4)
                 .Returns(expectResp);
@@ -354,168 +1028,70 @@ namespace Newegg.MIS.API.EggRolls.Tests.Business
         }
 
         [Test]
-        public void Test_Query_Questionnaire_Participator()
-        {
-            var expectResp = new List<Participator>();
-
-            AnswerDao.Instance.QueryParticipator(3)
-                .Returns(expectResp);
-
-            var actualResp = AnswerSheetBusiness.Instance.QueryParticipator(3);
-
-            Assert.AreEqual(actualResp, expectResp);
-        }
-
-        [Test]
         public void Test_Query_Answer_Sheet_Statistics_Found()
         {
-            var expectResp = new AnswerSheet();
-
-            var optionList = new List<Option>
+            var participator = new List<ParticipatorStatistics>
             {
-                new Option
+                new ParticipatorStatistics
                 {
                     TopicID = 1,
-                    OptionID = "A"
-                },
-                new Option()
-                {
-                    TopicID = 1,
-                    OptionID = "B"
-                }
-            };
-            var topicList = new List<Topic>
-            {
-                new Topic
-                {
-                    TopicID = 1,
-                }
-            };
-            var questionnaire = new Questionnaire
-            {
-                QuestionnaireID = 255,
-                Participants = 12,
-            };
-            var unitsList = new List<Units>
-            {
-                new Units
-                {
-                    TopicID = 1,
+                    OptionID = "A",
                     ChosenNumber = 2,
-                    Answer = "A",
-                    Department = "MIS"
-                },
-                new Units
+                    Percentage = 1
+                }
+            };
+            var department = new List<AnswerStatistics>
+            {
+                new AnswerStatistics
                 {
                     TopicID = 1,
-                    ChosenNumber = 10,
-                    Answer = "A",
-                    Department = "HR"
+                    OptionID = "A",
+                    Department = "HR",
+                    ChosenNumber = 1,
+                    Percentage = 0.5m
                 },
-                new Units
+                new AnswerStatistics
                 {
                     TopicID = 1,
-                    ChosenNumber = 5,
-                    Answer = "B",
-                    Department = "HR"
-                },
+                    OptionID = "A",
+                    Department = "MIS",
+                    ChosenNumber = 1,
+                    Percentage = 0.5m
+                }
+            };
+            var participatorList = new List<IList>
+            {
+                participator,department
             };
 
             QuestionnaireDao.Instance
-                .Query(255)
-                .Returns(questionnaire);
-            TopicDao.Instance
-                .Query(255)
-                .Returns(topicList);
-            OptionDao.Instance
-                .Query(255)
-                .Returns(optionList);
+                .QuestionnaireExistenceJudgment(255)
+                .Returns(true);
+
             AnswerDao.Instance
                 .Statistics(255)
-                .Returns(unitsList);
+                .Returns(participatorList);
 
             var actualResp = AnswerSheetBusiness.Instance.Statistics(255);
 
             Assert.AreNotEqual(actualResp, null);
-            Assert.AreEqual(actualResp.TranslateTo<AnswerSheet>().QuestionnaireID, 255);
-            Assert.AreEqual(actualResp.Topics.Count, 1);
-            Assert.AreEqual(actualResp.Topics[0].Options.Count, 2);
-            Assert.AreEqual(actualResp.Topics[0].Options[0].ChosenNumber, 12);
-            Assert.AreEqual(actualResp.Topics[0].Options[0].PersonalUnits, "100.00%");
-            Assert.AreEqual(actualResp.Topics[0].Options[0].DepartmentUnits.Count, 2);
-            Assert.AreEqual(actualResp.Topics[0].Options[0].DepartmentUnits[0].ChosenNumber, 2);
-            Assert.AreEqual(actualResp.Topics[0].Options[0].DepartmentUnits[0].Percentage, "16.67%");
-            Assert.AreEqual(actualResp.Topics[0].Options[0].DepartmentUnits[1].ChosenNumber, 10);
-            Assert.AreEqual(actualResp.Topics[0].Options[0].DepartmentUnits[1].Percentage, "83.33%");
-            Assert.AreEqual(actualResp.Topics[0].Options[1].ChosenNumber, 5);
-            Assert.AreEqual(actualResp.Topics[0].Options[1].PersonalUnits, "41.67%");
-            Assert.AreEqual(actualResp.Topics[0].Options[1].DepartmentUnits.Count, 2);
-            Assert.AreEqual(actualResp.Topics[0].Options[1].DepartmentUnits[0].ChosenNumber, 0);
-            Assert.AreEqual(actualResp.Topics[0].Options[1].DepartmentUnits[0].Percentage, "0.00%");
-            Assert.AreEqual(actualResp.Topics[0].Options[1].DepartmentUnits[1].ChosenNumber, 5);
-            Assert.AreEqual(actualResp.Topics[0].Options[1].DepartmentUnits[1].Percentage, "100.00%");
-        }
-
-        [Test]
-        public void Test_Query_Answer_Sheet_Statistics_Found_But_No_Participator()
-        {
-            var expectResp = new AnswerSheet();
-
-            var optionList = new List<Option>
-            {
-                new Option
-                {
-                    TopicID = 1,
-                    OptionID = "A"
-                },
-                new Option()
-                {
-                    TopicID = 1,
-                    OptionID = "B"
-                }
-            };
-            var topicList = new List<Topic>
-            {
-                new Topic
-                {
-                    TopicID = 1,
-                }
-            };
-            var questionnaire = new Questionnaire
-            {
-                QuestionnaireID = 255,
-                Participants = 0
-            };
-
-            QuestionnaireDao.Instance
-                .Query(255)
-                .Returns(questionnaire);
-            TopicDao.Instance
-                .Query(255)
-                .Returns(topicList);
-            OptionDao.Instance
-                .Query(255)
-                .Returns(optionList);
-
-            var actualResp = AnswerSheetBusiness.Instance.Statistics(255);
-
-            Assert.AreNotEqual(actualResp, null);
-            Assert.AreEqual(actualResp.TranslateTo<AnswerSheet>().QuestionnaireID, 255);
-            Assert.AreEqual(actualResp.Topics.Count, 1);
-            Assert.AreEqual(actualResp.Topics[0].Options.Count, 2);
-            Assert.AreEqual(actualResp.Topics[0].Options[0].ChosenNumber, 0);
-            Assert.AreEqual(actualResp.Topics[0].Options[0].PersonalUnits, "0.00%");
-            Assert.AreEqual(actualResp.Topics[0].Options[0].DepartmentUnits, null);
-            Assert.AreEqual(actualResp.Topics[0].Options[1].ChosenNumber, 0);
-            Assert.AreEqual(actualResp.Topics[0].Options[1].PersonalUnits, "0.00%");
-            Assert.AreEqual(actualResp.Topics[0].Options[1].DepartmentUnits, null);
+            Assert.AreEqual(actualResp.Count, 1);
+            Assert.AreEqual(actualResp[0].ChosenNumber, 2);
+            Assert.AreEqual(actualResp[0].Percentage,1);
+            Assert.AreEqual(actualResp[0].DepartmentStatisticsList.Count, 2);
+            Assert.AreEqual(actualResp[0].DepartmentStatisticsList[0].ChosenNumber, 1);
+            Assert.AreEqual(actualResp[0].DepartmentStatisticsList[0].Percentage, 0.5);
+            Assert.AreEqual(actualResp[0].DepartmentStatisticsList[0].Department, "HR");
+            Assert.AreEqual(actualResp[0].DepartmentStatisticsList[1].ChosenNumber, 1);
+            Assert.AreEqual(actualResp[0].DepartmentStatisticsList[1].Percentage, 0.5);
+            Assert.AreEqual(actualResp[0].DepartmentStatisticsList[1].Department, "MIS");
         }
 
         [Test]
         public void Test_Query_Answer_Sheet_Statistics_Not_Found()
         {
-            QuestionnaireDao.Instance.Query(3)
-                .Returns((Questionnaire)null);
+            QuestionnaireDao.Instance.QuestionnaireExistenceJudgment(3)
+                .Returns(false);
 
             Assert.Throws<ApplicationException>(() => AnswerSheetBusiness.Instance.Statistics(3));
         }

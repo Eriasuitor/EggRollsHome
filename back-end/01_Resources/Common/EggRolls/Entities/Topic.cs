@@ -14,6 +14,5 @@ namespace Newegg.MIS.API.EggRolls.Entities
         public string TopicTitle { get; set; }
         public int? Limited { get; set; }
         public List<Option> Options { get; set; }
-        public List<Answer> Answers { set; get; }
     }
 }

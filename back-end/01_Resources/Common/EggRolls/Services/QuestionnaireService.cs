@@ -11,16 +11,17 @@ namespace Newegg.MIS.API.EggRolls.Services
     {
         public override object OnPost(QuestionnaireRequest request)
         {
-            var resp = (QuestionnaireResponse)null;
+            var resp = new QuestionnaireResponse();
+
             try
             {
                 resp =  QuestionnaireBusiness.Instance.Add(request);
             }
             catch (Exception ex)
             {
-                resp = new QuestionnaireResponse();
                 resp.CaptureException(ex);
             }
+
             return resp;
         }
 

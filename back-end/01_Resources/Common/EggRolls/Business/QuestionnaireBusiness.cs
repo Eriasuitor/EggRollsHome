@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Transactions;
 using Newegg.FrameworkAPI.SDK.Mail;
 using Newegg.MIS.API.EggRolls.DataAccess;
@@ -17,6 +18,8 @@ namespace Newegg.MIS.API.EggRolls.Business
         int Delete(QuestionnaireRequest request);
         int Update(QuestionnaireRequest request);
         Questionnaire Query(int questionnaireID);
+        List<Participator> QueryParticipator(int questionnaireID);
+        int QuestionnaireStatusRefresh();
     }
 
     public class QuestionnaireBusiness : IQuestionnaireBusiness
@@ -45,7 +48,9 @@ namespace Newegg.MIS.API.EggRolls.Business
             {
                 Questionnaire = new Questionnaire()
             };
+
             TimeLegalityJudgment(request.DueDate, request.Status);
+
             using (var scope = new TransactionScope())
             {
                 request.QuestionnaireID = QuestionnaireDao.Instance.Add(request);
@@ -55,6 +60,7 @@ namespace Newegg.MIS.API.EggRolls.Business
             }
 
             questionnaireResponse.Questionnaire.QuestionnaireID = request.QuestionnaireID;
+
             if (request.MailTo != null)
             {
                 try
@@ -74,7 +80,7 @@ namespace Newegg.MIS.API.EggRolls.Business
                     mailRequest.From = "Egg_Rolls@newegg.com";
                     mailRequest.Body = "<html><h1>飘</h1><h2>来了一张</h2>调查表《" + request.Title + "》需要您来填写，请点击链接：" +
                                        request.QuestionnaireID + "</html>";
-                    questionnaireResponse.MailSucceeded = MailSender.Send(mailRequest).IsSendSuccess;
+                    questionnaireResponse.MailSucceeded = MailSenderHelper.Instance.Send(mailRequest).IsSendSuccess;
                 }
                 catch (Exception ex)
                 {
@@ -152,7 +158,7 @@ namespace Newegg.MIS.API.EggRolls.Business
 
             if (dateTime <= DateTime.Now)
             {
-                throw new ApplicationException("Deadline have to be later than now if you want to publish a questionnaire.");
+                throw new ApplicationException("Deadline have to be later than now if you want to publish a questionnaire. Now is " +  DateTime.Now + " but you are + " + dateTime);
             }
         }
 
@@ -164,6 +170,16 @@ namespace Newegg.MIS.API.EggRolls.Business
                 throw new ApplicationException("No questionnaire was found whose id is " + questionnaireID);
             }
             return questionnaire;
+        }
+
+        public List<Participator> QueryParticipator(int questionnaireID)
+        {
+            return AnswerDao.Instance.QueryParticipator(questionnaireID);
+        }
+
+        public int QuestionnaireStatusRefresh()
+        {
+            return QuestionnaireDao.Instance.StatusRefresh();
         }
     }
 }

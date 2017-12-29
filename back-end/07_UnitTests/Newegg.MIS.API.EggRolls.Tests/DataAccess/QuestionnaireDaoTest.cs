@@ -214,5 +214,34 @@ namespace Newegg.MIS.API.EggRolls.Tests.DataAccess
             cmd.Received(1).SetParameterValue("@QuestionnaireID", questionnaireID);
             Assert.AreEqual(actual, null);
         }
+
+        [Test]
+        public void Test_Questionnaire_Existed_Judgment()
+        {
+            var cmd = DataCommandFactory.Get("MIS_EggRolls_Questionnaire_Exists");
+
+            var questionnaireID = 255;
+
+            cmd.ExecuteScalar<int>()
+                .Returns(1);
+
+            var actual = QuestionnaireDao.Instance.QuestionnaireExistenceJudgment(questionnaireID);
+
+            cmd.Received(1).SetParameterValue("@QuestionnaireID", questionnaireID);
+            Assert.AreEqual(actual, true);
+        }
+
+        [Test]
+        public void Test_Questionnaire_Status_Refresh()
+        {
+            var cmd = DataCommandFactory.Get("MIS_EggRolls_Questionnaire_Status_Refresh");
+
+            cmd.ExecuteNonQuery()
+                .Returns(1);
+
+            var actual = QuestionnaireDao.Instance.StatusRefresh();
+
+            Assert.AreEqual(actual, 1);
+        }
     }
 }

@@ -14,7 +14,7 @@ namespace Newegg.MIS.API.EggRolls.Services
             var resp = new QuestionnaireParticipatorResponse();
             try
             {
-                resp.Participators = AnswerSheetBusiness.Instance.QueryParticipator(request.QuestionnaireID);
+                resp.Participators = QuestionnaireBusiness.Instance.QueryParticipator(request.QuestionnaireID);
             }
             catch(Exception ex)
             {

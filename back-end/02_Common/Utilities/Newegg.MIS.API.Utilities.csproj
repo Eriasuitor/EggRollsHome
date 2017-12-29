@@ -147,6 +147,7 @@
     <Compile Include="Helpers\DFISUploadHelper.cs" />
     <Compile Include="Helpers\EncryptionHelper.cs" />
     <Compile Include="Helpers\InstanceManager.cs" />
+    <Compile Include="Helpers\MailSenderHelper.cs" />
     <Compile Include="Helpers\MessageQueueHelper.cs" />
     <Compile Include="Helpers\SerializationHelper.cs" />
     <Compile Include="Helpers\SqlDataHelper.cs" />
