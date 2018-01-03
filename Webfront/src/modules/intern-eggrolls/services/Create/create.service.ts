@@ -13,10 +13,9 @@ export class CreateService{
 
     postQuestionnaire(postObj:Questionnaire,postHeader) : Promise<any>{
         let strQuestionnaire: string = JSON.stringify(postObj);
-        console.log("******create*******");
-        console.log(strQuestionnaire);
-        console.log("*****************");
-        return this._negAjax.post(this._apiUrl, strQuestionnaire, postHeader);
+        console.log(postObj)
+        console.log(strQuestionnaire)
+        return this._negAjax.post(this._apiUrl, postObj, postHeader);
     }
 
     postEmail(postObj:Email, postHeader) : Promise<any>{

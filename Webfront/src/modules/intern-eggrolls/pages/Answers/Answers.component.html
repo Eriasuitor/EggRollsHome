@@ -3,14 +3,14 @@
 
 <div class="mainTain" id="mainTain" >
     <div>
-        <div class="row title">{{formControl.Title}}</div>
+        <div class="row title">{{questionnaire.Title}}</div>
         <div class="row information">
-            {{formControl.IsRealName? "Real name":"Anonymous"}} &nbsp;&nbsp;Deadline: {{formControl.dueDate == "Invalid Date"? "":formControl.dueDate|
+            {{questionnaire.IsRealName? "Real name":"Anonymous"}} &nbsp;&nbsp;Deadline: {{questionnaire.dueDate == "Invalid Date"? "":questionnaire.dueDate|
             date:"y-MM-dd HH:mm"}} &nbsp;&nbsp;Link:
-            <a class="a" style="text-decoration : none" target="_blank" href="intern-eggrolls/questionnaire?questionnaireID={{formControl.QuestionnaireID}}">http://10.16.75.27:8211/intern-eggrolls/questionnaire?questionnaireID={{formControl.QuestionnaireID}}</a>
+            <a class="a" style="text-decoration : none" target="_blank" href="intern-eggrolls/questionnaire?questionnaireID={{questionnaire.QuestionnaireID}}">http://10.16.75.27:8211/intern-eggrolls/questionnaire?questionnaireID={{questionnaire.QuestionnaireID}}</a>
         </div>
         <div id="divDescription2" class="row description wordBreak"></div>
-        <div *ngFor="let topic of formControl.Topics;">
+        <div *ngFor="let topic of questionnaire.Topics;">
             <div>
                 <div class="row topicTitle" id={{topic.TopicID}}>
                     {{topic.TopicID}}.{{topic.TopicTitle}}
@@ -48,7 +48,7 @@
                     </div>
                     <div *ngSwitchCase="'Text'" class="row">
                         <form class="optionForm">
-                            <textarea class="textarea" name={{topic.TopicID}} maxlength="1000em">{{topic.answer}}</textarea>
+                            <textarea class="textarea" name={{topic.TopicID}} maxlength="1000em" readonly="readonly">{{topic.Answer}}</textarea>
                         </form>
                     </div>
                 </div>

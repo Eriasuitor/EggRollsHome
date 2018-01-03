@@ -22,7 +22,7 @@
 }
 
 .ntk-Create .QuestionnaireLimited .datePicker{
-    width: 1000px;
+    width: 300px;
 }
 
 .ntk-Create .QuestionnaireLimited .IsRealName{
@@ -76,8 +76,8 @@
 }
 
 .ntk-Create .QuestionnaireBody #boxForm .spanTextTitle{
-    font-size: 20px;
-    font-weight: bold;
+    /* font-size: 20px;
+    font-weight: bold; */
 }
 
 .ntk-Create .QuestionnaireBody #boxForm .formList .itemFormList .topicLabel{
@@ -136,7 +136,7 @@
     display: inline;
 }
 .datePicker{
-    width: 250px;
+    width: 300px;
 }
 .editor{
     width: 100%;
@@ -166,8 +166,19 @@
 .topicForm label{
     display: inline-block;
 }
+.topicForm label input{
+    display: inline-block;
+    padding-top: 3px;
+    border: 0px solid;
+    border-bottom: #000000 solid thin;
+}
 .floatRight{
     float: right;
+    font-size: 10px;
+}
+.setWidth{
+    display: inline-block;
+    width:80px;
 }
 .buttonAddTopic{
     margin-top: 20px;
@@ -185,8 +196,6 @@
     outline: none;
     background-color:transparent;
     width: 20px;
-    border: 0px solid;
-    border-bottom: #000000 solid thin;
 }
 .textarea2{
     margin-top: 20px;
@@ -197,4 +206,11 @@
     border: #000000 0px;
     text-align: center;
     background-color:transparent
+}
+.topicSetting{
+    padding-top:10px;
+}
+.topicButton{
+    font-size: 20px;
+    padding-left: 10px;
 }

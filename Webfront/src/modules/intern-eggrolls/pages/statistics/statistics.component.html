@@ -5,7 +5,7 @@
     </div>
     <div class="row title">{{statistics.Title}}</div>
     <div class="row information">
-        {{statistics.IsRealName? "Real name":"Anonymous"}} &nbsp;&nbsp;Deadline: {{getStanderdDate(statistics.DueDate)}} &nbsp;&nbsp;Link:
+        {{statistics.IsRealName? "Real name":"Anonymous"}} &nbsp;&nbsp;Deadline: {{statistics.DueDate == undefined?"":getStanderdDate(statistics.DueDate)}} &nbsp;&nbsp;Link:
         <a class="a" style="text-decoration : none" target="_blank" href="intern-eggrolls/questionnaire?questionnaireID={{statistics.QuestionnaireID}}">http://10.16.75.27:8211/intern-eggrolls/questionnaire?questionnaireID={{statistics.QuestionnaireID}}</a>
     </div>
     <div class="row description wordBreak" id="description"></div>
@@ -51,7 +51,7 @@
                         <a *ngIf="statistics.IsRealName == false">Anonymous</a>
                     </div>
                     <div class="staticCol">
-                        {{option.PersonalUnits}}
+                        {{option.Percentage * 100 | number:'1.2-2'}}%
                     </div>
                     <div class="staticCol">
                         {{option.ChosenNumber}}
@@ -63,7 +63,7 @@
                     <div class="col-md-4">
                         Option
                     </div>
-                    <div *ngFor="let department of topic.Options[0].DepartmentUnits;" class="staticCol">
+                    <div *ngFor="let department of topic.Options[0].Departments;" class="staticCol">
                         {{department.Department}}
                     </div>
                 </div>
@@ -71,8 +71,8 @@
                     <div class="col-md-4">
                         {{option.OptionID}}.{{option.OptionTitle}}
                     </div>
-                    <div *ngFor="let department of option.DepartmentUnits;" class="staticCol">
-                        {{department.ChosenNumber}} ({{department.Percentage}})
+                    <div *ngFor="let department of option.Departments;" class="staticCol">
+                        {{department.ChosenNumber}} ({{department.Percentage * 100 | number:'1.2-2'}}%)
                     </div>
                 </div>
             </div>

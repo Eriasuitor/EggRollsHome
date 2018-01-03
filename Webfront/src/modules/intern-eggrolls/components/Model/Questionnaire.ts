@@ -1,17 +1,18 @@
 import {Topic} from './Topic'
 export class Questionnaire{
-    private QuestionnaireID: string;
-    private ShortName: string;
-    private FullName: string;
-    private Status : number;
-    private Title: string;
-    private Description: string;
-    private BackgroundImageUrl: string;
-    private IsRealName: boolean;
-    private Participants:number;
-    private DueDate:Date;
-    private Topics:Topic[];
+    public QuestionnaireID: string;
+    public ShortName: string;
+    public FullName: string;
+    public Status : number;
+    public Title: string;
+    public Description: string;
+    public BackgroundImageUrl: string;
+    public IsRealName: boolean;
+    public Participants:number;
+    public DueDate:Date;
+    public Topics:Topic[];
 
+    
     constructor(tmpShortName="",tmpFullName="",tmpStatus=0,tmpTitle = "",tmpDescription = "null",tmpBackgroundImageUrl = "common",tmpIsRealName = false ,tmpTopics:Topic[] = [],tmpDueDate?){
         this.ShortName = tmpShortName;
         this.FullName = tmpFullName;
@@ -94,10 +95,4 @@ export class Questionnaire{
         this.Topics = tmpTopics;
     }
 
-    get participants() : number{
-        return this.Participants;
-    }
-    set participants(tmpParticipants : number){
-        this.Participants = tmpParticipants;
-    }
 }

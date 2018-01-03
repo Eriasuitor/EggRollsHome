@@ -1,7 +1,7 @@
 import { Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 
-import { NegAjax, NegAlert, NegAuth, NegStorage } from '@newkit/core';
+import { NegAjax, NegAlert, NegAuth, NegStorage, NegTranslate } from '@newkit/core';
 
 import { MyService } from '../../services';
 
@@ -29,9 +29,11 @@ export class ListComponent implements OnInit {
 		private negAlert: NegAlert,
 		private _service: MyService,
 		private _negAuth: NegAuth,
-		private _negStorage: NegStorage
+		private _negStorage: NegStorage,
+		private _negTranslate:NegTranslate
 	) { }
 	ngOnInit() {
+
 		this._negStorage.memory.remove("CreateQuestionnaire");
 		if (this._negStorage.memory.get("PageSize") != undefined) {
 			this.searchObj.PageSize = this._negStorage.memory.get("PageSize");
@@ -45,6 +47,88 @@ export class ListComponent implements OnInit {
 		}
 		this.searchObj.ShortName = this._negAuth.user.UserName;
 		this.getPagedQuestionnaires();
+
+		this._negTranslate.set('list',{
+			'en-us':{
+				toolbar:{
+					searchTitle: 'Type to search the questionnaire title',
+					perPage:'items per page.',
+					showPage:'Show page',
+					of:'of',
+					page:'',
+					previous:'Previous',
+					next:'Next'
+					},
+				questionnaire:{
+					noQuestionnaire:'No questionnaire found',
+					draft:'Draft',
+					processing:'Processing',
+					ended:'Ended',
+					realName:'Real name',
+					anonymous:'Anonymous',
+					volumes:'Volumes',
+					deadline:'Deadline',
+					details:'Details',
+					edit:'Edit',
+					statistics:'Statistics',
+					copy:'Copy',
+					delete:'Delete'
+					}
+				},
+			'zh-cn': {
+				toolbar:{
+					searchTitle: '键入以搜索问卷名称',
+					perPage:'张问卷每页',
+					showPage:'显示第',
+					of:'页，共',
+					page:'页',
+					previous:'上一页',
+					next:'下一页'
+					},
+				questionnaire:{
+					noQuestionnaire:'未找到任何问卷',
+					draft:'草稿',
+					processing:'进行中',
+					ended:'已结束',
+					realName:'实名',
+					anonymous:'匿名',
+					volumes:'参与人数',
+					deadline:'截止时间',
+					details:'详情',
+					edit:'编辑',
+					statistics:'统计',
+					copy:'复制',
+					delete:'删除'
+					}
+				},
+			'zh-tw':{
+				toolbar:{
+					searchTitle: '键入以搜索问卷名称',
+					perPage:'items per page.',
+					showPage:'Show page',
+					of:'of',
+					page:'',
+					previous:'上一页',
+					next:'下一页'
+					},
+				questionnaire:{
+					noQuestionnaire:'No questionnaire found',
+					draft:'Draft',
+					processing:'Processing',
+					ended:'Ended',
+					realName:'Real name',
+					anonymous:'Anonymous',
+					volumes:'Volumes',
+					deadline:'Deadline',
+					details:'Details',
+					edit:'Edit',
+					statistics:'Statistics',
+					copy:'Copy',
+					delete:'Delete'
+					}
+				}
+			}
+		); 
 	}
 	public doPreview(questionnaireID) {
 		this.router.navigate(['/intern-eggrolls/preview', questionnaireID]);

@@ -4,7 +4,7 @@
     <div *ngIf="questionnaire != undefined">
         <div class="row title">{{questionnaire.Title}}</div>
         <div class="row information">
-            {{questionnaire.IsRealName? "Real name":"Anonymous"}} &nbsp;&nbsp;Deadline: {{getStanderdDate(questionnaire.DueDate)}}
+            {{questionnaire.IsRealName? "Real name":"Anonymous"}} &nbsp;&nbsp;Deadline: {{questionnaire.DueDate == undefined?"":getStanderdDate(questionnaire.DueDate)}}
         </div>
         <div class="row description wordBreak" id="description"></div>
         <div *ngFor="let topic of questionnaire.Topics;">

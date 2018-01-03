@@ -6,6 +6,7 @@ import { Topic } from '../../components/Model/Topic'
 import { Option } from '../../components/Model/Option'
 import { Answer } from '../../components/Model/Answer'
 import { QueryService } from '../../services';
+import { MyService } from '../../services';
 
 @Component({
 	selector: 'Answers',
@@ -15,8 +16,10 @@ import { QueryService } from '../../services';
 
 export class AnswersComponent implements OnInit {
 
-	formControl: Questionnaire;
-	strQuestionnaireID:string;
+	public formControl: Questionnaire;
+	public strQuestionnaireID:string;
+	public questionnaire:Questionnaire
+	public answers = []
 
 	constructor(
 		private _negAuth: NegAuth,
@@ -24,11 +27,14 @@ export class AnswersComponent implements OnInit {
 		private _activatedRoute : ActivatedRoute,
 		private _route : Router,
 		private _queryService : QueryService,
+		private _service : MyService,
 	){
-		this.formControl = new Questionnaire(this._negAuth.userId,this._negAuth.user.FullName);
+		
 	}
 
 	ngOnInit() {
+		this.questionnaire = new Questionnaire()
+		this.formControl = new Questionnaire(this._negAuth.userId,this._negAuth.user.FullName);
 		//获取查询参数
 		this.formControl.shortName = this._activatedRoute.snapshot.queryParams['shortname'];
 		//获取路由参数
@@ -41,54 +47,55 @@ export class AnswersComponent implements OnInit {
 		this._route.navigate(['/intern-eggrolls/details', this.formControl.questionnaireID]);
 	}
 
-	public initEditView(tempData){
-
-		document.getElementById("back").style.backgroundImage = "url(" + tempData.BackgroundImageUrl + ")";
-		document.getElementById("back").style.backgroundSize = "cover";
-		document.getElementById("divDescription2").innerHTML = tempData.Description;
-
-		//this.formControl.shortName = tempData.ShortName.toString();
-		this.formControl.fullName = tempData.FullName.toString();
-		this.formControl.status = tempData.Status;
-		this.formControl.title = tempData.Title.toString();
-		this.formControl.description = tempData.Description.toString();
-		this.formControl.backgroundImageUrl = tempData.BackgroundImageUrl.toString();
-		this.formControl.isRealName = tempData.IsRealName;
-		this.formControl.dueDate = new Date(tempData.DueDate);
-		for (let i = 0; i < tempData.Topics.length; i++){
-			let tempTopic = new Topic(tempData.Topics[i].TopicID,tempData.Topics[i].Type,tempData.Topics[i].IsRequired,tempData.Topics[i].limited,undefined,tempData.Topics[i].TopicTitle);
-			tempTopic.answer = "";
-			if (tempData.Topics[i].Type == "Text"){
-				tempTopic.answer = tempData.Topics[i].Answers[0].Ans;
-			}
-			for (let j = 0; j < tempData.Topics[i].Options.length; j++){
-				let tempOption = new Option(tempData.Topics[i].Options[j].OptionID,tempData.Topics[i].Options[j].OptionTitle);
-				for (let k=0; k< tempData.Topics[i].Answers.length;k++){
-					if (tempData.Topics[i].Answers[k].Ans == tempData.Topics[i].Options[j].OptionID){
-						tempOption.isAnswer = true;
-					}
-					//let tempAnswer = new Answer(tempData.Topics[i].Answers[k].ans);
-					//tempTopic.answers.push(tempAnswer);
-				}
-				tempTopic.options.push(tempOption);
-			}
-			this.formControl.topics.push(tempTopic);
+	public attachAnswer(){
+		if(this.questionnaire.QuestionnaireID == undefined){
+			setTimeout(this.attachAnswer, 100);
 		}
-		let divDescription = document.getElementById('divDescription2');
-		divDescription.innerHTML = this.formControl.description;
-
+		else{
+			this.questionnaire.Topics.forEach(topic => {
+				if(topic.Type == "Text"){
+					for(var i = 0; i < this.answers.length; i++){
+						if(this.answers[i].TopicID == topic.TopicID){
+							topic.Answer = this.answers[i].Ans
+						}
+					}
+				}
+				else{
+					topic.Options.forEach(option => {
+						for(var i = 0; i < this.answers.length; i++){
+							if(this.answers[i].TopicID == topic.TopicID && this.answers[i].Ans == option.OptionID){
+								option.isAnswer = true
+								break
+							}
+						}
+					});
+				}
+			});
+		}
 	}
 	
 	public getTheQuestionnaire(tempID:string){
 		let getPara = tempID;
 		let getHeader = {useCustomErrorHandler: true};
-		this._queryService.getAnswersByShortName(this.formControl.shortName, getPara,getHeader).then(({data}) => {
+		this._service.getQuestionnaire(getPara).then(({data})=>{
 			if (data.Succeeded){
-				this.initEditView(data.AnswerSheet);
+				this.questionnaire = data.Questionnaire
+				document.getElementById("back").style.backgroundImage = "url(" + this.questionnaire.BackgroundImageUrl + ")";
+				document.getElementById("back").style.backgroundSize = "cover";
+				document.getElementById("divDescription2").innerHTML = this.questionnaire.Description;
 			}else{
-				this._negAlert.error(("获取答卷信息失败"));
+				this._negAlert.error(("Failed to get the questionnaire"));
 			}
 		},
-		error => this._negAlert.error("获取答卷信息失败"));
+		error=>{ })
+		this._queryService.getAnswersByShortName(this.formControl.shortName, getPara,getHeader).then(({data}) => {
+			if (data.Succeeded){
+				this.answers = data.AnswerList
+				this.attachAnswer()
+			}else{
+				this._negAlert.error("Failed to get the answers");
+			}
+		},
+		error => {});
 	}
 }

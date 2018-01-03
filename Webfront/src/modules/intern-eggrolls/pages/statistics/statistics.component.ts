@@ -5,8 +5,9 @@ import { NegAjax, NegAlert, NegAuth, NegStorage } from '@newkit/core';
 import { MyService } from '../../services';
 
 import './statistics.component.css';
-import { start } from 'repl';
 import { Questionnaire } from '../../components/Model/Questionnaire';
+import { AnswerSheetStatistics } from '../../components/Model/AnswerSheetStatistics';
+import { AnswerStatistics } from '../../components/Model/AnswerStatistics';
 
 @Component({
 	selector: 'statistics',
@@ -15,12 +16,11 @@ import { Questionnaire } from '../../components/Model/Questionnaire';
 
 export class StatisticsComponent implements OnInit {
 
-	public statistics = {DueDate:""};
+	public statistics:AnswerSheetStatistics= new AnswerSheetStatistics;
 	public topicBy: any = {};
 	public detail: any = {};
 	public questionnaireID: number;
 	public url = null;
-	public questionnaire:Questionnaire;
 
 	constructor(
 		private router: Router,
@@ -36,17 +36,15 @@ export class StatisticsComponent implements OnInit {
 		this._negStorage.memory.remove("sID");
 		let ret = this._service.getStatistics(this.questionnaireID)
 		ret.then(({ data }) => {
-			this.statistics = data.AnswerSheet
+			this.statistics = data
 			document.getElementById("description").innerHTML = this.statistics.Description;
-		}, error => this.statistics = undefined);
-		this._service.getQuestionnaire(this.questionnaireID).then(({data}) => {
-			this.questionnaire = data.Questionnaire;
-			console.log(this.questionnaire);
-		})
+			console.log(this.statistics);
+			console.log(typeof(this.statistics.DueDate))
+		}, error => this.statistics = undefined)
 	}
 
 	public download() {
-		var excel = '<table><tr><td colspan = 11>' + this.statistics.Title + '</td></tr><tr></tr>';
+		var excel = '<table align=3Dleft"><tr><td colspan = 11>' + this.statistics.Title + '</td></tr><tr></tr>';
 		for (var i = 0; i < this.statistics.Topics.length; i++) {
 			if (this.statistics.Topics[i].Type != "Text") {
 				excel += "<tr><td colspan = "
@@ -57,21 +55,20 @@ export class StatisticsComponent implements OnInit {
 					+ (this.statistics.Topics[i].IsRequired ? ' *' : '')
 					+ "</td></tr><tr></tr>";
 				excel += "<tr><td>Option</td><td>Number</td><td>Percentage</td><td></td>";
-				for (var j = 0; j < this.statistics.Topics[i].Options[0].DepartmentUnits.length; j++) {
-					excel += "<td>" + this.statistics.Topics[i].Options[0].DepartmentUnits[j].Department + "</td>"
+				for (var j = 0; j < this.statistics.Topics[i].Options[0].Departments.length; j++) {
+					excel += "<td>" + this.statistics.Topics[i].Options[0].Departments[j].Department + "</td>"
 				}
 				excel += "</tr>";
 				for (var j = 0; j < this.statistics.Topics[i].Options.length; j++) {
 					excel += "<tr><td>" + this.statistics.Topics[i].Options[j].OptionID + "." + this.statistics.Topics[i].Options[j].OptionTitle + "</td>";
 					excel += "<td>" + this.statistics.Topics[i].Options[j].ChosenNumber + "</td>";
-					excel += "<td>" + this.statistics.Topics[i].Options[j].PersonalUnits + "</td>";
+					excel += "<td>" + this.statistics.Topics[i].Options[j].Percentage + "</td>";
 					excel += "<td></td>";
 
-					for (var k = 0; k < this.statistics.Topics[i].Options[j].DepartmentUnits.length; k++) {
+					for (var k = 0; k < this.statistics.Topics[i].Options[j].Departments.length; k++) {
 
-						excel += "<td>" + this.statistics.Topics[i].Options[j].DepartmentUnits[k].ChosenNumber +
-							"(" + this.statistics.Topics[i].Options[j].DepartmentUnits[k].Percentage + ")" + "</td>";
-
+						excel += "<td>" + this.statistics.Topics[i].Options[j].Departments[k].ChosenNumber +
+							"(" + this.statistics.Topics[i].Options[j].Departments[k].Percentage + ")" + "</td>";
 					}
 					excel += "</tr>"
 				}

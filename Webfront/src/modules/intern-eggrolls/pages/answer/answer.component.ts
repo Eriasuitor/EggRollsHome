@@ -14,7 +14,7 @@ export class AnswerComponent implements OnInit {
 
 	public state: any = { skip: 0, take: 5, sort: [] };
 	public questionnaire: any = { Title: "", Description: "", IsRealName: false, DueDate: "", Topics: [] };
-	public postJson: any = { QuestionnaireID: 0, ShortName: null, FullName: null, Department: null, Topics: [] };
+	public postJson: any = { QuestionnaireID: 0, ShortName: null, FullName: null, Department: null, AnswerList: [] };
 	public thanks = false;
 	public submitting = false;
 	public thanksInf = { title: null, inf: null, end: null };
@@ -97,7 +97,7 @@ export class AnswerComponent implements OnInit {
 		}
 	}
 	public doSubmit() {
-		this.postJson = { QuestionnaireID: 0, ShortName: null, FullName: null, Department: null, Topics: [] };
+		this.postJson = { QuestionnaireID: 0, ShortName: null, FullName: null, Department: null, AnswerList: [] };
 		this.postJson.QuestionnaireID = this.questionnaire.QuestionnaireID;
 		this.postJson.ShortName = this._negAuth.user.UserName;
 		this.postJson.FullName = this._negAuth.user.FullName
@@ -106,13 +106,11 @@ export class AnswerComponent implements OnInit {
 		for (var i = 0; i < this.questionnaire.Topics.length; i++) {
 			switch (this.questionnaire.Topics[i].Type) {
 				case 'Radio':
-					var topicRadio = { TopicID: this.questionnaire.Topics[i].TopicID, Type: 'Radio', Answers: [] };
 					var options = document.getElementsByName(this.questionnaire.Topics[i].TopicID);
 					var forkWrong = true;
 					for (var j = 0; j < options.length; j++) {
 						if (options[j].checked) {
-							topicRadio.Answers.push({ Type: 'Radio', TopicID: topicRadio.TopicID, Ans: options[j].value });
-							this.postJson.Topics.push(topicRadio);
+							this.postJson.AnswerList.push({ Type: 'Radio', TopicID: this.questionnaire.Topics[i].TopicID, Ans: options[j].value });
 							forkWrong = false;
 							break;
 						}
@@ -123,13 +121,12 @@ export class AnswerComponent implements OnInit {
 					}
 					break;
 				case 'Checkbox':
-					var topicCheckbox = { TopicID: this.questionnaire.Topics[i].TopicID, Type: 'Checkbox', Answers: [] };
 					var options = document.getElementsByName(this.questionnaire.Topics[i].TopicID);
 					var forkWrong = true;
 					var totSelected = 0;
 					for (var j = 0; j < options.length; j++) {
 						if (options[j].checked) {
-							topicCheckbox.Answers.push({ Type: 'Checkbox', TopicID: topicCheckbox.TopicID, Ans: options[j].value });
+							this.postJson.AnswerList.push({ Type: 'Checkbox', TopicID: this.questionnaire.Topics[i].TopicID, Ans: options[j].value });
 							forkWrong = false;
 							totSelected++;
 						}
@@ -138,20 +135,20 @@ export class AnswerComponent implements OnInit {
 						document.getElementById(this.questionnaire.Topics[i].TopicID).style.color = "red";
 						allRight = false;
 					}
-					else {
-						this.postJson.Topics.push(topicCheckbox);
+					else if(!this.questionnaire.Topics[i].IsRequired && !forkWrong && this.questionnaire.Topics[i].Limited > 0 && this.questionnaire.Topics[i].Limited != totSelected){
+						document.getElementById(this.questionnaire.Topics[i].TopicID).style.color = "red";
+						allRight = false;
 					}
 					break;
 				case 'Text':
-					var topicText = { TopicID: this.questionnaire.Topics[i].TopicID, Type: 'Text', Answers: [] };
 					var options = document.getElementsByName(this.questionnaire.Topics[i].TopicID);
-					topicText.Answers.push({ Type: 'Text', TopicID: topicText.TopicID, Ans: options[0].value });
-					if (this.questionnaire.Topics[i].IsRequired && (topicText.Answers[0].Ans == null || topicText.Answers[0].Ans == "")) {
+					var answer ={ Type: 'Text', TopicID:this.questionnaire.Topics[i].TopicID, Ans: options[0].value };
+					if (this.questionnaire.Topics[i].IsRequired && (answer.Ans == null || answer.Ans.trim() == "")) {
 						document.getElementById(this.questionnaire.Topics[i].TopicID).style.color = "red";
 						allRight = false;
 					}
 					else {
-						this.postJson.Topics.push(topicText);
+						this.postJson.AnswerList.push(answer);
 					}
 					break;
 				default:
@@ -164,16 +161,23 @@ export class AnswerComponent implements OnInit {
 			if (this.count == 1) {
 				let ret = this._service.postAnswer(this.postJson)
 				ret.then(({ data }) => {
-					this.thanksInf.title = "Thanks !";
-					this.thanksInf.inf = "For your participation";
-					this.thanksInf.end = "And your answer has been submitted successfully";
-					if (this.count != 1) {
-						this.thanksInf.end += ". You click " + this.count + " times, you are great.";
+					if(data.Succeeded){
+						this.thanksInf.title = "Thanks !";
+						this.thanksInf.inf = "For your participation";
+						this.thanksInf.end = "And your answer has been submitted successfully";
+						if (this.count != 1) {
+							this.thanksInf.end += ". You click " + this.count + " times, you are great.";
+						}
+					}
+					else{
+						this.thanksInf.title = "Sorry !";
+						this.thanksInf.inf = "Submitted failed";
+						this.thanksInf.end = "The reason is that the deadline has expired or you have answered yet";
 					}
 				}, error => {
-					this.thanksInf.title = "Sorry !";
-					this.thanksInf.inf = "Submitted failed";
-					this.thanksInf.end = "The reason is that the deadline has expired or you have submitted";
+						this.thanksInf.title = "Sorry !";
+						this.thanksInf.inf = "Server error";
+						this.thanksInf.end = "Contact Lory.Y.Jiang@newegg.com, we will fix it as soon as possible";
 				})
 				this.submitting = true;
 				this.thanks = true;

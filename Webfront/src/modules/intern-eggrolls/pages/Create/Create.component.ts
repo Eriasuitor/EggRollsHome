@@ -1,6 +1,8 @@
 import { Component, OnInit, ViewChild, ElementRef, ViewChildren, QueryList, Input } from '@angular/core';
-import { NegAuth, NegAjax, NegAlert, NegStorage } from '@newkit/core';
 import { Router } from '@angular/router';
+
+import { NegAuth, NegAjax, NegAlert, NegStorage,NegTranslate } from '@newkit/core';
+
 import { Questionnaire } from '../../components/Model/Questionnaire';
 import { Topic } from '../../components/Model/Topic'
 import { Option } from '../../components/Model/Option'
@@ -74,6 +76,7 @@ export class CreateComponent implements OnInit {
 		private _createService: CreateService,
 		private _updateService: UpdateService,
 		private _negAlert: NegAlert,
+		private _negTranslate:NegTranslate
 	) {
 		//console.log(this._negAuth.authData.newkitToken); // 输出用户信息
 		//console.log(this._negAuth.user); // 输出用户信息
@@ -117,6 +120,89 @@ export class CreateComponent implements OnInit {
 				this.refreshFormControlList();
 			}, 1000);
 		}
+
+		this._negTranslate.set('new',{
+			'en-us':{
+				toolbar:{
+					searchTitle: 'Type to search the questionnaire title',
+					perPage:'items per page.',
+					showPage:'Show page',
+					of:'of',
+					page:'',
+					previous:'Previous',
+					next:'Next'
+					},
+				questionnaire:{
+					noQuestionnaire:'No questionnaire found',
+					draft:'Draft',
+					processing:'Processing',
+					ended:'Ended',
+					realName:'Real name',
+					anonymous:'Anonymous',
+					volumes:'Volumes',
+					deadline:'Deadline',
+					details:'Details',
+					edit:'Edit',
+					statistics:'Statistics',
+					copy:'Copy',
+					delete:'Delete'
+					}
+				},
+			'zh-cn': {
+				toolbar:{
+					searchTitle: '键入以搜索问卷名称',
+					perPage:'张问卷每页',
+					showPage:'显示第',
+					of:'页，共',
+					page:'页',
+					previous:'上一页',
+					next:'下一页'
+					},
+				questionnaire:{
+					noQuestionnaire:'未找到任何问卷',
+					draft:'草稿',
+					processing:'进行中',
+					ended:'已结束',
+					realName:'实名',
+					anonymous:'匿名',
+					volumes:'参与人数',
+					deadline:'截止时间',
+					details:'详情',
+					edit:'编辑',
+					statistics:'统计',
+					copy:'复制',
+					delete:'删除'
+					}
+				},
+			'zh-tw':{
+				toolbar:{
+					searchTitle: '键入以搜索问卷名称',
+					perPage:'items per page.',
+					showPage:'Show page',
+					of:'of',
+					page:'',
+					previous:'上一页',
+					next:'下一页'
+					},
+				questionnaire:{
+					noQuestionnaire:'No questionnaire found',
+					draft:'Draft',
+					processing:'Processing',
+					ended:'Ended',
+					realName:'Real name',
+					anonymous:'Anonymous',
+					volumes:'Volumes',
+					deadline:'Deadline',
+					details:'Details',
+					edit:'Edit',
+					statistics:'Statistics',
+					copy:'Copy',
+					delete:'Delete'
+					}
+				}
+			}
+		); 
+
 	}
 
 	//拖动问题后，检测viewchecked事件，做topic的题目序号更改
@@ -151,6 +237,7 @@ export class CreateComponent implements OnInit {
 	public deleteTopicControl(tempTopicNum: number) {
 		for (let i = tempTopicNum; i < this.formControl.topics.length; i++) {
 			this.formControl.topics[i] = this.formControl.topics[i + 1];
+			console.log(tempTopicNum);
 		}
 		this.formControl.topics.pop();
 	}
@@ -200,18 +287,18 @@ export class CreateComponent implements OnInit {
 			}, false)
 
 			refreshSources[i].addEventListener('dragenter', function (ev) {
-				var eve = window.event;
-				console.log("dragenter Mouse: " + eve.clientX );
-				console.log("dragenter Mouse: " + eve.clientY );
-				console.log("dragenter Mouse: " + eve.pageX  );
-				console.log("dragenter Mouse: " + eve.pageY );
-				console.log("dragenter: " + this.offsetTop);
-				console.log("dragenter: " + document.documentElement.scrollTop)  
-				console.log("dragenter: " + this.clientWidth   ) 
-				console.log("dragenter: " + this.clientHeight + "\n/n")
+				// var eve = window.event;
+				// console.log("dragenter Mouse: " + eve.clientX );
+				// console.log("dragenter Mouse: " + eve.clientY );
+				// console.log("dragenter Mouse: " + eve.pageX  );
+				// console.log("dragenter Mouse: " + eve.pageY );
+				// console.log("dragenter: " + this.offsetTop);
+				// console.log("dragenter: " + document.documentElement.scrollTop)  
+				// console.log("dragenter: " + this.clientWidth   ) 
+				// console.log("dragenter: " + this.clientHeight + "\n/n")
 				if (dragElement != this) {
-					console.log("dragElement X: ")
-					this.parentNode.insertBefore(dragElement, this);     // 把拖动元素添加到当前元素的前面
+					// console.log("dragElement X: ")
+					this.insertBefore(dragElement, this);     // 把拖动元素添加到当前元素的前面
 				}
 			}, false)
 
@@ -371,7 +458,6 @@ export class CreateComponent implements OnInit {
 		//组装Option
 		let k = 0;
 		for (let i = 0; i < this.formControl.topics.length; i++) {
-
 			for (let j = 0; j < this.formControl.topics[i].options.length; j++) {
 				this.formControl.topics[i].options[j].optionID = labelOptions[k].getElementsByTagName('span')[0].innerHTML;
 				this.formControl.topics[i].options[j].topicID = this.formControl.topics[i].topicID;
@@ -414,8 +500,6 @@ export class CreateComponent implements OnInit {
 		} else {
 			this._negAlert.error("Please check your fill is valid(Such as:Limited, Questionnaire Title or Topic Title！！");
 		}
-
-
 	}
 
 	//对应修改功能
@@ -483,8 +567,6 @@ export class CreateComponent implements OnInit {
 			error => this._negAlert.error("PUT Operation error！"));
 
 	}
-
-
 
 	//put请求调查问卷：更新调查问卷的service方法调用
 	public putTheQuestionnaire(putQuestionnaire: Questionnaire, putHeader) {
@@ -555,8 +637,6 @@ export class CreateComponent implements OnInit {
 			});
 	}
 }
-
-
 
 //调试用函数：输出传入对象的类名
 function getObjectClass(obj) {

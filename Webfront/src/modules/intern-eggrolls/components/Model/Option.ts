@@ -1,8 +1,8 @@
 export class Option {
-    private OptionID: string;
-    private OptionTitle: string;
-    private TopicID: string
-    private IsAnswer: boolean;
+    public OptionID: string;
+    public OptionTitle: string;
+    public TopicID: string
+    public IsAnswer: boolean;
     constructor(tmpOptionId, tmpOptionTitle = "") {
         this.OptionID = tmpOptionId;
         this.OptionTitle = tmpOptionTitle;

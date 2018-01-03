@@ -14,6 +14,7 @@ export class UpdateService{
 
     putQuestionnaire(putObj:Questionnaire,putHeader) : Promise<any>{
         let strQuestionnaire: string = JSON.stringify(putObj);
+        console.log(putObj)
         return this._negAjax.put(this._apiUrl, strQuestionnaire, putHeader);
     }
 }

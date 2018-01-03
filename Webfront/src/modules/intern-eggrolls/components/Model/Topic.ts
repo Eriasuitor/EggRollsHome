@@ -1,13 +1,13 @@
 import {Option} from './Option'
 import {Answer} from './Answer'
 export class Topic{
-    private TopicID: string;
-    private Type: string;
-    private IsRequired:boolean;
-    private Limited:number;
-    private TopicTitle:string;
-    private Options:Option[];
-    private Answer:string;
+    public TopicID: string;
+    public Type: string;
+    public IsRequired:boolean;
+    public Limited:number;
+    public TopicTitle:string;
+    public Options:Option[];
+    public Answer:string;
     constructor(tmpTopicId = '0',tmpType = "Radio",tmpIsRequired = false,tmpLimited = 0,tmpOptions:Option[] = [],tmpTopicTitle?){
         this.TopicID = tmpTopicId;
         this.Type = tmpType;
