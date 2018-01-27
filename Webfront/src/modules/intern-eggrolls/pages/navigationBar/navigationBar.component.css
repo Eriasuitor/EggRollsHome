@@ -1,5 +1,6 @@
 .navigationBar{
     padding: 5px;
+    padding-left: 0px;
     margin: 0px;
     margin-bottom: 10px;
     font-family: "Microsoft YaHei";
@@ -16,7 +17,6 @@
     max-height:50px;
 }
 .buttoned{
-    margin-top:4px;
     padding: 12px;
     color:black;
     background-color:rgb(162, 210, 160);
@@ -24,7 +24,11 @@
     -moz-border-radius:5px;
 }
 .newButton{
+    display: inline-block;
+    font-size: 10px;
     float: right;
+    padding-left: 0px;
+    padding-right: 0px;
 }
 a{
     text-decoration : none;

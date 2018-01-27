@@ -1,660 +1,644 @@
 import { Component, OnInit, ViewChild, ElementRef, ViewChildren, QueryList, Input } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { NegAuth, NegAjax, NegAlert, NegStorage,NegTranslate } from '@newkit/core';
+import { NegAuth, NegAjax, NegAlert, NegStorage, NegTranslate, NegMultiTab } from '@newkit/core';
 
 import { Questionnaire } from '../../components/Model/Questionnaire';
 import { Topic } from '../../components/Model/Topic'
 import { Option } from '../../components/Model/Option'
 import { Email } from '../../components/Model/Email'
-import { CreateService, UpdateService } from '../../services';
+
+import { QuestionnaireService } from '../../services/QuestionnaireService'
+
+import { Environment } from '../../config/Environment'
+
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 
 @Component({
 	selector: 'ntk-Create',
 	templateUrl: 'Create.component.html',
-	//styleUrls: ['./Create-Questionnaire.component.css'],
 	styles: [require('./Create.component.css').toString()],
 })
 
 export class CreateComponent implements OnInit {
-	//调查问卷Model的实体类，用于维护页面所有数据
 	formControl: Questionnaire;
-
-	//邮件Model发送实体类,用于维护邮件数据
-	emailControl: Email;
-
-	//判断标记：问卷状态是要变为草稿还是发布
-	judgeSaveOrCreate: number;
-
-	//控制标记：控制3个功能按钮：预览，保存，发布的逻辑控制，决定3个按钮能否点击
-	isControl: boolean = true;
-
-	//控制标记：是否变为更新状态的标记，用于在新建后，再次点击保存，更换请求方式，从post变为put
-	isUpdate: boolean = false;
-
-	//判断标记：是否允许创建的标记，用于标记是否允许进行新建操作，从而改变html模板上，发布按钮的disable状态
+	valve = false;
 	allowCreate: boolean = true;
-
-	//判断标记：设置背景外观的标记，用于判断是否设置问卷背景
 	setAppearanceView = false;
-
-	//控制标记：用于拖拽问题组件功能，动态更新维护问题控件时，最后一个控件的移动的特殊考虑
-	lock = true;
-
-	//用于获取当添加新的问题控件后，获得整个问题控件数组的新长度
-	index: number = 0;
-
-	//用于设置添加新的问题控件后，默认初始有多少个选项
 	defaultOptionNum: number = 3;
-
-	//用于设置时间选择控件的最早时间限制
 	public dateTimePickerMin = new Date();
-
-	//用于设置时间选择控件的默认时间设置 ---（废弃，不设置默认选择时间，置空）
-	//public dateTimePickerFocused : Date = new Date();
-
-	//用于设置发布问卷后，组装弹出的答卷链接
-	questionnaireLink: string;
-
-	//判断标记：用于判断是否弹出问卷链接模态层
-	setLinkView: boolean = false;
-
-	//题目选项的限制：最多选项数和最少选项数
 	numOptionMax: number = 26;
-	numOptionMin: number = 2;
-
-	//RootUrl
-	apiRootUrl: string = "http://10.16.75.27:8211/intern-eggrolls/questionnaire";
-
+	numOptionMin: number = 1;
+	public shosen = 'background-color: rgb(162, 210, 160);'
+	apiRootUrl: string = "http://10.16.75.27:8211/eggrolls/questionnaire";
+	public imgUrls: string[] = ['http://10.1.24.133/EaaS/Message/EggRolls_Ancient.jpg', 'http://10.1.24.133/EaaS/Message/EggRolls_Ancient2.jpg', 'http://10.1.24.133/EaaS/Message/EggRolls_Ancient3.jpg', 'http://10.1.24.133/EaaS/Message/EggRolls_ArtisticColor.jpg', 'http://10.1.24.133/EaaS/Message/EggRolls_Cartoon.jpg', 'http://10.1.24.133/EaaS/Message/EggRolls_Cat.jpg', 'http://10.1.24.133/EaaS/Message/EggRolls_Cats.jpg', 'http://10.1.24.133/EaaS/Message/EggRolls_ChineseNewYear.jpg', 'http://10.1.24.133/EaaS/Message/EggRolls_ChineseNewYear2.jpg', 'http://10.1.24.133/EaaS/Message/EggRolls_Christmas4.jpg', 'http://10.1.24.133/EaaS/Message/EggRolls_Cloud.jpg', 'http://10.1.24.133/EaaS/Message/EggRolls_Flower.jpg', 'http://10.1.24.133/EaaS/Message/EggRolls_Flower2.jpg', 'http://10.1.24.133/EaaS/Message/EggRolls_Food.jpg', 'http://10.1.24.133/EaaS/Message/EggRolls_Gift.jpg', 'http://10.1.24.133/EaaS/Message/EggRolls_Island.jpg', 'http://10.1.24.133/EaaS/Message/EggRolls_Lattice.jpg', 'http://10.1.24.133/EaaS/Message/EggRolls_NewYear.jpg', 'http://10.1.24.133/EaaS/Message/EggRolls_Paper.png', 'http://10.1.24.133/EaaS/Message/EggRolls_Peak.jpg', 'http://10.1.24.133/EaaS/Message/EggRolls_PUBG.png', 'http://10.1.24.133/EaaS/Message/EggRolls_Simple.jpg', 'http://10.1.24.133/EaaS/Message/EggRolls_Simple2.jpg', 'http://10.1.24.133/EaaS/Message/EggRolls_Simple3.jpg', 'http://10.1.24.133/EaaS/Message/EggRolls_Summer.jpg', 'http://10.1.24.133/EaaS/Message/EggRolls_Surf.jpg', 'http://10.1.24.133/EaaS/Message/EggRolls_Watercolor.jpg']
+	public selectedOption = 21
+	public pubSuccess = false
+	public sendSuccess = false
+	public environmentUrl: string
+	self: CreateComponent;
 
 	constructor(
 		private _negAuth: NegAuth,
 		private _negAjax: NegAjax,
 		private _negStorage: NegStorage,
 		private _route: Router,
-		private _createService: CreateService,
-		private _updateService: UpdateService,
 		private _negAlert: NegAlert,
-		private _negTranslate:NegTranslate
+		private _negTranslate: NegTranslate,
+		private questionnaireService: QuestionnaireService,
+		private _environment: Environment,
+		private negMultiTab: NegMultiTab
 	) {
-		//console.log(this._negAuth.authData.newkitToken); // 输出用户信息
-		//console.log(this._negAuth.user); // 输出用户信息
-		//console.log(this._negAuth.displayName + "((((" + this._negAuth); // 输出显示名称（长名称）
-		//console.log(this._negAuth.userId); // 输出用户ID（短名）
-
-		//CKEDITOR用法：初始化
 		CKEDITOR.basePath = 'http://cdn.newegg.org/ckeditor/4.7.2/';
-
-		//初始化调查问卷Model
 		this.formControl = new Questionnaire(this._negAuth.userId, this._negAuth.user.FullName);
-
-		//初始化富文本编辑器，为空字符串
 		this.formControl.description = "";
-		//初始化默认背景
-		this.formControl.backgroundImageUrl = "http://10.1.24.133/EaaS/Message/EggRolls_Gift.jpg";
-	
-		//初始化邮件Model
-		this.emailControl = new Email();
+		this.environmentUrl = this._environment.getEnvironmentUrl()
 	}
 
 	ngOnInit() {
+		this.negMultiTab.setCurrentTabName('Egg Rolls')
+		this.formControl.isRealName = true;
+		this.formControl.MailTo = ""
+		self = this
+		if (this._negStorage.memory.get("eID") != undefined && this._negStorage.memory.get("eID") != null) {
+			this.questionnaireService.OnGet(this._negStorage.memory.get("eID"))
+				.then(({ data }) => {
+					if (data.Succeeded == true) {
+						this.valve = true
+						this.formControl = data.Questionnaire
+						this.formControl.DueDate = this.getStanderdDate(this.formControl.DueDate)
+					}
+					else {
+						this._negAlert.warn(this._negTranslate.get('new.wrong.getWrong'))
+					}
+					setTimeout(this.refreshFormControlList, 20)
+					setTimeout(() => {
+						this.setBackImg()
+					}, 20)
+				},
+				error => {
+					this._negAlert.warn(this._negTranslate.get('new.wrong.getWrong'))
+					setTimeout(() => {
+						this.setBackImg()
+					}, 20)
+				})
+			this._negStorage.memory.remove("eID")
+		}
+		else if (this._negStorage.memory.get("cID") != undefined && this._negStorage.memory.get("cID") != null) {
+			this.questionnaireService.OnGet(this._negStorage.memory.get("cID"))
+				.then(({ data }) => {
+					if (data.Succeeded == true) {
+						this.valve = true
+						this.formControl = data.Questionnaire
+						this.formControl.QuestionnaireID = 0
+						this.formControl.DueDate = this.getStanderdDate(this.formControl.DueDate)
+					}
+					else {
+						this._negAlert.warn(this._negTranslate.get('new.wrong.getWrong'))
+					}
+					setTimeout(this.refreshFormControlList, 20)
+					setTimeout(() => {
+						this.setBackImg()
+					}, 20)
+				},
+				error => {
+					this._negAlert.warn(this._negTranslate.get('new.wrong.getWrong'))
+					setTimeout(() => {
+						this.setBackImg()
+					}, 20)
+				})
+			this._negStorage.memory.remove("cID")
+		}
+
 		//设置时间选择控件的默认值 ---（废弃，不设置默认选择时间，置空）
 		//this.dateTimePickerFocused.setDate((new Date()).getDate() + 7);
 		//this.formControl.dueDate = this.dateTimePickerFocused;
-
 		//问卷默认是实名问卷
-		this.formControl.isRealName = true;
 
 		//判断是否是从预览界面返回本页面，当从预览界面返回时，进行数据组装
-		if (this._negStorage.memory.get("CreateQuestionnaire") != undefined) {
+		else if (this._negStorage.memory.get("CreateQuestionnaire") != undefined && this._negStorage.memory.get("CreateQuestionnaire") != null) {
 			let strQuestionnaire = JSON.parse(this._negStorage.memory.get("CreateQuestionnaire"));
 			//判断当前从预览界面返回的问卷是否已经发布，已发布，则控制标记：isUpdate置false
 			if (strQuestionnaire.QuestionnaireID != undefined) {
 				this.isUpdate = true;
 			}
-			//调用初始化页面函数，绑定页面数据
-			this.initCreateView(strQuestionnaire);
-			//延时执行给问题组件添加拖拽事件，为了防止在页面数据未绑定之前就为其添加拖拽功能
+			this.valve = true
+			this.formControl = strQuestionnaire
+			this.formControl.DueDate = this.getStanderdDate(this.formControl.DueDate)
 			setTimeout(() => {
 				this.refreshFormControlList();
-			}, 1000);
+			}, 20);
+			setTimeout(() => {
+				this.setBackImg()
+			}, 20)
+		}
+		else {
+			this.valve = true
+			setTimeout(() => {
+				this.setBackImg()
+			}, 20)
 		}
 
-		this._negTranslate.set('new',{
-			'en-us':{
-				toolbar:{
-					searchTitle: 'Type to search the questionnaire title',
-					perPage:'items per page.',
-					showPage:'Show page',
-					of:'of',
-					page:'',
-					previous:'Previous',
-					next:'Next'
-					},
-				questionnaire:{
-					noQuestionnaire:'No questionnaire found',
-					draft:'Draft',
-					processing:'Processing',
-					ended:'Ended',
-					realName:'Real name',
-					anonymous:'Anonymous',
-					volumes:'Volumes',
-					deadline:'Deadline',
-					details:'Details',
-					edit:'Edit',
-					statistics:'Statistics',
-					copy:'Copy',
-					delete:'Delete'
-					}
+		this._negTranslate.set('new', {
+			'en-us': {
+				questionnaire: {
+					titleTip: 'Click here to edit the title of the questionnaire',
+					realName: 'Real name',
+					deadline: 'Deadline',
+					descriptionTip: 'Please edit the description of the questionnaire below',
+					language: 'en'
 				},
+				topic: {
+					noTopicTip: 'Click the button on the right edge to add topic',
+					singleChoice: 'Single choice',
+					multiChoice: 'Multiple choice',
+					subjQuestion: 'Subjective question',
+					backgImg: 'Background image',
+					limit: 'Limit',
+					required: 'Required',
+					topicTip: 'Edit the topic title here',
+					optionTip: 'Edit the option here',
+					limitTip1: ', have to choose ',
+					limitTip2: ' options',
+					requiredTip: ' *',
+					textTip: 'The respondent will answer here',
+					mailTo: 'Mail To',
+					publish: 'Publish',
+					save: 'Save',
+					preview: 'Preview',
+					noImg: 'No background image'
+				},
+				wrong: {
+					queTitle: 'Please add a title',
+					deadline: 'Please check the deadline',
+					topicTitle: 'Please fill in the topic title',
+					optionTitle: 'Please fill in the option title',
+					smaller: 'The number is smaller than 2',
+					greater: 'The number is greater than the number of options',
+					format: 'Wrong number format',
+					noTopic: 'Please do as said on the left',
+					optionTooMuch: 'The maximum number of options is 26',
+					optionTooSmall: 'The minimum number of options is 1',
+					getWrong: 'Sometging wrong when get questionnaire, please contact E.T. for help',
+					formatWrong: 'Please check the correctness of the part with the badge.',
+					pubFailed: 'Questionnaire failed to publish',
+					pubInf: 'Something wrong when publish the questionnaire, please check your questionnaire or contact E.T. for help',
+					sendFailed: 'Mail delivery failed',
+					sendInf: 'Something wrong when send e-mail, please contact E.T. for help',
+					descriptionTooLong: 'Description exceeds the maximum length， please shorten it.',
+					optionLessThanLimit:'The number of options can not less than the value of limit'
+				},
+				transfer: {
+					saveRight: 'Save successfully',
+					saveFailed: 'Save failed, please contact E.T. for help',
+					publishRight: 'Publish success',
+					publishFailed: 'Publish failed, please try again or contact E.T. for help',
+					publishing: 'Publishing questionnaire',
+					published: 'Questionnaire released successfully',
+					sending: 'Sending e-mail',
+					sent: 'Mail sent successfully',
+					answerLink: 'Answer link',
+					back: 'Return to home page'
+				}
+			},
 			'zh-cn': {
-				toolbar:{
-					searchTitle: '键入以搜索问卷名称',
-					perPage:'张问卷每页',
-					showPage:'显示第',
-					of:'页，共',
-					page:'页',
-					previous:'上一页',
-					next:'下一页'
-					},
-				questionnaire:{
-					noQuestionnaire:'未找到任何问卷',
-					draft:'草稿',
-					processing:'进行中',
-					ended:'已结束',
-					realName:'实名',
-					anonymous:'匿名',
-					volumes:'参与人数',
-					deadline:'截止时间',
-					details:'详情',
-					edit:'编辑',
-					statistics:'统计',
-					copy:'复制',
-					delete:'删除'
-					}
+				questionnaire: {
+					titleTip: '点击此处编辑问卷标题',
+					realName: '实名',
+					deadline: '截止时间：',
+					descriptionTip: '请在下方编写问卷描述信息',
+					language: 'zh-cn'
 				},
-			'zh-tw':{
-				toolbar:{
-					searchTitle: '键入以搜索问卷名称',
-					perPage:'items per page.',
-					showPage:'Show page',
-					of:'of',
-					page:'',
-					previous:'上一页',
-					next:'下一页'
-					},
-				questionnaire:{
-					noQuestionnaire:'No questionnaire found',
-					draft:'Draft',
-					processing:'Processing',
-					ended:'Ended',
-					realName:'Real name',
-					anonymous:'Anonymous',
-					volumes:'Volumes',
-					deadline:'Deadline',
-					details:'Details',
-					edit:'Edit',
-					statistics:'Statistics',
-					copy:'Copy',
-					delete:'Delete'
-					}
+				topic: {
+					noTopicTip: '点击下方按钮以添加题目',
+					singleChoice: '单选',
+					multiChoice: '多选',
+					subjQuestion: '问答题',
+					backgImg: '背景图片',
+					limit: '限选 ',
+					required: '必填',
+					topicTip: '请在此处编辑题干',
+					optionTip: '请在此处编辑选项',
+					limitTip1: '， 必选 ',
+					limitTip2: ' 个',
+					requiredTip: ' *',
+					textTip: '答题人将在此处作答',
+					mailTo: 'Mail To',
+					publish: '发布',
+					save: '保存',
+					preview: '预览',
+					noImg: '无背景图片'
+				},
+				wrong: {
+					queTitle: '请填写标题',
+					deadline: '请检查截止时间',
+					topicTitle: '请填写题干',
+					optionTitle: '请填写选项',
+					smaller: '选择数量限制不得小于2',
+					greater: '选择数量限制不得大于本题选项个数',
+					format: '错误的数字格式',
+					noTopic: '请照着左边说的做',
+					optionTooMuch: '选项个数最多为26个',
+					optionTooSmall: '选项个数最少为1个',
+					getWrong: '获取问卷时出现问题，请联系E.T.寻求帮助',
+					formatWrong: '请检查带有徽章提示部分的正确性',
+					pubFailed: '问卷发布失败',
+					pubInf: '发布问卷时出现问题，请检查您的问卷或联系E.T.寻求帮助',
+					sendFailed: '邮件发送失败',
+					sendInf: '发送邮件时出现问题，请联系E.T.寻求帮助',
+					descriptionTooLong: '描述大于最大长度，请进行删减',
+					optionLessThanLimit:'选项个数不得小于Limit所设值'				
+				},
+				transfer: {
+					saveRight: '保存成功',
+					saveFailed: '保存失失败，请联系E.T.寻求帮助',
+					publishRight: '发布成功',
+					publishFailed: '发布失败，请重试或联系E.T.寻求帮助',
+					publishing: '正在发布问卷',
+					published: '问卷发布成功',
+					sending: '正在发送邮件',
+					sent: '邮件发送成功',
+					answerLink: '答题链接',
+					back: '返回首页'
+				}
+			},
+			'zh-tw': {
+				questionnaire: {
+					titleTip: 'Click here to edit the title of the questionnaire',
+					realName: 'Real name',
+					deadline: 'Deadline',
+					descriptionTip: 'Please edit the description of the questionnaire below',
+					language: 'en'
+				},
+				topic: {
+					noTopicTip: 'Click the button on the right edge to add a topic',
+					singleChoice: 'Single choice',
+					multiChoice: 'Multiple choice',
+					subjQuestion: 'Subjective question',
+					backgImg: 'Background image',
+					limit: 'Limit',
+					required: 'Required',
+					topicTip: 'Edit the topic title here',
+					optionTip: 'Edit the option here',
+					limitTip1: ', have to choose ',
+					limitTip2: ' options',
+					requiredTip: ' *',
+					textTip: 'The respondent will answer here',
+					mailTo: 'mailTo',
+					publish: 'Publish',
+					save: 'Save',
+					preview: 'Preview',
+					noImg: 'No background image'
+				},
+				wrong: {
+					queTitle: '请填写标题',
+					deadline: '请检查截止时间',
+					topicTitle: '请填写题干',
+					optionTitle: '请填写选项',
+					smaller: '数量限制不得小于2',
+					greater: '数量限制不得大于本题选项个数',
+					format: '错误的数字格式',
+					noTopic: '请照着左边说的做',
+					optionTooMuch: 'The maximum number of options is 26',
+					optionTooSmall: 'The minimum number of options is 1',
+					getWrong: 'Sometging wrong when get questionnaire, please contact E.T. for help',
+					formatWrong: 'Please check the correctness of the part with the badge.',
+					pubFailed: 'Publish failed',
+					pubInf: 'Something wrong when publish the questionnaire, please check your questionnaire or contact E.T. for help',
+					sendFailed: 'Send failed',
+					sendInf: 'Something wrong when send e-mail, please contact E.T. for help',
+					descriptionTooLong: '描述大于最大长度,请进行删减',
+					optionLessThanLimit:'选项个数不得小于Limit所设值'			
+				},
+				transfer: {
+					saveRight: 'Save successfully',
+					saveFailed: 'Save failed, please review your questionnaire',
+					publishRight: '发布成功',
+					publishFailed: '发布失败，请重试或联系E.T.寻求帮助',
+					publishing: 'Publishing questionnaire',
+					published: 'Published successfully',
+					sending: 'Sending e-mail',
+					sent: 'Sent successfully',
+					answerLink: 'Answer link',
+					back: '返回首页'
 				}
 			}
-		); 
-
-	}
-
-	//拖动问题后，检测viewchecked事件，做topic的题目序号更改
-	ngAfterViewChecked() {
-		let refreshs = document.getElementsByClassName("formList");
-		for (let k = 0; k < refreshs.length; k++) {
-			refreshs[k].getElementsByClassName('spanTextTitle')[0].innerHTML = String(k + 1);
-
 		}
-
+		);
 	}
 
-	//动态添加问题组件
+	public setBackImg() {
+		this.selectedOption = this.imgUrls.indexOf(this.formControl.BackgroundImageUrl)
+		if (this.selectedOption != -1) {
+			document.getElementById('img' + this.selectedOption).style.backgroundColor = 'rgb(162, 210, 160)'
+		}
+	}
+
 	public addFormControl(strAddTopic: string) {
-		let tempTopic = new Topic(String(this.index + 1), strAddTopic);
+		var tempTopic
+		if (this.formControl.Topics.length == 0) {
+			tempTopic = new Topic(1, strAddTopic);
+		}
+		else {
+			tempTopic = new Topic(this.formControl.Topics[this.formControl.Topics.length - 1].TopicID + 1, strAddTopic);
+		}
 		if (strAddTopic != "Text") {
 			for (let i = 0; i < this.defaultOptionNum; i++) {
-				let tempOption = new Option(i);
-				let indexInitOptionPush = tempTopic.options.push(tempOption);
+				let tempOption = new Option(String.fromCharCode(i + 65));
+				let indexInitOptionPush = tempTopic.Options.push(tempOption);
 			}
 		}
 		if (strAddTopic == "Radio" || strAddTopic == "Checkbox") {
 			tempTopic.isRequired = true;
 		}
-		let indexPush = this.formControl.topics.push(tempTopic);
-		this.index = indexPush;
-		setTimeout(() => {
-			this.refreshFormControlList();
-		}, 600);
+		this.formControl.Topics.push(tempTopic);
+		setTimeout(this.refreshFormControlList, 20)
 	}
-	//动态删除问题组件
+
 	public deleteTopicControl(tempTopicNum: number) {
-		for (let i = tempTopicNum; i < this.formControl.topics.length; i++) {
-			this.formControl.topics[i] = this.formControl.topics[i + 1];
-			console.log(tempTopicNum);
+		this.formControl.Topics.splice(tempTopicNum - 1, 1)
+		for (var i = tempTopicNum - 1; i < this.formControl.Topics.length; i++) {
+			this.formControl.Topics[i].TopicID -= 1
 		}
-		this.formControl.topics.pop();
-	}
-	//动态添加选项组件
-	public addOptionControl(tempTopicNum: number, tempOptionNum: number) {
-		if (this.formControl.topics[tempTopicNum].options.length + 1 <= this.numOptionMax) {
-			let tempOption = new Option(tempOptionNum + 1);
-			for (let i = this.formControl.topics[tempTopicNum].options.length; i > tempOptionNum + 1; i--) {
-				this.formControl.topics[tempTopicNum].options[i] = this.formControl.topics[tempTopicNum].options[i - 1];
-			}
-			this.formControl.topics[tempTopicNum].options[tempOptionNum + 1] = tempOption;
-		} else {
-			this._negAlert.warn("The maximum number of options is 26");
-		}
-	}
-	//动态删除选项组件
-	public deleteOptionControl(tempTopicNum: number, tempOptionNum: number) {
-		if (this.formControl.topics[tempTopicNum].options.length > this.numOptionMin) {
-			for (let i = tempOptionNum; i < this.formControl.topics[tempTopicNum].options.length; i++) {
-				this.formControl.topics[tempTopicNum].options[i] = this.formControl.topics[tempTopicNum].options[i + 1];
-			}
-			this.formControl.topics[tempTopicNum].options.pop();
-		} else {
-			this._negAlert.warn("The minimum number of options is 2");
-		}
-
+		setTimeout(this.refreshFormControlList, 20)
 	}
 
-	//刷新动态组件列表的拖动事件
+	public addOptionControl(tempTopicNum: number, tempOptionNum: string) {
+		if (this.formControl.Topics[tempTopicNum - 1].Options.length + 1 <= this.numOptionMax) {
+			let tempOption = new Option(String.fromCharCode(tempOptionNum.charCodeAt(0) + 1));
+			this.formControl.Topics[tempTopicNum - 1].Options.splice(tempOptionNum.charCodeAt(0) - 64, 0, tempOption)
+			for (var i = tempOptionNum.charCodeAt(0) - 63; i < this.formControl.Topics[tempTopicNum - 1].Options.length; i++) {
+				this.formControl.Topics[tempTopicNum - 1].Options[i].OptionID
+					= String.fromCharCode(this.formControl.Topics[tempTopicNum - 1].Options[i].OptionID.charCodeAt(0) + 1)
+			}
+		} else {
+			this._negAlert.warn(this._negTranslate.get('new.wrong.optionTooMuch'));
+		}
+	}
+
+	public deleteOptionControl(tempTopicNum: number, tempOptionNum: string) {
+		if (this.formControl.Topics[tempTopicNum - 1].Options.length > this.numOptionMin) {
+			if (this.formControl.Topics[tempTopicNum - 1].Options.length > this.formControl.Topics[tempTopicNum - 1].Limited) {
+
+
+				this.formControl.Topics[tempTopicNum - 1].Options.splice(tempOptionNum.charCodeAt(0) - 65, 1)
+				for (var i = tempOptionNum.charCodeAt(0) - 65; i < this.formControl.Topics[tempTopicNum - 1].Options.length; i++) {
+					this.formControl.Topics[tempTopicNum - 1].Options[i].OptionID
+						= String.fromCharCode(this.formControl.Topics[tempTopicNum - 1].Options[i].OptionID.charCodeAt(0) - 1)
+				}
+			}
+			else {
+				this._negAlert.warn(this._negTranslate.get('new.wrong.optionLessThanLimit'));
+			}
+		} else {
+			this._negAlert.warn(this._negTranslate.get('new.wrong.optionTooSmall'));
+		}
+	}
+
 	public refreshFormControlList() {
 		var refreshSources = document.getElementsByClassName("formList");
-		var dragElement = null;                                         // 用于存放拖动元素
-
+		var dragElement = undefined;
+		var before = 0
 		for (var i = 0; i < refreshSources.length; i++) {
 			refreshSources[i].addEventListener('dragstart', function (ev) {
 				dragElement = this;
-				// console.log("dragstart: " + dragElement.offsetX);
-				// console.log("dragstart: " + dragElement.offsetWidth )  
-				// console.log("dragstart: " + dragElement.screenX ) 
-				// console.log("dragstart: " + dragElement.clientX )                                // 用于存放拖动元素
-				//this.style.backgroundColor = '#f8f8f8';                 // 设置拖动元素的背景
+				before = 0
 			}, false);
 
 			refreshSources[i].addEventListener('dragend', function (ev) {
-				//ev.target.style.backgroundColor = '#fff';               // 拖放结束还原拖动元素的背景
+				//ev.target.style.backgroundColor = '#fff';
 				ev.preventDefault();
 			}, false)
 
 			refreshSources[i].addEventListener('dragenter', function (ev) {
-				// var eve = window.event;
-				// console.log("dragenter Mouse: " + eve.clientX );
-				// console.log("dragenter Mouse: " + eve.clientY );
-				// console.log("dragenter Mouse: " + eve.pageX  );
-				// console.log("dragenter Mouse: " + eve.pageY );
-				// console.log("dragenter: " + this.offsetTop);
-				// console.log("dragenter: " + document.documentElement.scrollTop)  
-				// console.log("dragenter: " + this.clientWidth   ) 
-				// console.log("dragenter: " + this.clientHeight + "\n/n")
-				if (dragElement != this) {
-					// console.log("dragElement X: ")
-					this.insertBefore(dragElement, this);     // 把拖动元素添加到当前元素的前面
-				}
-			}, false)
-
-			refreshSources[i].addEventListener('dragleave', function (ev) {
-				// console.log("dragleave: " + dragElement.parentNode.topicID);
-				// console.log("dragleave: " + dragElement.parentNode.offsetWidth )  
-				// console.log("dragleave: " + dragElement.parentNode.screenX ) 
-				// console.log("dragleave: " + dragElement.parentNode.clientX )
-				// console.log("dragleave: " + refreshSources[i].parentNode.offsetX);
-				// console.log("dragleave: " + refreshSources[i].parentNode.offsetWidth )  
-				// console.log("dragleave: " + refreshSources[i].parentNode.screenX ) 
-				// console.log("dragleave: " + refreshSources[i].parentNode.clientX )
-				if (dragElement != this) {
-					if (this.lock && (this == this.parentNode.lastElementChild || this == this.parentNode.lastChild)) {    // 当前元素时最后一个元素
-						this.parentNode.appendChild(dragElement);       // 把拖动元素添加最后面
-						this.lock = false;
-					} else {
-						//延时执行lock锁的状态改变，目的是为了防止状态改变过快，页面拖动失败
-						setTimeout(() => {
-							this.lock = true;
-						}, 500);
-
-					}
+				if (dragElement != this && before != this.id && dragElement != undefined) {
+					self.exchange(parseInt(this.id), parseInt(dragElement.id))
+					before = this.id
 				}
 			}, false)
 		};
-		document.ondragover = function (e) { e.preventDefault(); }          // 必须设置dragover阻止默认事件
-		document.ondrop = function (e) { e.preventDefault(); }	// 必须设置dragover阻止默认事件
+		document.ondragover = function (e) { e.preventDefault(); }
+		document.ondrop = function (e) { e.preventDefault(); }
 	}
 
-	//设置外观
+	public exchange(topicID1, topicID2) {
+		if (topicID1 <= this.formControl.Topics.length && topicID2 <= this.formControl.Topics.length
+			&& topicID1 > 0 && topicID2 > 0) {
+			this.formControl.Topics[topicID1 - 1] = this.formControl.Topics.splice(topicID2 - 1, 1, this.formControl.Topics[topicID1 - 1])[0];
+			this.formControl.Topics[topicID2 - 1].TopicID = topicID2
+			this.formControl.Topics[topicID1 - 1].TopicID = topicID1
+		}
+	}
+
+	public publishAndSave(isSave) {
+		this.formControl.Topics.forEach(topic => {
+			topic.Options.forEach(option => {
+				option.TopicID = topic.TopicID
+			})
+		})
+		this.formControl.status = (isSave ? 0 : 1)
+		var allRight = this.legitimacyJudgment()
+		if (allRight) {
+			if (this.formControl.Description.length > 2000) {
+				this._negAlert.warn(this._negTranslate.get('new.wrong.descriptionTooLong'))
+			}
+			else {
+				if (this.formControl.QuestionnaireID == 0 || this.formControl.QuestionnaireID == undefined) {
+					this.questionnaireService.OnPost(this.formControl)
+						.then(({ data }) => {
+							if (data.Succeeded) {
+								this._negStorage.memory.remove("PageSize");
+								this._negStorage.memory.remove("PageIndex");
+								this._negStorage.memory.remove("Title");
+								if (this.formControl.status == 1) {
+									this.formControl.QuestionnaireID = data.Questionnaire.QuestionnaireID
+									this.pubSuccess = true
+									if (data.MailSucceeded) {
+										this.sendSuccess = true
+									}
+									$('#modal-container-268549').modal({ backdrop: 'static' })
+								}
+								else {
+									this.formControl.QuestionnaireID = data.Questionnaire.QuestionnaireID
+									this._negAlert.success(this._negTranslate.get('new.transfer.saveRight'))
+								}
+							}
+							else {
+								if (this.formControl.status == 1) {
+									this._negAlert.success(this._negTranslate.get('new.transfer.publishFailed'))
+								}
+								else {
+									this._negAlert.success(this._negTranslate.get('new.transfer.saveFailed'))
+								}
+							}
+						},
+						error => {
+							if (this.formControl.status == 1) {
+								this._negAlert.success(this._negTranslate.get('new.transfer.publishFailed'))
+							}
+							else {
+								this._negAlert.success(this._negTranslate.get('new.transfer.saveFailed'))
+							}
+						})
+				}
+				else {
+					this.questionnaireService.OnPut(this.formControl)
+						.then(({ data }) => {
+							if (data.Succeeded) {
+								if (this.formControl.status == 1) {
+									this.pubSuccess = true
+									if (data.MailSucceeded) {
+										this.sendSuccess = true
+									}
+									$('#modal-container-268549').modal({ backdrop: 'static' })
+									this._negStorage.memory.remove("PageSize");
+									this._negStorage.memory.remove("PageIndex");
+									this._negStorage.memory.remove("Title");
+								}
+								else {
+									this._negAlert.success(this._negTranslate.get('new.transfer.saveRight'))
+								}
+							}
+							else {
+								if (this.formControl.status == 1) {
+									this._negAlert.success(this._negTranslate.get('new.transfer.publishFailed'))
+								}
+								else {
+									this._negAlert.success(this._negTranslate.get('new.transfer.saveFailed'))
+								}
+							}
+						},
+						error => {
+							if (this.formControl.status == 1) {
+								this._negAlert.success(this._negTranslate.get('new.transfer.publishFailed'))
+							}
+							else {
+								this._negAlert.success(this._negTranslate.get('new.transfer.saveFailed'))
+							}
+						})
+				}
+			}
+		}
+		else {
+			this._negAlert.warn(this._negTranslate.get('new.wrong.formatWrong'))
+		}
+	}
+
+	public reduction(topicID) {
+		document.getElementById(topicID).style.display = "none";
+	}
+
+	public legitimacyJudgment() {
+		var allRight = true
+		if (this.formControl.status == 0) {
+			return allRight
+		}
+		if (this.formControl.Title == undefined || this.formControl.Title == null || this.formControl.Title.trim() == "") {
+			allRight = false
+			document.getElementById("questionnaireWrong").style.display = 'inline'
+		}
+		if (this.formControl.DueDate == undefined || this.formControl.DueDate == null || this.formControl.DueDate.toString() == "" || this.formControl.DueDate <= new Date()) {
+			allRight = false
+			document.getElementById("deadlineWrong").style.display = 'inline'
+		}
+		if (this.formControl.Topics.length == 0) {
+			allRight = false
+			document.getElementById("topicWrong").style.display = 'inline'
+		}
+		for (var i = 0; i < this.formControl.Topics.length; i++) {
+			if (this.formControl.Topics[i].TopicTitle == null || this.formControl.Topics[i].TopicTitle.trim() == "") {
+				allRight = false
+				document.getElementById(this.formControl.Topics[i].TopicID + "Wrong").style.display = 'inline'
+			}
+			for (var j = 0; j < this.formControl.Topics[i].Options.length; j++) {
+				if (this.formControl.Topics[i].Options[j].OptionTitle == null || this.formControl.Topics[i].Options[j].OptionTitle.trim() == "") {
+					allRight = false
+					document.getElementById(this.formControl.Topics[i].TopicID + this.formControl.Topics[i].Options[j].OptionID + "Wrong").style.display = 'inline'
+				}
+			}
+		}
+		return allRight
+	}
+
 	public setAppearance(isSetView: boolean) {
 		this.setAppearanceView = isSetView;
 	}
 
-	//弹出问卷链接
-	public setLink(isSetView: boolean) {
-		//this.setLinkView = isSetView;
-		this.emailControl.from = this.formControl.fullName;
-		this.emailControl.subject = this.formControl.title;
-		this.emailControl.body = this.questionnaireLink;
-		if (this.emailControl.to != "") {
-			this.postEmail(this.emailControl, { useCustomErrorHandler: true });
-		} else {
-			this.setLinkView = false;
-			setTimeout(() => {
-				this._route.navigate(['/intern-eggrolls/index']);
-			}, 1000);
-		}
-	}
-
-	//弹出问卷链接模态层关闭按钮监听事件
-	public setLinkClose() {
-		this.setLinkView = false;
-		setTimeout(() => {
-			this._route.navigate(['/intern-eggrolls/index']);
-		}, 1000);
-	}
-
-	//初始化编辑界面
-	public initCreateView(tempData) {
-		this.index = tempData.Topics.length;
-		if (tempData.QuestionnaireID != undefined) {
-			this.formControl.questionnaireID = tempData.QuestionnaireID;
-		}
-		this.formControl.status = tempData.Status;
-		this.formControl.title = tempData.Title.toString();
-		this.formControl.description = tempData.Description.toString();
-		this.formControl.backgroundImageUrl = tempData.BackgroundImageUrl.toString();
-		this.formControl.isRealName = tempData.IsRealName;
-		if (tempData.DueDate == "null" || tempData.DueDate == null) {
-			this.formControl.dueDate = null;
-		} else {
-			this.formControl.dueDate = new Date(tempData.DueDate);
-		}
-		for (let i = 0; i < tempData.Topics.length; i++) {
-			let tempTopic = new Topic(tempData.Topics[i].TopicID, tempData.Topics[i].Type, tempData.Topics[i].IsRequired, tempData.Topics[i].Limited, undefined, tempData.Topics[i].TopicTitle);
-			for (let j = 0; j < tempData.Topics[i].Options.length; j++) {
-				let tempOption = new Option(tempData.Topics[i].Options[j].OptionID, tempData.Topics[i].Options[j].OptionTitle);
-				tempTopic.options.push(tempOption);
-			}
-			this.formControl.topics.push(tempTopic);
-		}
-		this._negStorage.memory.remove("EditQuestionnaire");
-	}
-
-
-	//跳转到预览界面
 	public priviewTheQuestionnaire() {
-		this.assemblyQuestionnaire();
-		setTimeout(() => {
-			let tempStr = JSON.stringify(this.formControl);
-			this._negStorage.memory.set("PreQuestionnaire", [tempStr, "create"]);
-			this._route.navigate(['/intern-eggrolls/preview']);
-		}, 400);
+		console.log(this.formControl)
+		let tempStr = JSON.stringify(this.formControl);
+		this._negStorage.memory.set("PreQuestionnaire", [tempStr, "create"]);
+		// this._route.navigate(['/eggrolls/preview']);
+		this.negMultiTab.openPage('/eggrolls/preview', null, false)
 	}
 
-	//对题目和选项排序
-	public sortTheQuestionnaire(m: Topic, n: Topic): number {
-		if (parseInt(m.topicID) < parseInt(n.topicID)) {
-			return -1;
-		} else if (parseInt(m.topicID) > parseInt(n.topicID)) {
-			return 1;
-		} else {
-			return 0;
+	public limitJudgment(topicID) {
+		let a: any = this.formControl.Topics[topicID - 1].Limited.toString()
+		a = a.replace(/[０１２３４５６７８９]/g, function (v) { return v.charCodeAt(0) - 65296; });
+		let temp = parseInt(a);
+		if (isNaN(temp)) {
+			this.formControl.Topics[topicID - 1].Limited = 0
+			this._negAlert.warn(this._negTranslate.get('new.wrong.format'))
+		}
+		else if (temp > this.formControl.Topics[topicID - 1].Options.length) {
+			this.formControl.Topics[topicID - 1].Limited = 0
+			this._negAlert.warn(this._negTranslate.get('new.wrong.greater'))
+		}
+		else if (temp < 2) {
+			this.formControl.Topics[topicID - 1].Limited = 0
+			this._negAlert.warn(this._negTranslate.get('new.wrong.smaller'))
+			this._negAlert.notify('Notify', () => { }, { type: 'success' });
+		}
+		else {
+			this.formControl.Topics[topicID - 1].Limited = temp
 		}
 	}
 
-	//输入数据，由全角转换为半角
-	public fullWidth2HalfWidth(tempInput){
-		let result = tempInput.replace(/[０１２３４５６７８９]/g, function (v) { return v.charCodeAt(0) - 65296; });
-		return parseInt(result);
-	}
-
-	//判断页面填写是否合法
-	public judgeNormal(): boolean {
-		let isNormal: boolean = false;
-		if (this.formControl.title != "" && this.formControl.title.replace(/\s+/g, "") != "") {
-			let k = 0;
-			for (let i = 0; i < this.formControl.topics.length; i++) {
-				if (this.formControl.topics[i].topicTitle == undefined) {
-					this.formControl.topics[i].topicTitle = "";
-				}
-				//全角转半角
-				this.formControl.topics[i].limited = this.fullWidth2HalfWidth(this.formControl.topics[i].limited.toString());
-
-				if (this.formControl.topics[i].options.length >= this.formControl.topics[i].limited && this.formControl.topics[i].limited >= 0 && !isNaN(this.formControl.topics[i].limited) && this.formControl.topics[i].topicTitle != "") {
-					k++;
-				}
-			}
-			if (k == this.formControl.topics.length || this.formControl.topics.length == 0) {
-				if (this.formControl.description.length > 3800) {
-					this._negAlert.warn("Description limit 1000 characters, beyond the automatic interception, please note");
-				} else {
-					isNormal = true;
-				}
-			}
-		}
-		return isNormal;
-	}
-
-	//组装页面所有信息成Questionnaire对象
-	public assemblyQuestionnaire() {
-		this.formControl.title = this.formControl.title.replace(/(^\s*)/g, "");
-		this.formControl.title = this.formControl.title.replace(/(\s*$)/g, "");
-		let labelOptions = document.getElementsByClassName('labelOption');
-		let spanTopics = document.getElementsByClassName('spanTextTitle');
-
-		//组装Topic
-		for (let i = 0; i < this.formControl.topics.length; i++) {
-			let sortArrayIndex = parseInt(spanTopics[i].attributes["title"].value) + 1;
-			this.formControl.topics[i].topicID = sortArrayIndex.toString();
-		}
-		//排序Topic
-		this.formControl.topics.sort(this.sortTheQuestionnaire);
-
-		//组装Option
-		let k = 0;
-		for (let i = 0; i < this.formControl.topics.length; i++) {
-			for (let j = 0; j < this.formControl.topics[i].options.length; j++) {
-				this.formControl.topics[i].options[j].optionID = labelOptions[k].getElementsByTagName('span')[0].innerHTML;
-				this.formControl.topics[i].options[j].topicID = this.formControl.topics[i].topicID;
-				k++;
-			}
-		}
-
-	}
-
-	//发布和保存功能：判断进行新建还是修改操作
-	public saveAndCreateQuestionnaire(numStatus: number) {
-		this.judgeSaveOrCreate = numStatus;
-		if (this.judgeNormal()) {
-			if (numStatus == 1) {
-				if (this.formControl.dueDate != undefined) {
-					if (this.formControl.dueDate >= this.dateTimePickerMin) {
-						if (this.isUpdate) {
-							this.updateQuestionnaire(this.formControl.questionnaireID);
-						} else {
-							this.createQuestionnaire(numStatus);
-						}
-					} else {
-						this._negAlert.error("Please check if your Deadline is legal！");
-					}
-
-				} else {
-					this._negAlert.error("Please check your fill is valid(Such as: Deadline)！");
-				}
-			} else {
-				if (this.formControl.dueDate == undefined) {
-					this.formControl.dueDate = null;
-				}
-				if (this.isUpdate) {
-					this.updateQuestionnaire(this.formControl.questionnaireID);
-				} else {
-					this.createQuestionnaire(numStatus);
-				}
-			}
-
-		} else {
-			this._negAlert.error("Please check your fill is valid(Such as:Limited, Questionnaire Title or Topic Title！！");
+	public getStanderdDate(dateGet) {
+		if (dateGet != undefined && dateGet != null) {
+			return dateGet.substr(0, 6) == '/Date(' ? this.date(dateGet) : new Date(dateGet);
 		}
 	}
 
-	//对应修改功能
-	public updateQuestionnaire(tmpID: string) {
-		if (tmpID != "") {
-			this.assemblyQuestionnaire();
-			this.formControl.status = this.judgeSaveOrCreate;
+	public dmft(d) {
+		return d.getFullYear() + '-' + this.pad(d.getMonth() + 1) + '-' + this.pad(d.getDate()) + ' ' + this.pad(d.getHours()) + ':' + this.pad(d.getMinutes());
+	}
 
-			this.isControl = false;
-			this.putTheQuestionnaire(this.formControl, {});
+	public date(s) {
+		return new Date(parseFloat(/Date\(([^)]+)\)/.exec(s)[1]));
+	}
+
+	public pad(d) {
+		return d < 10 ? '0' + d : d;
+	}
+
+	public titlePlace(input) {
+		document.getElementById('questionnaire').placeholder = this._negTranslate.get('new.questionnaire.titleTip')
+	}
+
+	public select(id) {
+		if (id == this.selectedOption) {
+			document.getElementById('img' + this.selectedOption.toString()).style.backgroundColor = 'white'
+			this.formControl.BackgroundImageUrl = ""
+			this.selectedOption = -1
+		}
+		else if (this.selectedOption != -1) {
+			this.formControl.BackgroundImageUrl = this.imgUrls[id]
+			document.getElementById('img' + this.selectedOption.toString()).style.backgroundColor = 'white'
+			document.getElementById('img' + id).style.backgroundColor = 'rgb(162, 210, 160)'
+			this.selectedOption = id
+		}
+		else {
+			this.formControl.BackgroundImageUrl = this.imgUrls[id]
+			document.getElementById('img' + id).style.backgroundColor = 'rgb(162, 210, 160)'
+			this.selectedOption = id
 		}
 	}
-
-	//对应发布功能：新建一张调查问卷
-	public createQuestionnaire(numStatus: number) {
-		this.assemblyQuestionnaire();
-		this.formControl.status = numStatus;
-		this.isControl = false;
-		this.postTheQuestionnaire(this.formControl, {});
+	public backToHome() {
+		// this._route.navigate(['/eggrolls/index']);
+		this.negMultiTab.openPage('/eggrolls/index', null, false)
 	}
-
-	//post请求调查问卷：新建调查问卷的service方法调用
-	public postTheQuestionnaire(postQuestionnaire: Questionnaire, postHeader) {
-		this._createService.postQuestionnaire(postQuestionnaire, postHeader).then(({ data }) => {
-			let resData = data.Questionnaire;
-
-			if (resData.QuestionnaireID != null) {
-				//当前编辑的问卷ID为提交成功后的ID
-				this.formControl.questionnaireID = resData.QuestionnaireID;
-				this.isControl = true;
-
-				//this._negAlert.success("发布成功！！！");
-				if (this.judgeSaveOrCreate == 0) {
-					this._negAlert.success("Saved successfully！");
-					this.isControl = true;
-					this.isUpdate = true;
-					this.allowCreate = true;
-					this.setLinkView = false;
-				} else {
-					//this._negAlert.success("Publish successfully！！！");
-					this.isControl = true;
-					this.isUpdate = true;
-					this.allowCreate = false;
-					this.setLinkView = true;
-				}
-				//弹出问卷链接标记置true
-				this.questionnaireLink = this.apiRootUrl + "?questionnaireID=" + this.formControl.questionnaireID;
-
-			} else {
-				this.isControl = true;
-
-				if (this.judgeSaveOrCreate == 0) {
-					this._negAlert.error("Saved failed！");
-					this.isControl = true;
-					this.isUpdate = false;
-					this.allowCreate = true;
-				} else {
-					this._negAlert.error("Publish failed！");
-					this.isControl = true;
-					this.isUpdate = false;
-					this.allowCreate = true;
-				}
-			}
-		},
-			error => this._negAlert.error("PUT Operation error！"));
-
-	}
-
-	//put请求调查问卷：更新调查问卷的service方法调用
-	public putTheQuestionnaire(putQuestionnaire: Questionnaire, putHeader) {
-		this._updateService.putQuestionnaire(putQuestionnaire, putHeader).then(({ data }) => {
-			let resData = data;
-			if (resData.EffectRows != "0") {
-				this.isControl = true;
-				this.isUpdate = true;
-				//this._negAlert.success("保存成功！！！");
-				if (this.judgeSaveOrCreate == 0) {
-					this.isUpdate = true;
-					this.isControl = true;
-					this._negAlert.success("Saved successfully！");
-					this.setLinkView = false;
-					this.allowCreate = true;
-				} else {
-					this.isUpdate = true;
-					this.isControl = true;
-					//this._negAlert.success("Publish successfully！！！");
-					this.setLinkView = true;
-					this.allowCreate = false;
-				}
-				//弹出问卷链接标记置true
-				this.questionnaireLink = this.apiRootUrl + "?questionnaireID=" + this.formControl.questionnaireID;
-			} else {
-				this.isControl = true;
-				this.isUpdate = true;
-				if (this.judgeSaveOrCreate == 0) {
-					this.isUpdate = true;
-					this.isControl = true;
-					this._negAlert.error("Saved failed！");
-					this.setLinkView = false;
-					this.allowCreate = true;
-				} else {
-					this.isUpdate = true;
-					this.isControl = true;
-					this._negAlert.error("Publish failed！");
-					this.setLinkView = false;
-					this.allowCreate = true;
-				}
-			}
-		},
-			error => this._negAlert.error("PUT Operation error！"));
-	}
-
-	//post请求邮件：新建邮件发送的service方法调用
-	public postEmail(postEmail: Email, postHeader) {
-		this._createService.postEmail(postEmail, postHeader).then(({ data }) => {
-			let resData = data;
-			if (resData.IsSendSuccess) {
-				this._negAlert.success("Mail sent successfully！");
-				this.setLinkView = false;
-				setTimeout(() => {
-					this._route.navigate(['/intern-eggrolls/index']);
-				}, 1000);
-			} else {
-				this._negAlert.error("Mail delivery failed！")
-				this.setLinkView = true;
-			}
-		},
-			error => {
-				if (error.status == 500) {
-					this._negAlert.error("Mail delivery failed！");
-					this._negAlert.error("Please check the email address is correct！");
-				} else {
-					this._negAlert.error("Mail delivery failed！");
-				}
-			});
+	public trimString(source: string) {
+		return source == undefined ? "" : source.trim()
 	}
 }
-
-//调试用函数：输出传入对象的类名
-function getObjectClass(obj) {
-	if (obj && obj.constructor && obj.constructor.toString) {
-		var arr = obj.constructor.toString().match(
-			/function\s*(\w+)/);
-
-		if (arr && arr.length == 2) {
-			return arr[1];
-		}
-	}
-	return undefined;
-}
-
-
-
-
-
-
-
-

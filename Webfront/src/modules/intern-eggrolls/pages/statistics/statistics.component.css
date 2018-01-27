@@ -12,8 +12,10 @@
 .optioned{
     display: inline-block;
     border:1px solid rgb(162, 210, 160);
-    font-size: 7px;
+    font-size: 10px;
     padding: 4px;
+    margin-left: 3px;
+    margin-right: 3px;
     color:black;
     border-radius:5px;
     -moz-border-radius:5px;
@@ -22,32 +24,34 @@
 .chosen{
     background-color: rgb(162, 210, 160);
 }
-.topicTitle{
-    font-size: 15px;
-    margin-bottom: 5px;
-}
 .topic{
     margin-bottom:10px;
+}
+.topicTitleStati{
+    font-size: 15px;
+    margin-bottom: 5px;
+    font-size: 15px;
+    margin-top: 5px;
+}
+.textAlign{
 }
 .staticPanel{
     border:3px solid rgb(198, 221, 252);
     color:black;
     border-radius:5px;
     -moz-border-radius:5px;
-    margin-left: 10px;
-    margin-right: 10px;
+    margin-left: 5px;
+    margin-right: 5px;
     margin-bottom: 10px;
 }
 .staticTitle{
-    padding: 5px;
+    padding: 3px;
     background-color: rgb(198, 221, 252);
 }
 .staticOption{
-    padding-top:7px;
-    margin-top: -5px;
-    padding-left: 5px;
-    padding-bottom: 5px;
+    padding: 3px;
     border-top: 3px solid rgb(198, 221, 252);
+    background-color: white
 }
 .staticCol{
     width: 100px;
@@ -55,14 +59,21 @@
     float: right;
 }
 .staticColText{
-    width: 90px;
     display: inline-block;
-    margin-left: 5px;
+    margin-right: 5px;
+}
+.w1{
+    width: 65px;
+}
+.w2{
+    width: 125px;
+}
+.w3{
+    width: 70px;
 }
 .staticCol404{
-    width: 200px;
+    width: 100%;
     display: inline-block;
-    margin-left: 5px;
 }
 a{
     text-decoration : none;

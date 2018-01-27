@@ -1,23 +1,20 @@
-<div id="back">
-</div>
-
+<div id='backImg' style="top:0;bottom:0;left:0;right:0;position:fixed;height:100%"></div>
 <div class="mainTain" id="mainTain" >
     <div>
-        <div class="row title">{{questionnaire.Title}}</div>
+        <div class="row title wordBreak">{{questionnaire.Title}}</div>
         <div class="row information">
-            {{questionnaire.IsRealName? "Real name":"Anonymous"}} &nbsp;&nbsp;Deadline: {{questionnaire.dueDate == "Invalid Date"? "":questionnaire.dueDate|
-            date:"y-MM-dd HH:mm"}} &nbsp;&nbsp;Link:
-            <a class="a" style="text-decoration : none" target="_blank" href="intern-eggrolls/questionnaire?questionnaireID={{questionnaire.QuestionnaireID}}">http://10.16.75.27:8211/intern-eggrolls/questionnaire?questionnaireID={{questionnaire.QuestionnaireID}}</a>
+        {{questionnaire.IsRealName? ('answer.questionnaire.realName' | translate):('answer.questionnaire.anonymous' | translate)}} &nbsp;&nbsp;{{'answer.questionnaire.deadline' | translate}}: {{questionnaire.DueDate == undefined?"":getStanderdDate(questionnaire.DueDate)}}
         </div>
         <div id="divDescription2" class="row description wordBreak"></div>
         <div *ngFor="let topic of questionnaire.Topics;">
             <div>
                 <div class="row topicTitle" id={{topic.TopicID}}>
-                    {{topic.TopicID}}.{{topic.TopicTitle}}
+                    {{topic.TopicID}}. {{topic.TopicTitle}}
                     <span class="tips">
-                        {{topic.Type == 'Checkbox'? ' Multiple choice ':''}}
-                        {{topic.Type != 'Checkbox' || topic.Limited == 0 || topic.Limited == undefined? '':', have to choose ' + topic.Limited + ' options'}}
-                        {{topic.IsRequired? ' *':''}}</span>
+                        {{topic.Type == 'Checkbox'? ('answer.topic.multiChoice' | translate) : ''}}
+                        {{topic.Type != 'Checkbox' || topic.Limited == 0|| topic.Limited == undefined? '':('answer.topic.limitTip1' | translate) + topic.Limited + ('answer.topic.limitTip2' | translate)}}
+                        {{topic.IsRequired? ('answer.topic.requiredTip' | translate):''}}
+                    </span>
                 </div>
                 <div [ngSwitch]="topic.Type">
                     <div *ngSwitchCase="'Radio'" class="row">
@@ -28,7 +25,7 @@
                                     <i *ngIf="option.isAnswer == true" class="fa fa-check"></i>
                                 </div>
                                 <input class='input' type="radio" name={{topic.TopicID}} id={{topic.TopicID+option.OptionID}} value={{option.OptionID}}>
-                                {{option.OptionID}}.{{option.OptionTitle}}
+                                {{option.OptionID}}. {{option.OptionTitle}}
                             </label>
                             </div>
                         </form>
@@ -41,7 +38,7 @@
                                     <i *ngIf="option.isAnswer == true" id="i{{topic.TopicID+option.OptionID}}" class="fa fa-check"></i>
                                 </div>
                                 <input class='input' type="checkbox" name={{topic.TopicID}} id={{topic.TopicID+option.OptionID}} value={{option.OptionID}}>
-                                {{option.OptionID}}.{{option.OptionTitle}}
+                                {{option.OptionID}}. {{option.OptionTitle}}
                             </label>
                             </div>
                         </form>
@@ -55,9 +52,9 @@
             </div>
         </div>
     </div>
-    <div class="row">
+    <div class="row backDiv">
         <a href="javascript:;" (click)="gobackDetails()" class="buttoned submitButton">
-            Back
+            {{'answer.answer.back' | translate}}
         </a>
     </div>
     <div id="" class="row backAfter"></div>

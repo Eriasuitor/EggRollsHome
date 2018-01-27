@@ -6,7 +6,6 @@
     background:rgb(0, 110, 255);
     font-size: 20px; padding:10px
 }
-
 .radius5{
     border:1px solid rgb(222, 236, 255);
     border-radius:5px;
@@ -28,4 +27,30 @@ a{
 }
 a:hover{
     text-decoration:none;
-    }
+}
+a:active{
+    text-decoration:none;
+}
+a:link{
+    text-decoration:none; 
+}
+.indexSpan:hover{
+    background-color: rgb(222, 236, 255)
+}
+.indexSpanSelected{
+    font-weight: bold;
+    background-color: rgb(222, 236, 255);
+}
+.indexSpan{
+    text-align: center;
+    display: inline-block;
+    width: 25px;
+    padding: 5px;
+    margin: 0px;
+    border: 0px;
+    border-radius:5px;
+    -moz-border-radius:10px;
+    white-space: normal;
+    text-decoration: none;
+    color: black;
+}

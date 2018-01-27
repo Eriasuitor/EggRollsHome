@@ -1,72 +1,90 @@
 <navigationBar></navigationBar>
-<div class="ntk-Create">
-    <div class="row title">
-        <input name="questionnaire" [(ngModel)]="formControl.title" type="text" placeholder="Click here to edit the title of the questionnaire"
-            maxlength="50em">
+<div class="ntk-Create" id='mainTain'>
+    <div id="questionnaireWrong" class="badge wrongBadge" style="margin-left: 700px;margin-bottom:-27px;">{{'new.wrong.queTitle' | translate }}</div>
+    <div class="row title2">
+        <input id="questionnaire" [(ngModel)]="formControl.Title" type="text" placeholder="{{'new.questionnaire.titleTip' | translate }}"
+            maxlength="50em" onfocus="this.placeholder=''" (blur)="titlePlace()" (click)="reduction('questionnaireWrong')">
     </div>
     <div class="row information">
-        <label for="">
-            Real name
-            <input name="isRealName" type="checkbox" checked="true" [(ngModel)]="formControl.isRealName" />
+        <label>
+            {{'new.questionnaire.realName' | translate }}
+            <input name="isRealName" type="checkbox" checked="true" [(ngModel)]="formControl.IsRealName" />
         </label>
         &nbsp;&nbsp;
-        <label for="">
-            Deadline:
-            <kendo-datepicker class="datePicker" [min]="dateTimePickerMin" [format]="'yyyy-MM-dd HH:mm'" name="createDueDate" [(ngModel)]="formControl.dueDate"></kendo-datepicker>
+        <label id="deadline">
+            {{'new.questionnaire.deadline' | translate }}
+            <kendo-datepicker (click)="reduction('deadlineWrong')" class="datePicker" [min]="dateTimePickerMin" [format]="'yyyy-MM-dd HH:mm'"
+                name="createDueDate" [(ngModel)]="formControl.DueDate"></kendo-datepicker>
         </label>
+        <div id="deadlineWrong" class="badge wrongBadge">{{'new.wrong.deadline' | translate }}</div>
     </div>
-    <div class="QuestionnaireDescription row">
-        <div class="span">Please edit the description of the questionnaire below</div>
-        <ck-editor class="editor" title="" name="editor1" [config]="{skin:'office2003',uiColor: '#FFFFFF',toolbar:'Basic',toolbarCanCollapse:true}"
-            [readonly]="false" (on)="formControl.description = $event.values" debounce="500" [(ngModel)]="formControl.description"
-            language="en" removePlugins='elementspath' height="300px" config.toolbar='Basic'></ck-editor>
+    <div class="QuestionnaireDescription row" *ngIf="valve">
+        <div class="span">{{'new.questionnaire.descriptionTip' | translate }}</div>
+        <ck-editor class="editor" title="" name="editor1" [config]="{skin:'office2003',uiColor: '#FFFFFF',toolbar:'Basic',toolbarCanCollapse:true,removePlugins:'elementspath'}"
+            [readonly]="false" (on)="formControl.Description = $event.values" debounce="500" [(ngModel)]="formControl.Description"
+            language="{{'new.questionnaire.language' | translate }}" height="300px" config.toolbar='Basic'></ck-editor>
     </div>
-
-    <div *ngFor="let item of formControl.topics; let j = index">
-            j1:{{j}}
-        <div class="topicForm row formList">
-            j2:{{j}}
+    <div *ngIf="formControl.Topics.length == 0" class="noTopicTip">{{'new.topic.noTopicTip' | translate }}
+        <div id="topicWrong" class="badge wrongBadge">{{'new.wrong.noTopic' | translate }}</div>
+    </div>
+    <div *ngFor="let item of formControl.Topics;let y = index">
+        <div class="topicForm row formList" id="{{item.TopicID}}">
             <div class="row topicSetting">
-                j3:{{j}}
-                <a href="javascript:;" class="fa fa-remove floatRight topicButton" (click)="deleteTopicControl(j)"></a>
-                <a href="javascript:;" class="fa fa-arrow-down floatRight topicButton" (click)="deleteTopicControl(j)"></a>
-                <a href="javascript:;" class="fa fa-arrow-up floatRight topicButton" (click)="deleteTopicControl(j)"></a>
-                <a href="javascript:;" draggable="true" class="fa fa-arrows floatRight topicButton" (click)="deleteTopicControl(j)"></a>
+                <a style="cursor:pointer" draggable="false">
+                    <i class="fa fa-remove floatRight topicButton" (click)="deleteTopicControl(item.TopicID)"></i>
+                </a>
+                <a style="cursor:pointer" draggable="false" *ngIf="y != formControl.Topics.length-1">
+                    <i class="fa fa-arrow-down floatRight topicButton" (click)="exchange(item.TopicID, item.TopicID + 1)"></i>
+                </a>
+                <a style="cursor:pointer" draggable="false" *ngIf="y != 0">
+                    <i class="fa fa-arrow-up floatRight topicButton" (click)="exchange(item.TopicID, item.TopicID - 1)"></i>
+                </a>
+                <a style="cursor:pointer">
+                    <i draggable="true" class="drag fa fa-arrows floatRight topicButton"></i>
+                </a>
                 <label class="floatRight setWidth">
-                    <input name="isRequired{{j}}" id="isRequired{{j}}" type="checkbox" checked="true" [(ngModel)]="formControl.topics[j].isRequired">Required
+                    <input type="checkbox" checked="true" [(ngModel)]="item.IsRequired"> {{'new.topic.required' | translate }}
                 </label>
                 <label *ngIf="item.Type == 'Checkbox'" class="floatRight setWidth">
-                    Limit
-                    <input class="width2Char" name="isLimited{{j}}" id="isLimited{{j}}" type="text" [(ngModel)]="formControl.topics[j].limited">
+                    <input type="checkbox" readonly="readonly" style="visibility:hidden"> {{'new.topic.limit' | translate }}
+                    <input class="width2Char" (change)="limitJudgment(item.TopicID)" type="text" [(ngModel)]="item.Limited">
                 </label>
             </div>
             <div class="row topicTitle">
-                    j4:{{j}}
-                <span class="spanTextTitle" title="{{j}}">{{j}}</span>
-                <input class="topicInput" type="text" placeholder="Enter the title here" [(ngModel)]="formControl.topics[j].topicTitle">
-                <span class="tips">
-                    {{item.Type == 'Checkbox'? ' Multiple choice ':''}} {{item.Type != 'Checkbox' || item.Limited == 0 || item.Limited == undefined?
-                    '':', have to choose ' + item.Limited + ' options'}} {{item.IsRequired? ' *':''}} &nbsp;&nbsp;&nbsp;
+                <span class="spanTextTitle">{{item.TopicID}}
+                    <input (click)="reduction(item.TopicID + 'Wrong')" tabindex="{{item.TopicID*100}}" class="topicInput" type="text" placeholder="{{'new.topic.topicTip' | translate }}"
+                        [(ngModel)]="item.TopicTitle" maxlength="100em">
                 </span>
+                <span class="tips" id="{{item.TopicID}}tips">
+                    {{item.Type == 'Checkbox'? ('new.topic.multiChoice' | translate):''}} {{item.Type != 'Checkbox' || item.Limited == 0 || item.Limited
+                    == undefined? '':('new.topic.limitTip1' | translate) + item.Limited + ('new.topic.limitTip2' | translate)}}
+                    {{item.IsRequired? ('new.topic.requiredTip' | translate):''}} &nbsp;&nbsp;&nbsp;
+                </span>
+                <div id="{{item.TopicID}}Wrong" class="badge wrongBadge">{{'new.wrong.topicTitle' | translate }}</div>
             </div>
             <div *ngIf="item.Type != 'Text'" class="row">
                 <div class="optionForm">
-                    <div *ngFor="let itemOption of item.options; let k = index">
-                        <div class="labelOption">
-                            <span>{{k|Num2LetterBySort}}
+                    <div *ngFor="let itemOption of item.Options;">
+                        <div class="labelOption" id="{{item.TopicID}}+{{itemOption.OptionID}}">
+                            <span class="labelOptionSpan">
+                                {{itemOption.OptionID}}
                             </span>
-                            <input class="optionInput" type="text" placeholder="Enter the option here" [(ngModel)]="formControl.topics[j].options[k].optionTitle">
-                            <div class="btn-group" role="group" aria-label="Basic example">
-                                <button type="button" class="btn btn-secondary" (click)="addOptionControl(j,k)">+</button>
-                                <button type="button" class="btn btn-secondary" (click)="deleteOptionControl(j,k)">-</button>
-                            </div>
+                            <input (click)="reduction(item.TopicID + itemOption.OptionID + 'Wrong')" maxlength="80em" tabindex="{{item.TopicID*100 + itemOption.OptionID.charCodeAt(0) - 64}}"
+                                class="optionInput" type="text" placeholder="{{'new.topic.optionTip' | translate }}" [(ngModel)]="itemOption.OptionTitle">
+                            <a class='optionOption' href="javascript:;" draggable="false">
+                                <i style="cursor:pointer" class="fa fa-plus" (click)="addOptionControl(item.TopicID, itemOption.OptionID)"></i>
+                            </a>
+                            <a class='optionOption' href="javascript:;" draggable="false">
+                                <i style="cursor:pointer" class="fa fa-remove" (click)="deleteOptionControl(item.TopicID, itemOption.OptionID)"></i>
+                            </a>
+                            <div id="{{item.TopicID}}{{itemOption.OptionID}}Wrong" class="badge wrongBadge">{{'new.wrong.optionTitle' | translate }}</div>
                         </div>
                     </div>
                 </div>
             </div>
             <div *ngIf="item.Type == 'Text'" class="row">
                 <div class="optionForm">
-                    <textarea class="textarea2" readonly="true" placeholder=" The respondent will answer here"></textarea>
+                    <textarea class="textarea2" readonly="true" placeholder="{{'new.topic.textTip' | translate }}"></textarea>
                 </div>
             </div>
         </div>
@@ -74,101 +92,57 @@
     </div>
 
     <div class="buttonAddForm">
-        <div class="btn-group btn-group-lg buttonAddTopic row" role="group" aria-label="Basic example">
-            <button type="button" class="btn btn-default" (click)="addFormControl('Radio')">Single choice</button>
-            <button type="button" class="btn btn-default" (click)="addFormControl('Checkbox')">Multiple choice</button>
-            <button type="button" class="btn btn-default" (click)="addFormControl('Text')">Subjective questions</button>
-            <button type="button" class="btn btn-default" (click)="setAppearance(true)">Background image</button>
-            <!-->-弹出的模态层：用于设置背景图片-</!-->
-        </div>
-        <div class="createBtnGroup">
-            <nk-modal [(shown)]="setAppearanceView" header="设置外观" (onOk)="setAppearance(false)">
-                <label for="">
-                    New Year's Day
-                    <input name="setAppearanceUrl" type="radio" [value]="'http://10.1.24.133/EaaS/Message/EggRolls_NewYear.jpg'" [(ngModel)]="formControl.backgroundImageUrl"
-                    />
-                </label>
-                <label for="">
-                    Chinese New Year
-                    <input name="setAppearanceUrl" type="radio" [value]="'http://10.1.24.133/EaaS/Message/EggRolls_ChineseNewYear.jpg'" [(ngModel)]="formControl.backgroundImageUrl"
-                    />
-                </label>
-                <label for="">
-                    Flower
-                    <input name="setAppearanceUrl" type="radio" [value]="'http://10.1.24.133/EaaS/Message/EggRolls_Flower.jpg'" [(ngModel)]="formControl.backgroundImageUrl"
-                    />
-                </label>
-                <label for="">
-                    Grass
-                    <input name="setAppearanceUrl" type="radio" [value]="'http://10.1.24.133/EaaS/Message/EggRolls_Grass.jpg'" [(ngModel)]="formControl.backgroundImageUrl"
-                    />
-                </label>
-                <label for="">
-                    Cloud
-                    <input name="setAppearanceUrl" type="radio" [value]="'http://10.1.24.133/EaaS/Message/EggRolls_Cloud.jpg'" [(ngModel)]="formControl.backgroundImageUrl"
-                    />
-                </label>
-                <label for="">
-                    Antiquity
-                    <input name="setAppearanceUrl" type="radio" [value]="'http://10.1.24.133/EaaS/Message/EggRolls_Antiquity.jpg'" [(ngModel)]="formControl.backgroundImageUrl"
-                    />
-                </label>
-                <label for="">
-                    Dream
-                    <input name="setAppearanceUrl" type="radio" [value]="'http://10.1.24.133/EaaS/Message/EggRolls_Dream.jpg'" [(ngModel)]="formControl.backgroundImageUrl"
-                    />
-                </label>
-                <label for="">
-                    ChineseNewYear2
-                    <input name="setAppearanceUrl" type="radio" [value]="'http://10.1.24.133/EaaS/Message/EggRolls_ChineseNewYear2.jpg'" [(ngModel)]="formControl.backgroundImageUrl"
-                    />
-                </label>
-                <label for="">
-                    Christmas
-                    <input name="setAppearanceUrl" type="radio" [value]="'http://10.1.24.133/EaaS/Message/EggRolls_Christmas.jpg'" [(ngModel)]="formControl.backgroundImageUrl"
-                    />
-                </label>
-                <label for="">
-                    Mountaineering
-                    <input name="setAppearanceUrl" type="radio" [value]="'http://10.1.24.133/EaaS/Message/EggRolls_Mountaineering.jpg'" [(ngModel)]="formControl.backgroundImageUrl"
-                    />
-                </label>
-                <label for="">
-                    Watercolor
-                    <input name="setAppearanceUrl" type="radio" [value]="'http://10.1.24.133/EaaS/Message/EggRolls_Watercolor.jpg'" [(ngModel)]="formControl.backgroundImageUrl"
-                    />
-                </label>
-                <label for="">
-                    Gift
-                    <input name="setAppearanceUrl" type="radio" [value]="'http://10.1.24.133/EaaS/Message/EggRolls_Gift.jpg'" [(ngModel)]="formControl.backgroundImageUrl"
-                    />
-                </label>
-                <img src="{{formControl.backgroundImageUrl}}" alt="PreviewImg" width="350px" height="200px">
-            </nk-modal>
+        <div class="btn-group btn-group-lg  buttonAddTopic row" role="group" aria-label="Basic example">
+            <button type="button" class="btn btn-default" (click)="addFormControl('Radio')">{{'new.topic.singleChoice' | translate }}</button>
+            <button type="button" class="btn btn-default" (click)="addFormControl('Checkbox')">{{'new.topic.multiChoice' | translate }}</button>
+            <button type="button" class="btn btn-default" (click)="addFormControl('Text')">{{'new.topic.subjQuestion' | translate }}</button>
         </div>
     </div>
-
-    <div class="ControlButton">
-        <button type="button" class="btn btn-default setBtn" (click)="priviewTheQuestionnaire()">Preview</button>
-        <button type="button" class="btn btn-primary setBtn" (click)="saveAndCreateQuestionnaire(0)" [disabled]="!isControl">Save</button>
-        <button type="button" class="btn btn-success setBtn" (click)="saveAndCreateQuestionnaire(1)" [disabled]="!isControl || !allowCreate">Publish</button>
-        <!-->///发布成功后的问卷调查页面</!-->
-        <nk-modal [(shown)]="setLinkView" header="Succeed" (onOk)="setLink(false)" (onCancel)="setLinkClose()" (onHidden)="setLinkClose()"
-            okText="Send Email">
-            <label for="">
-                Your questionnaire link is:
-            </label>
-            <label for="">
-                {{questionnaireLink}}
-            </label>
-            <br>
-            <label for="">
-                Send email to(if there is more than one, please split with ";"):
-                <br>
-                <input kendoTextBox style="width:300px;" name="email" [(ngModel)]="emailControl.to" />
-            </label>
-        </nk-modal>
+    <div class="Settings row">
+        {{'new.topic.mailTo' | translate }}:
+        <input class="optionInput" type="text" [(ngModel)]="formControl.MailTo" placeholder="(e.g.)xxx.x.xx@newegg.com;IT.Helpdesk@newegg.com;xxxxxxxx@qq.com">
+        <br>
+        <br> {{'new.topic.backgImg' | translate }}:
+        <a draggable="false" href="javascript:;" *ngFor="let img of imgUrls; let x = index" (click)="select(x)" id="img{{x}}" class="optioned"
+            style="text-decoration : none;margin-bottom:10px">
+            <i style="font-style:normal">{{img.substring(img.indexOf('_') + 1, img.length - 4)}}</i>
+        </a>
+        <div style="text-align:center;margin-top:20px">
+            <img *ngIf="formControl.BackgroundImageUrl != ''" src="{{formControl.BackgroundImageUrl}}" alt="{{'new.topic.noImg' | translate}}" width="350px" height="200px">
+            <div *ngIf="formControl.BackgroundImageUrl == ''" style="width:350px; height:200px;display:inline-block">{{'new.topic.noImg' | translate}}</div>
+        </div>
+        <div class="ControlButton">
+            <button type="button" class="btn btn-default setBtn" (click)="priviewTheQuestionnaire()">{{'new.topic.preview' | translate }}</button>
+            <button type="button" class="btn btn-inf setBtn" (click)="publishAndSave(true)">{{'new.topic.save' | translate }}</button>
+            <button type="button" class="btn btn-success setBtn" (click)="publishAndSave(false)">{{'new.topic.publish' | translate }}</button>
+        </div>
     </div>
-    <!-->--------------------新建调查问卷-功能页面------------------------</!-->
-
+    <div class="modal fade" id="modal-container-268549" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">
+                        {{'new.transfer.published' | translate}}
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class='successList'>
+                        <i *ngIf="pubSuccess == true" class="fa fa-check-square-o  fa-lg"> {{'new.transfer.published' | translate}}</i>
+                        <i *ngIf="pubSuccess != true" class="fa fa-close  fa-lg"> {{'new.wrong.pubFailed' | translate}}</i>
+                    </div>
+                    <div class='successList'>
+                        <i *ngIf="trimString(formControl.MailTo) != '' && sendSuccess == true" class="fa fa-check-square-o  fa-lg"> {{'new.transfer.sent' | translate}}</i>
+                        <i *ngIf="trimString(formControl.MailTo) != '' && sendSuccess != true" class="fa fa-close  fa-lg"> {{'new.wrong.sendFailed' | translate}}</i>
+                    </div>
+                    <div class='successList'>
+                        <i class="fa fa-link fa-lg"> {{'new.transfer.answerLink' | translate}}</i>
+                        <a class="a" style="text-decoration : none;" target="_blank" href="eggrolls/questionnaire?questionnaireID={{formControl.QuestionnaireID}}">{{environmentUrl}}/eggrolls/questionnaire?questionnaireID={{formControl.QuestionnaireID}}</a>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" (click)='backToHome()'>{{'new.transfer.back' | translate}}</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

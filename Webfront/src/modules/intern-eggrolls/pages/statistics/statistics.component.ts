@@ -1,8 +1,12 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Router } from '@angular/router';
-import { NegAjax, NegAlert, NegAuth, NegStorage } from '@newkit/core';
 
-import { MyService } from '../../services';
+import { NegAjax, NegAlert, NegAuth, NegStorage, NegTranslate, NegMultiTab } from '@newkit/core';
+
+import {AnswerParticipatorService} from '../../services/AnswerParticipatorService'
+import {AnswerSheetStatisticsService} from '../../services/AnswerSheetStatisticsService'
+
+import {Environment} from '../../config/Environment'
 
 import './statistics.component.css';
 import { Questionnaire } from '../../components/Model/Questionnaire';
@@ -21,26 +25,205 @@ export class StatisticsComponent implements OnInit {
 	public detail: any = {};
 	public questionnaireID: number;
 	public url = null;
+	public environmentUrl:string
 
 	constructor(
 		private router: Router,
 		private negAjax: NegAjax,
 		private negAlert: NegAlert,
-		private _service: MyService,
 		private _negAuth: NegAuth,
-		private _negStorage: NegStorage
-	) { }
+		private _negStorage: NegStorage,
+		private _negTranslate:NegTranslate,
+		private answerParticipatorService:AnswerParticipatorService,
+		private answerSheetStatisticsService:AnswerSheetStatisticsService,
+		private _environment:Environment,
+		private negMultiTab: NegMultiTab
+	) {
+		this.environmentUrl = _environment.getEnvironmentUrl()
+	 }
 
 	ngOnInit() {
-		this.questionnaireID = this._negStorage.memory.get("sID");
-		this._negStorage.memory.remove("sID");
-		let ret = this._service.getStatistics(this.questionnaireID)
-		ret.then(({ data }) => {
-			this.statistics = data
-			document.getElementById("description").innerHTML = this.statistics.Description;
-			console.log(this.statistics);
-			console.log(typeof(this.statistics.DueDate))
-		}, error => this.statistics = undefined)
+		this.negMultiTab.setCurrentTabName('Egg Rolls')
+		if(this._negStorage.memory.get("sID") == undefined){
+			// this.router.navigate(['/eggrolls/404'])
+			this.negMultiTab.openPage('/eggrolls/404', null, false)
+		}
+		else{
+			this.questionnaireID = this._negStorage.memory.get("sID");
+			this._negStorage.memory.remove("sID");
+			let ret = this.answerSheetStatisticsService.OnGet(this.questionnaireID)
+			ret.then(({ data }) => {
+				if(data.Succeeded == true){
+					this.statistics = data
+					document.getElementById("description").innerHTML = this.statistics.Description;
+				}
+				else{
+					this.negAlert.error(this._negTranslate.get('statistics.statistics.getFailed'))
+				}
+			}, error => this.negAlert.error(this._negTranslate.get('statistics.statistics.getFailed')))
+		}
+		this._negTranslate.set('statistics', {
+			'en-us': {
+				questionnaire: {
+					realName: 'Real name',
+					anonymous:'Anonymous',
+					deadline: 'Deadline',
+					export:'Export Result',
+					link:'Link'
+				},
+				topic: {
+					multiChoice: 'Multiple choice',
+					limit: 'Limit',
+					limitTip1: ', have to choose ',
+					limitTip2: ' options',
+					requiredTip: ' *',				
+				},
+				statistics: {
+					byPerson:'By person',
+					byDepartment:'By department',
+					option:'Option',
+					number:'Number',
+					percentage:'Percentage',
+					detail:'Detail',
+					personList:'Personnel list',
+					allDepartments : 'All Departments',
+					shortname : 'Shortname',
+					fullname :'Fullname',
+					department : 'Department',
+					answer : 'Answer',
+					noAnswer:'No one answered this question',
+					getFailed:'Get message failed, please ensure that the questionnaire exists or contact E.T. for help'
+				}
+			},
+			'zh-cn': {
+				questionnaire: {
+					realName: '实名',
+					anonymous:'匿名',
+					deadline: '截止时间',
+					export:'导出结果',
+					link:'链接'
+				},
+				topic: {
+					multiChoice: '多选',
+					limit: '限选 ',
+					limitTip1: '， 必选 ',
+					limitTip2: ' 个',
+					requiredTip: ' *',
+				},
+				statistics: {
+					byPerson:'个人统计',
+					byDepartment:'部门统计',
+					option:'选项',
+					number:'选择人数',
+					percentage:'百分比',
+					detail:'详情',
+					personList:'人员列表',
+					allDepartments : '所有部门',
+					shortname : '短名',
+					fullname :'完整名',
+					department : '部门',
+					answer : '答案',
+					noAnswer:'无人作答此题',
+					getFailed:'获取信息失败，请确保问卷未被删除或联系E.T.寻求帮助'
+				}
+			},
+			'zh-tw': {
+				questionnaire: {
+					realName: '实名',
+					anonymous:'匿名',
+					deadline: '截止时间：',
+					export:'Export the result',
+					link:'链接'
+				},
+				topic: {
+					limit: 'Limit',
+					required: 'Required',
+					limitTip1: ', have to choose ',
+					limitTip2: ' options',
+					requiredTip: ' *',
+				},
+				statistics: {
+					byPerson:'按个人',
+					byDepartment:'按部门',
+					option:'选项',
+					number:'选择人数',
+					percentage:'百分比',
+					detail:'详情',
+					personList:'人员列表',
+					allDepartments : '所有部门',
+					shortname : '短名',
+					fullname :'完整名',
+					department : '部门',
+					answer : '回答',
+					noAnswer:'无人作答此题',
+					getFailed:'获取信息失败，请确保问卷未被删除或联系E.T.寻求帮助'
+				}
+			}
+		});
+	}
+
+	public byPerson(topicID) {
+		this.topicBy[topicID] = false;
+	}
+
+	public byDepartment(topicID) {
+		this.topicBy[topicID] = true;
+	}
+
+	public topicsBy(topicID) {
+		return this.topicBy[topicID];
+	}
+
+	public showDetail(topicID) {
+		this.topicBy[topicID] = !this.topicBy[topicID];
+		if (this.detail[topicID] == undefined) {
+			var ret = this.answerParticipatorService.OnGet(this.questionnaireID, topicID)
+			ret.then(({ data }) => {
+				if(data.Succeeded == true){
+					this.detail[topicID] = data;
+				}
+				else{
+					this.negAlert.error(this._negTranslate.get('statistics.statistics.getFailed'))
+				}
+			}, error => {
+				this.negAlert.error(this._negTranslate.get('statistics.statistics.getFailed'))
+			})
+		}
+	}
+
+	public getDetail(topicID) {
+		console.log(this.detail[topicID])
+		if (this.detail[topicID] != undefined && this.detail[topicID].Answers.length != 0) {
+			return this.detail[topicID].Answers;
+		}
+		return undefined;
+	}
+
+	public getPersonnelList(topicID, optionID) {
+		var personnelListPara = {QuestionnaireID:0, TopicID:0,OptionID:0};
+		personnelListPara.QuestionnaireID = this.questionnaireID;
+		personnelListPara.TopicID = topicID;
+		personnelListPara.OptionID = optionID;
+		this._negStorage.memory.set('personnelListPara', personnelListPara);
+		// this.router.navigate(['/eggrolls/personnelList']);
+		this.negMultiTab.openPage('/eggrolls/personnelList', null, false)
+	}
+
+	public getStanderdDate(dateGet){
+		return dateGet.substr(0,6) == '/Date(' ? this.dmft(this.date(dateGet)) : dateGet;
+	}
+
+	public dmft(d) { 
+		return d.getFullYear() + '-' + this.pad(d.getMonth() + 1) + '-' + this.pad(d.getDate()) + ' ' + this.pad(d.getHours()) + ':' +  this.pad(d.getMinutes()); 
+	}
+
+	public date(s) { 
+		return new Date(parseFloat(/Date\(([^)]+)\)/.exec(s)[1])); 
+	
+	}
+
+	public pad(d) { 
+		return d < 10 ? '0'+d : d; 
 	}
 
 	public download() {
@@ -117,52 +300,4 @@ export class StatisticsComponent implements OnInit {
 		link.click();
 		document.body.removeChild(link);
 	}
-
-	public byPerson(topicID) {
-		this.topicBy[topicID] = false;
-	}
-
-	public byDepartment(topicID) {
-		this.topicBy[topicID] = true;
-	}
-	public topicsBy(topicID) {
-		return this.topicBy[topicID];
-	}
-	public showDetail(topicID) {
-		this.topicBy[topicID] = !this.topicBy[topicID];
-		if (this.detail[topicID] == undefined) {
-			var ret = this._service.getDetail(this.questionnaireID, topicID)
-			ret.then(({ data }) => {
-				this.detail[topicID] = data;
-			}, error => {
-				this.negAlert.error("Get detail failed.");
-				this.detail[topicID] = undefined;
-			})
-		}
-	}
-	public getDetail(topicID) {
-		if (this.detail[topicID] != undefined) {
-			return this.detail[topicID].Answers;
-		}
-		return undefined;
-	}
-	public getPersonnelList(topicID, optionID) {
-		// var paras = 'topicID=' + topicID + '&optionID=' + optionID + '&questionnaireID=' + this.questionnaireID;
-		// var iTop = (window.screen.availHeight - 30 - 700) / 2;
-		// var iLeft = (window.screen.availWidth - 10 - 800) / 2;
-		// window.open("/test-module/personnelList?" + paras,'width=800,height=700,top=' + iTop + ',left=' + iLeft + ',toolbar=no,menubar=no,scrollbars=no,resizable=no,location=no,status=no');
-		var personnelListPara = {QuestionnaireID:0, TopicID:0,OptionID:0};
-		personnelListPara.QuestionnaireID = this.questionnaireID;
-		personnelListPara.TopicID = topicID;
-		personnelListPara.OptionID = optionID;
-		this._negStorage.memory.set('personnelListPara', personnelListPara);
-		// window.open("/intern-eggrolls/personnelList?" + paras, '_blank', 'width=800,height=700,top=' + iTop + ',left=' + iLeft);
-		this.router.navigate(['/intern-eggrolls/personnelList']);
-	}
-	public getStanderdDate(dateGet){
-		return dateGet.substr(0,6) == '/Date(' ? this.dmft(this.date(dateGet)) : dateGet;
-	}
-	public dmft(d) { return d.getFullYear() + '-' + this.pad(d.getMonth() + 1) + '-' + this.pad(d.getDate()) + ' ' + this.pad(d.getHours()) + ':' +  this.pad(d.getMinutes()); }
-	public date(s) { return new Date(parseFloat(/Date\(([^)]+)\)/.exec(s)[1])); }
-	public pad(d) { return d < 10 ? '0'+d : d; }
 }

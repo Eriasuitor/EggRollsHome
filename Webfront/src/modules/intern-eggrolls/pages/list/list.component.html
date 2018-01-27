@@ -1,67 +1,106 @@
 <navigationBar></navigationBar>
-<div style="width:1000px; margin:auto" class="mainTent">
+<div style="width:1000px; margin:auto;" class="mainTent">
   <div class="row">
-    <div class="col-md-4" style="padding-right:2px">
+    <div class="col-md-4" style="padding-right:2px; padding-left:0px">
       <input type="text" size="52em" maxlength="25" [(ngModel)]="title" (keydown.enter)="search()" placeholder="{{'list.toolbar.searchTitle' | translate }}"
-        style="padding-left:10px;padding-right:5px;z-index:1;position: absolute;border:1px solid rgb(222, 236, 255);border-radius:10px;-moz-border-radius:10px;height: 30px">
-      <a href="javascript:;" (click)="search()" class="fa fa-search " style="text-decoration : none;margin-top:5px;font-size:20px;position: relative ;margin-left: 311px;padding-right:6px;padding-left:3px;z-index:100;background-color:white;border-radius:10px;-moz-border-radius:10px;"></a>
+        style="padding-left:10px;padding-right:5px;position: absolute;border:1px solid rgb(222, 236, 255);border-radius:10px;-moz-border-radius:10px;height: 30px">
+      <a href="javascript:;" (click)="search()" class="fa fa-search " style="text-decoration : none;margin-top:5px;font-size:20px;position: relative ;margin-left: 311px;padding-right:6px;padding-left:3px;background-color:white;border-radius:10px;-moz-border-radius:10px;"></a>
     </div>
-    <div class="col-md-4" style="padding-top:7px; padding-right:0px">
+    <div style="padding-top:2px;float:right;display:inline-block;margin-left:20px;">
+      <a href="javascript:;" class='indexSpan' (click)="pageTo(0)" style="cursor:pointer">
+        <i class="fa fa-angle-double-left fa-lg"></i>
+      </a>
+      <a href="javascript:;" class='indexSpan' (click)="previous()" style="cursor:pointer">
+        <i class="fa fa-angle-left fa-lg"></i>
+      </a>
+      <span href="javascript:;" *ngFor="let page of pagesOrder;">
+        <a href="javascript:;" *ngIf="page == this.questionnaireList.PageIndex + 1" style="cursor:pointer" class='indexSpan indexSpanSelected'
+          (click)="pageJump(page)">{{page}}</a>
+        <a href="javascript:;" *ngIf="page != this.questionnaireList.PageIndex + 1" style="cursor:pointer" class='indexSpan'
+          (click)="pageJump(page)">{{page}}</a>
+      </span>
+      <a href="javascript:;" class='indexSpan' (click)="next()" style="cursor:pointer">
+        <i class="fa fa-angle-right fa-lg"></i>
+      </a>
+      <a href="javascript:;" class='indexSpan' (click)="pageTo(pages - 1)" style="cursor:pointer">
+        <i class="fa fa-angle-double-right fa-lg"></i>
+      </a>
+    </div>
+    <div style="padding-top:7px; padding-right:0px;float:right;display:inline-block">
       <select id="pageSettings" (change)="changePageSize()" class="radius5">
-        <option *ngIf="searchObj.PageSize == 5" selected="selected" value="5" >5</option>
-        <option *ngIf="searchObj.PageSize != 5" value="5" >5</option>
-        <option *ngIf="searchObj.PageSize == 10" selected="selected" value="10" >10</option>
-        <option *ngIf="searchObj.PageSize != 10" value="10" >10</option>
-        <option *ngIf="searchObj.PageSize == 15" selected="selected" value="15" >15</option>
-        <option *ngIf="searchObj.PageSize != 15" value="15" >15</option>
-        <option *ngIf="searchObj.PageSize == 20" selected="selected" value="20" >20</option>
-        <option *ngIf="searchObj.PageSize != 20" value="20" >20</option>
+        <option *ngIf="searchObj.PageSize == 5" selected="selected" value="5">5</option>
+        <option *ngIf="searchObj.PageSize != 5" value="5">5</option>
+        <option *ngIf="searchObj.PageSize == 10" selected="selected" value="10">10</option>
+        <option *ngIf="searchObj.PageSize != 10" value="10">10</option>
+        <option *ngIf="searchObj.PageSize == 15" selected="selected" value="15">15</option>
+        <option *ngIf="searchObj.PageSize != 15" value="15">15</option>
+        <option *ngIf="searchObj.PageSize == 20" selected="selected" value="20">20</option>
+        <option *ngIf="searchObj.PageSize != 20" value="20">20</option>
       </select> &nbsp;{{'list.toolbar.perPage' | translate }}&nbsp;&nbsp;{{'list.toolbar.showPage' | translate }}
-      <input type="text" [(ngModel)]="PageIndexDis" size="1em" class="radius5" (keydown.enter)="adjustment()" (click)="toBlack()">      {{'list.toolbar.of' | translate }}&nbsp;
-      <span id="pages">{{pages}}</span>{{'list.toolbar.page' | translate }}
-      <a href="javascript:;" (click)="adjustment()" style="margin-right:10px;color:rgb(150, 153, 159)"><i class="fa fa-paper-plane-o">&nbsp;Go</i></a>
-    </div>
-    <div class="col-md-4" style="padding-top:9px">
-      <a href="javascript:;" (click)="previous()" style="margin-right:10px;color:rgb(150, 153, 159);text-decoration : none"><i class="fa fa-chevron-left">&nbsp;{{'list.toolbar.previous' | translate }}</i></a>
-      <span *ngFor="let page of pagesOrder;">
-          <a *ngIf="page == this.questionnaireList.PageIndex + 1" href="javascript:;" (click)="pageJump(page)" style="margin-right:10px;color:rgb(0, 0, 0);font-weight:bold">{{page}}</a>
-          <a *ngIf="page != this.questionnaireList.PageIndex + 1" href="javascript:;" (click)="pageJump(page)" style="margin-right:10px;color:rgb(150, 153, 159)">{{page}}</a>
-        </span>
-      <a href="javascript:;" (click)="next()" style="margin-right:10px;color:rgb(150, 153, 159);text-decoration : none">{{'list.toolbar.next' | translate }}&nbsp;<i class="fa fa-chevron-right"></i></a>
+      <input type="text" [(ngModel)]="PageIndexDis" size="1em" class="radius5" (keydown.enter)="adjustment()" (click)="toBlack()">{{'list.toolbar.of' | translate }}
+      <span id="pages">{{pages}}&nbsp;</span>{{'list.toolbar.page' | translate }}
+      <a href="javascript:;" (click)="adjustment()" style="margin-right:10px;color:rgb(150, 153, 159)">
+        <i class="fa fa-paper-plane-o">&nbsp;Go</i>
+      </a>
     </div>
   </div>
-  <div *ngIf="questionnaireList.questionnaires !== undefined">
-    <div style="font-size: 15px; padding:20px">
+  <div *ngIf="noQuestionnaire == true" class='row lists'>
+    <div style="font-size: 15px; padding:20px;border:0px; color:black">
       {{'list.questionnaire.noQuestionnaire' | translate }}
     </div>
   </div>
-  <div *ngIf="questionnaireList.questionnaires == undefined">
-    <div *ngFor="let message of questionnaireList.Questionnaires;" class="col-md-12 lists">
-      <div class="row" style="background:rgb(222, 236, 255);font-size: 15px; padding:10px">
+  <div *ngIf="questionnaireList.Questionnaires != undefined && questionnaireList.Questionnaires.length != 0">
+    <div *ngFor="let message of questionnaireList.Questionnaires;" class="row lists">
+      <div class="col-md-12" style="background:rgb(222, 236, 255);font-size: 15px; padding:10px">
         <div class="col-md-7" style="font-size:15px;padding-top:2px;">
           <div [ngSwitch]="message.Status">
-            <div *ngSwitchCase="'Draft'" style="color:#A57D7D"><i class="fa fa-square-o"></i>&nbsp;{{'list.questionnaire.draft' | translate }}</div>
-            <div *ngSwitchCase="'Processing'" style="color:orange"><i class="fa fa-circle-o-notch fa-spin"></i>&nbsp;{{'list.questionnaire.processing' | translate }}</div>
-            <div *ngSwitchCase="'Ended'" style="color:#2B802B"><i class="fa fa-lemon-o"></i>&nbsp;{{'list.questionnaire.ended' | translate }}</div>
+            <div *ngSwitchCase="'Draft'" style="color:grey">
+              <i class="fa fa-square-o"></i>&nbsp;{{'list.questionnaire.draft' | translate }}</div>
+            <div *ngSwitchCase="'Processing'" style="color:rgb(37, 172, 37)">
+              <i class="fa fa-circle-o-notch fa-spin"></i>&nbsp;{{'list.questionnaire.processing' | translate }}</div>
+            <div *ngSwitchCase="'Ended'" style="color:orange">
+              <i class="fa fa-lemon-o"></i>&nbsp;{{'list.questionnaire.ended' | translate }}</div>
           </div>
         </div>
         <div class="col-md-5" style="padding-left:0px;padding-right:0px">
-          <span style="display:inline-block; width:6em">{{message.IsRealName? ('list.questionnaire.realName' | translate) :('list.questionnaire.anonymous' | translate) }}</span>
+          <span style="display:inline-block; width:6em">{{message.IsRealName? ('list.questionnaire.realName' | translate) :('list.questionnaire.anonymous' | translate)
+            }}</span>
           <span style="display:inline-block; width:7em">{{'list.questionnaire.volumes' | translate }}: {{message.Participants}}</span>
           <span>{{'list.questionnaire.deadline' | translate }}: {{message.DueDate == undefined?"":getStanderdDate(message.DueDate)}}</span>
         </div>
       </div>
-      <div class="row" style=" font-size: 16px;margin:15px;margin-left:0px;margin-right:0px">
-        <div class="col-md-7">
+      <div class="col-md-12" style=" font-size: 16px;margin:15px;margin-left:0px;margin-right:0px; padding-left:10px">
+        <div class="col-md-6">
           <a href="javascript:;" (click)="doPreview(message.QuestionnaireID)" style="margin-right:10px;color:black;text-decoration : none">{{message.Title}}</a>
         </div>
-        <div class="col-md-5" style=" font-size: 14px;padding-top:2px;padding-left:0px;padding-right:0px">
+        <div class="col-md-6" style=" font-size: 14px;padding-top:2px;padding-left:0px;padding-right:0px">
           <div style="float:right">
-            <a href="javascript:;" (click)="doDetails(message.QuestionnaireID)" *ngIf="message.Status != 'Draft' && message.IsRealName" style="margin-right:25px;color:rgb(150, 153, 159);display:inline-block;width:63px"><i class="fa fa-file-text-o">&nbsp;{{'list.questionnaire.details' | translate }}</i></a>
-            <a href="javascript:;" (click)="doEdit(message.QuestionnaireID)" *ngIf="message.Status == 'Draft'" style="margin-right:25px;color:rgb(150, 153, 159);display:inline-block;width:63px"><i class="fa fa-edit">&nbsp;{{'list.questionnaire.edit' | translate }}</i></a>
-            <a href="javascript:;" (click)="doStatistics(message.QuestionnaireID)" *ngIf="message.Status != 'Draft'" style="margin-right:25px;color:rgb(150, 153, 159);display:inline-block;width:63px"><i class="fa fa-line-chart">&nbsp;{{'list.questionnaire.statistics' | translate }}</i></a>
-            <a href="javascript:;" (click)="doCopy(message.QuestionnaireID)" style="margin-right:25px;color:rgb(150, 153, 159);display:inline-block;width:63px"><i class="fa fa-clone">&nbsp;{{'list.questionnaire.copy' | translate }}</i></a>
-            <a href="javascript:;" (click)="doDelete(message.QuestionnaireID,message.Title)" style="margin-right:25px;color:rgb(150, 153, 159);display:inline-block;width:63px"><i class="fa fa-trash-o">&nbsp;{{'list.questionnaire.delete' | translate }}</i></a>
+            <a href="javascript:;" (click)="doEdit(message.QuestionnaireID)" *ngIf="message.Status == 'Draft'" style="margin-left:19px;margin-right:6px;color:black;display:inline-block;width:63px">
+              <i class="fa fa-edit">&nbsp;{{'list.questionnaire.edit' | translate }}</i>
+            </a>
+            <a href="javascript:;" *ngIf="message.Status != 'Draft'" style="cursor:not-allowed;margin-left:19px;margin-right:6px;color:rgb(150, 153, 159);display:inline-block;width:63px;">
+                <i class="fa fa-edit">&nbsp;{{'list.questionnaire.edit' | translate }}</i>
+              </a>
+            <a href="javascript:;" (click)="doDetails(message.QuestionnaireID)" *ngIf="message.Status != 'Draft' && message.IsRealName"
+              style="margin-left:19px;margin-right:6px;color:black;display:inline-block;width:63px">
+              <i class="fa fa-file-text-o">&nbsp;{{'list.questionnaire.details' | translate }}</i>
+            </a>
+            <a href="javascript:;" *ngIf="message.Status == 'Draft' || !message.IsRealName"
+              style="cursor:not-allowed;margin-left:19px;margin-right:6px;color:rgb(150, 153, 159);display:inline-block;width:63px">
+              <i class="fa fa-file-text-o">&nbsp;{{'list.questionnaire.details' | translate }}</i>
+            </a>
+            <a href="javascript:;" (click)="doStatistics(message.QuestionnaireID)" *ngIf="message.Status != 'Draft'" style="margin-left:19px;margin-right:6px;color:black;display:inline-block;width:63px">
+              <i class="fa fa-line-chart">&nbsp;{{'list.questionnaire.statistics' | translate }}</i>
+            </a>
+            <a href="javascript:;" *ngIf="message.Status == 'Draft'" style="cursor:not-allowed;margin-left:19px;margin-right:6px;color:rgb(150, 153, 159);display:inline-block;width:63px">
+                <i class="fa fa-line-chart">&nbsp;{{'list.questionnaire.statistics' | translate }}</i>
+              </a>
+            <a href="javascript:;" (click)="doCopy(message.QuestionnaireID)" style="margin-left:19px;margin-right:6px;color:black;display:inline-block;width:63px">
+              <i class="fa fa-clone">&nbsp;{{'list.questionnaire.copy' | translate }}</i>
+            </a>
+            <a href="javascript:;" (click)="doDelete(message.QuestionnaireID,message.Title)" style="margin-left:19px;margin-right:6px;color:black;display:inline-block;width:63px">
+              <i class="fa fa-trash-o">&nbsp;{{'list.questionnaire.delete' | translate }}</i>
+            </a>
           </div>
         </div>
       </div>

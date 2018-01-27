@@ -1,14 +1,16 @@
 <div class="main">
+        <div id='description' style="color:gray"></div>
+        <div class="buttoned fixButton col-md-12" (click)="back()" href="javascript:;">&nbsp;{{'personnelList.main.back' | translate}}</div>
         <div class="plPanel col-md-12">
                 <div class="row plTitle">
                         <div class="plCol">
-                                ShortName
+                                {{'personnelList.main.shortname' | translate}}
                         </div>
                         <div class="plCol2">
-                                FullName
+                                {{'personnelList.main.fullname' | translate}}
                         </div>
                         <div class="plCol">
-                                Department
+                                {{'personnelList.main.department' | translate}}
                         </div>
                 </div>
                 <div class="row plOption" *ngFor="let option of getPersonnelList();">
@@ -23,5 +25,4 @@
                         </div>
                 </div>
         </div>
-        <a class="buttoned submitButton fixButton" (click)="back()" href="javascript:;">&nbsp;Back</a>
 </div>

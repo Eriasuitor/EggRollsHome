@@ -1,35 +1,34 @@
-<div id="back">
-</div>
-
+<div id='backImg' style="top:0;bottom:0;left:0;right:0;position:fixed;height:100%"></div>
 <div class="mainTain" id="mainTain">
     <div>
-        <div class="row title">{{formControl.Title}}</div>
+        <div class="row title wordBreak">{{formControl.Title}}</div>
         <div class="row information">
-            {{formControl.IsRealName? "Real name":"Anonymous"}} &nbsp;&nbsp;Deadline: {{formControl.dueDate == "Invalid Date"? "":formControl.dueDate|
-            date:"y-MM-dd HH:mm"}} &nbsp;&nbsp;Link:
-            <a class="a" style="text-decoration : none" target="_blank" href="intern-eggrolls/questionnaire?questionnaireID={{formControl.QuestionnaireID}}">http://10.16.75.27:8211/intern-eggrolls/questionnaire?questionnaireID={{formControl.QuestionnaireID}}</a>
+            {{formControl.IsRealName? ('preview.questionnaire.realName' | translate):('preview.questionnaire.anonymous' | translate)}}
+            &nbsp;&nbsp;{{'preview.questionnaire.deadline' | translate}}: {{formControl.DueDate == undefined?"":getStanderdDate(formControl.DueDate)}}
+            &nbsp;&nbsp;{{'preview.questionnaire.link' | translate}}:
+            <a class="a" style="text-decoration : none" target="_blank" href="eggrolls/questionnaire?questionnaireID={{formControl.QuestionnaireID}}">{{environmentUrl}}/eggrolls/questionnaire?questionnaireID={{formControl.QuestionnaireID}}</a>
         </div>
         <div id="divDescription2" class="row description wordBreak"></div>
         <div *ngFor="let topic of formControl.Topics;">
             <div>
-                <div class="row topicTitle" id={{topic.TopicID}}>
-                    {{topic.TopicID}}.{{topic.TopicTitle}}
+                <div class="row topicTitle wordBreak" id={{topic.TopicID}}>
+                    {{topic.TopicID}}. {{topic.TopicTitle}}
                     <span class="tips">
-                        {{topic.Type == 'Checkbox'? ' Multiple choice ':''}}
-                        {{topic.Type != 'Checkbox' || topic.Limited == 0 || topic.Limited == undefined? '':', have to choose ' + topic.Limited + ' options'}}
-                        {{topic.IsRequired? ' *':''}}</span>
+                        {{topic.Type == 'Checkbox'? ('preview.topic.multiChoice' | translate) : ''}} {{topic.Type != 'Checkbox' || topic.Limited
+                        == 0|| topic.Limited == undefined? '':('preview.topic.limitTip1' | translate) + topic.Limited + ('preview.topic.limitTip2'
+                        | translate)}} {{topic.IsRequired? ('preview.topic.requiredTip' | translate):''}}
+                    </span>
                 </div>
                 <div [ngSwitch]="topic.Type">
                     <div *ngSwitchCase="'Radio'" class="row">
                         <form class="optionForm">
                             <div *ngFor="let option of topic.Options;">
                                 <label (mouseover)="mouseIn(topic.TopicID,option.OptionID)" (mouseout)="mouseOut(topic.TopicID,option.OptionID)" id="d{{topic.TopicID+option.OptionID}}">
-                                <div class="checkPadding">
-                                    <i id="i{{topic.TopicID+option.OptionID}}" class="fa fa-check iCheck"></i>
-                                </div>
-                                <input class='input' type="radio" name={{topic.TopicID}} id={{topic.TopicID+option.OptionID}} value={{option.OptionID}}>
-                                {{option.OptionID}}.{{option.OptionTitle}}
-                            </label>
+                                    <div class="checkPadding wordBreak">
+                                        <i id="i{{topic.TopicID+option.OptionID}}" class="fa fa-check iCheck"></i>
+                                    </div>
+                                    <input class='input' type="radio" name={{topic.TopicID}} id={{topic.TopicID+option.OptionID}} value={{option.OptionID}}> {{option.OptionID}}. {{option.OptionTitle}}
+                                </label>
                             </div>
                         </form>
                     </div>
@@ -37,27 +36,28 @@
                         <form class="optionForm">
                             <div *ngFor="let option of topic.Options;">
                                 <label (mouseover)="mouseIn(topic.TopicID,option.OptionID)" (mouseout)="mouseOut(topic.TopicID,option.OptionID)" id="d{{topic.TopicID+option.OptionID}}">
-                                <div class="checkPadding">
-                                    <i id="i{{topic.TopicID+option.OptionID}}" class="fa fa-check iCheck"></i>
-                                </div>
-                                <input class='input' type="checkbox" name={{topic.TopicID}} id={{topic.TopicID+option.OptionID}} value={{option.OptionID}}>
-                                {{option.OptionID}}.{{option.OptionTitle}}
-                            </label>
+                                    <div class="checkPadding wordBreak">
+                                        <i id="i{{topic.TopicID+option.OptionID}}" class="fa fa-check iCheck"></i>
+                                    </div>
+                                    <input class='input' type="checkbox" name={{topic.TopicID}} id={{topic.TopicID+option.OptionID}} value={{option.OptionID}}> {{option.OptionID}}. {{option.OptionTitle}}
+                                </label>
                             </div>
                         </form>
                     </div>
                     <div *ngSwitchCase="'Text'" class="row">
                         <form class="optionForm">
-                            <textarea class="textarea" name={{topic.TopicID}} maxlength="1000em"></textarea>
+                            <div class='textA'>
+                                <textarea class="textarea" name={{topic.TopicID}} maxlength="1000em"></textarea>
+                            </div>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="row">
+    <div class="row backDiv">
         <a href="javascript:;" (click)="gobackCreateOrEdit()" class="buttoned submitButton">
-            Back
+            {{'preview.answer.back' | translate}}
         </a>
     </div>
     <div id="" class="row backAfter"></div>

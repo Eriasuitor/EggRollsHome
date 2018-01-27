@@ -1,149 +1,169 @@
 <navigationBar></navigationBar>
-<div class="mainTain" *ngIf="statistics != undefined">
+<div class="ntk-Create">
     <div class="row buttoned">
-        <a href="javascript:;" (click)="download()"><i class="fa">Export the result</i></a>
+        <a href="javascript:;" (click)="download()">
+            <i class="fa">{{'statistics.questionnaire.export' | translate}}</i>
+        </a>
     </div>
-    <div class="row title">{{statistics.Title}}</div>
+    <div class="row title wordBreak">{{statistics.Title}}</div>
     <div class="row information">
-        {{statistics.IsRealName? "Real name":"Anonymous"}} &nbsp;&nbsp;Deadline: {{statistics.DueDate == undefined?"":getStanderdDate(statistics.DueDate)}} &nbsp;&nbsp;Link:
-        <a class="a" style="text-decoration : none" target="_blank" href="intern-eggrolls/questionnaire?questionnaireID={{statistics.QuestionnaireID}}">http://10.16.75.27:8211/intern-eggrolls/questionnaire?questionnaireID={{statistics.QuestionnaireID}}</a>
+        {{statistics.IsRealName? ('statistics.questionnaire.realName' | translate):('statistics.questionnaire.anonymous' | translate)}}
+        &nbsp;&nbsp;{{'statistics.questionnaire.deadline' | translate}}: {{statistics.DueDate == undefined?"":getStanderdDate(statistics.DueDate)}}
+        &nbsp;&nbsp;{{'statistics.questionnaire.link' | translate}}:
+        <a class="a" style="text-decoration : none" target="_blank" href="eggrolls/questionnaire?questionnaireID={{statistics.QuestionnaireID}}">{{environmentUrl}}/eggrolls/questionnaire?questionnaireID={{statistics.QuestionnaireID}}</a>
     </div>
     <div class="row description wordBreak" id="description"></div>
     <div *ngFor="let topic of statistics.Topics;" class="topic">
         <div *ngIf="topic.Type != 'Text'">
-            <div class="row topicTitle">
+            <div class="row topicTitleStati">
                 <div class="col-md-9">
-                    {{topic.TopicID}}.{{topic.TopicTitle}}
+                    {{topic.TopicID}}. {{topic.TopicTitle}}
                     <span class="tips">
-                            {{topic.Type == 'Checkbox'? ' Multiple choice ' : ''}}
-                            {{topic.Type != 'Checkbox' || topic.Limited == 0|| topic.Limited == undefined? '':', have to choose ' + topic.Limited + ' options'}}
-                            {{topic.IsRequired? ' *':''}}
-                        </span>
+                        {{topic.Type == 'Checkbox'? ('statistics.topic.multiChoice' | translate) : ''}} {{topic.Type != 'Checkbox' || topic.Limited
+                        == 0|| topic.Limited == undefined? '':('statistics.topic.limitTip1' | translate) + topic.Limited
+                        + ('statistics.topic.limitTip2' | translate)}} {{topic.IsRequired? ('statistics.topic.requiredTip'
+                        | translate):''}}
+                    </span>
                 </div>
                 <div class="col-md-3">
-                    <a *ngIf="!topicsBy(topic.TopicID)" href="javascript:;" (click)="byPerson(topic.TopicID)" class="optioned chosen" style="text-decoration : none"><i>By person</i></a>
-                    <a *ngIf="!topicsBy(topic.TopicID)" href="javascript:;" (click)="byDepartment(topic.TopicID)" class="optioned" style="text-decoration : none"><i>By department</i></a>
-                    <a *ngIf="topicsBy(topic.TopicID)" href="javascript:;" (click)="byPerson(topic.TopicID)" class="optioned" style="text-decoration : none"><i>By person</i></a>
-                    <a *ngIf="topicsBy(topic.TopicID)" href="javascript:;" (click)="byDepartment(topic.TopicID)" class="optioned chosen" style="text-decoration : none"><i>By department</i></a>
+                    <a *ngIf="!topicsBy(topic.TopicID)" href="javascript:;" (click)="byDepartment(topic.TopicID)" class="optioned" style="text-decoration : none;float:right">
+                        <i style="font-style:normal">{{'statistics.statistics.byDepartment' | translate}}</i>
+                    </a>
+                    <a *ngIf="!topicsBy(topic.TopicID)" href="javascript:;" (click)="byPerson(topic.TopicID)" class="optioned chosen" style="text-decoration : none; float:right">
+                        <i style="font-style:normal">{{'statistics.statistics.byPerson' | translate}}</i>
+                    </a>
+                    <a *ngIf="topicsBy(topic.TopicID)" href="javascript:;" (click)="byDepartment(topic.TopicID)" class="optioned chosen" style="text-decoration : none;float:right">
+                        <i style="font-style:normal">{{'statistics.statistics.byDepartment' | translate}}</i>
+                    </a>
+                    <a *ngIf="topicsBy(topic.TopicID)" href="javascript:;" (click)="byPerson(topic.TopicID)" class="optioned" style="text-decoration : none;float:right">
+                        <i style="font-style:normal">{{'statistics.statistics.byPerson' | translate}}</i>
+                    </a>
                 </div>
             </div>
-            <div *ngIf="!topicsBy(topic.TopicID)" class="staticPanel col-md-12">
-                <div class="row staticTitle">
-                    <div class="col-md-6">
-                        Option
+            <div *ngIf="!topicsBy(topic.TopicID)" class="staticPanel row">
+                <div class="col-md-12 staticTitle">
+                    <div class="col-md-6 ">
+                        {{'statistics.statistics.option' | translate}}
                     </div>
                     <div class="staticCol">
-                        Detail
+                        {{'statistics.statistics.detail' | translate}}
                     </div>
                     <div class="staticCol">
-                        Percentage
+                        {{'statistics.statistics.percentage' | translate}}
                     </div>
                     <div class="staticCol">
-                        Number
+                        {{'statistics.statistics.number' | translate}}
                     </div>
                 </div>
-                <div class="row staticOption" *ngFor="let option of topic.Options;">
-                    <div class="col-md-6">
-                        {{option.OptionID}}.{{option.OptionTitle}}
+                <div class="col-md-12 staticOption" *ngFor="let option of topic.Options;">
+                    <div class="col-md-6 ">
+                        {{option.OptionID}}. {{option.OptionTitle}}
                     </div>
                     <div class="staticCol">
-                        <a *ngIf="statistics.IsRealName == true" href="javascript:;" (click)="getPersonnelList(topic.TopicID, option.OptionID)"><i class="fa">Personnel list</i></a>
-                        <a *ngIf="statistics.IsRealName == false">Anonymous</a>
+                        <a *ngIf="statistics.IsRealName == true" href="javascript:;" (click)="getPersonnelList(topic.TopicID, option.OptionID)">
+                            <i class="fa">{{'statistics.statistics.personList' | translate}}</i>
+                        </a>
+                        <a *ngIf="statistics.IsRealName == false">{{'statistics.questionnaire.anonymous' | translate}}</a>
                     </div>
-                    <div class="staticCol">
+                    <div class="staticCol textAlign">
                         {{option.Percentage * 100 | number:'1.2-2'}}%
                     </div>
-                    <div class="staticCol">
+                    <div class="staticCol textAlign">
                         {{option.ChosenNumber}}
                     </div>
                 </div>
             </div>
-            <div *ngIf="topicsBy(topic.TopicID)" class="staticPanel col-md-12">
-                <div class="row staticTitle">
-                    <div class="col-md-4">
-                        Option
+            <div *ngIf="topicsBy(topic.TopicID)" class="staticPanel row">
+                <div class="col-md-12 staticTitle">
+                    <div class="col-md-4 ">
+                        {{'statistics.statistics.option' | translate}}
                     </div>
                     <div *ngFor="let department of topic.Options[0].Departments;" class="staticCol">
                         {{department.Department}}
                     </div>
                 </div>
-                <div class="row staticOption" *ngFor="let option of topic.Options;">
-                    <div class="col-md-4">
-                        {{option.OptionID}}.{{option.OptionTitle}}
+                <div class="col-md-12 staticOption" *ngFor="let option of topic.Options;">
+                    <div class="col-md-4 ">
+                        {{option.OptionID}}. {{option.OptionTitle}}
                     </div>
-                    <div *ngFor="let department of option.Departments;" class="staticCol">
+                    <div *ngFor="let department of option.Departments;" class="staticCol textAlign">
                         {{department.ChosenNumber}} ({{department.Percentage * 100 | number:'1.2-2'}}%)
                     </div>
                 </div>
             </div>
         </div>
         <div *ngIf="topic.Type == 'Text'">
-            <div class="row topicTitle">
+            <div class="row topicTitleStati ">
                 <div class="col-md-10">
-                    {{topic.TopicID}}.{{topic.TopicTitle}}<span class="tips">{{topic.IsRequired? ' *':''}}</span>
+                    {{topic.TopicID}}. {{topic.TopicTitle}}
+                    <span class="tips">{{topic.IsRequired? ('statistics.topic.requiredTip' | translate):''}}</span>
                 </div>
                 <div class="col-md-2">
-                    <a *ngIf="!topicsBy(topic.TopicID)" href="javascript:;" (click)="showDetail(topic.TopicID)" class="optioned"><i>Detail</i></a>
-                    <a *ngIf="topicsBy(topic.TopicID)" href="javascript:;" (click)="showDetail(topic.TopicID)" class="optioned chosen"><i>Detail</i></a>
+                    <a *ngIf="!topicsBy(topic.TopicID)" href="javascript:;" (click)="showDetail(topic.TopicID)" class="optioned" style="float:right">
+                        <i style="font-style:normal">{{'statistics.statistics.detail' | translate}}</i>
+                    </a>
+                    <a *ngIf="topicsBy(topic.TopicID)" href="javascript:;" (click)="showDetail(topic.TopicID)" class="optioned chosen" style="float:right">
+                        <i style="font-style:normal">{{'statistics.statistics.detail' | translate}}</i>
+                    </a>
                 </div>
             </div>
-            <div *ngIf="topicsBy(topic.TopicID)" class="staticPanel col-md-12">
-                <div class="row staticTitle">
-                    <div class="col-md-5">
-                        <div class="staticColText">
-                            ShortName
+            <div *ngIf="topicsBy(topic.TopicID)" class="staticPanel row">
+                <div class="col-md-12 staticTitle">
+                    <div class="col-md-4">
+                        <div class="staticColText w1">
+                            {{'statistics.statistics.shortname' | translate}}
                         </div>
-                        <div class="staticColText">
-                            FullName
+                        <div class="staticColText w2">
+                            {{'statistics.statistics.fullname' | translate}}
                         </div>
-                        <div class="staticColText">
-                            Department
+                        <div class="staticColText w3">
+                            {{'statistics.statistics.department' | translate}}
                         </div>
                     </div>
-                    <div class="col-md-6 wordBreak">
-                        Answer
+                    <div class="col-md-8 wordBreak ">
+                        {{'statistics.statistics.answer' | translate}}
                     </div>
                 </div>
                 <div *ngIf="getDetail(topic.TopicID) == undefined">
-                    <div class="row staticOption">
-                        <div class="staticCol404">
-                            No one answered this question
+                    <div class="col-md-12 staticOption">
+                        <div class="col-md-12 staticCol404">
+                            {{'statistics.statistics.noAnswer' | translate}}
                         </div>
                     </div>
                 </div>
                 <div *ngIf="getDetail(topic.TopicID) != undefined">
                     <div *ngIf="statistics.IsRealName == true">
-                        <div class="row staticOption" *ngFor="let answer of getDetail(topic.TopicID);">
-                            <div class="col-md-5">
-                                <div class="staticColText">
+                        <div class="col-md-12 staticOption" *ngFor="let answer of getDetail(topic.TopicID);">
+                            <div class="col-md-4">
+                                <div class="staticColText w1">
                                     {{answer.ShortName}}
                                 </div>
-                                <div class="staticColText">
+                                <div class="staticColText w2">
                                     {{answer.FullName}}
                                 </div>
-                                <div class="staticColText">
+                                <div class="staticColText w3">
                                     {{answer.Department}}
                                 </div>
                             </div>
-                            <div class="col-md-6 wordBreak">
+                            <div class="col-md-8 wordBreak ">
                                 {{answer.Ans}}
                             </div>
                         </div>
                     </div>
                     <div *ngIf="statistics.IsRealName != true">
-                        <div class="row staticOption" *ngFor="let answer of getDetail(topic.TopicID);">
-                            <div class="col-md-5">
-                                <div class="staticColText">
-                                    Anonymous
+                        <div class="col-md-12 staticOption" *ngFor="let answer of getDetail(topic.TopicID);">
+                            <div class="col-md-4">
+                                <div class="staticColText w1">
+                                    {{'statistics.questionnaire.anonymous' | translate}}
                                 </div>
-                                <div class="staticColText">
-                                    Anonymous
+                                <div class="staticColText w2">
+                                    {{'statistics.questionnaire.anonymous' | translate}}
                                 </div>
-                                <div class="staticColText">
+                                <div class="staticColText w3">
                                     {{answer.Department}}
                                 </div>
                             </div>
-                            <div class="col-md-6 wordBreak">
+                            <div class="col-md-8 wordBreak ">
                                 {{answer.Ans}}
                             </div>
                         </div>
@@ -152,3 +172,4 @@
             </div>
         </div>
     </div>
+</div>

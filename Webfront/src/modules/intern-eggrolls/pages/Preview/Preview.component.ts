@@ -1,12 +1,14 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { NegAlert, NegStorage, NegAuth } from '@newkit/core';
+import { NegAlert, NegStorage, NegAuth,NegTranslate, NegMultiTab } from '@newkit/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Questionnaire } from '../../components/Model/Questionnaire';
 
 import { Topic } from '../../components/Model/Topic';
 import { Option } from '../../components/Model/Option';
-import { QueryService } from '../../services';
 
+import {QuestionnaireService} from '../../services/QuestionnaireService'
+
+import {Environment} from '../../config/Environment'
 
 @Component({
 	selector: 'Preview',
@@ -24,58 +26,123 @@ export class PreviewComponent implements OnInit {
 
 	//查询参数：问卷ID
 	queryParaID: string;
+	environmentUrl:string;
 
-
-	setBackgroundImage: string;
-	setBackgroundSize: string;
 	public selectionTimer: any = {};
+	public opacity:any={}
+	self:PreviewComponent
 
 	constructor(
 		private ref: ChangeDetectorRef,
 		private _negAlert: NegAlert,
 		private _negStorage: NegStorage,
 		private _activatedRoute: ActivatedRoute,
-		private _queryService: QueryService,
 		private _negAuth: NegAuth,
 		private _route: Router,
+		private _negTranslate:NegTranslate,
+		private questionnaireService:QuestionnaireService,
+		private _environment:Environment,
+		private negMultiTab: NegMultiTab
 	) {
-		//初始化调查问卷Model
-		this.formControl = new Questionnaire(this._negAuth.userId, this._negAuth.user.FullName);
+		this.formControl = new Questionnaire(this._negAuth.userId, this._negAuth.user.FullName)
+		this.environmentUrl = this._environment.getEnvironmentUrl()
 	}
-	ngOnInit() {
-		//判断是否从编辑或新建页面跳转到预览界面，如果不是，则从主页传递参数到预览界面，需要查询
-		if (this._negStorage.memory.get("PreQuestionnaire") == undefined) {
-			//获取路由参数
-			this.formControl.questionnaireID = this._activatedRoute.snapshot.params['questionnaireid'];
-			if (this.formControl.questionnaireID != undefined) {
-				this.strOperating = "index";
-				this.getTheQuestionnaire(this.formControl.questionnaireID);
-			} else {
-				this.strOperating = "index";
-				this._negAlert.error("预览界面初始化失败！！");
-				this._route.navigate(['/intern-eggrolls/404']);
-			}
 
-			//判断是否从编辑或新建页面跳转到预览界面，如果是，则从memory中获取
-		} else {
+	ngOnInit() {
+		this.negMultiTab.setCurrentTabName('Egg Rolls')
+		self = this
+		if (this._negStorage.memory.get("pID") != undefined) {
+			this.formControl.questionnaireID = this._negStorage.memory.get('pID')
+			this._negStorage.memory.remove('pID')
+			this.strOperating = "index";
+			this.getTheQuestionnaire(this.formControl.questionnaireID);
+		} 
+		else if(this._negStorage.memory.get("PreQuestionnaire") != undefined){
 			let strQuestionnaire = JSON.parse(this._negStorage.memory.get("PreQuestionnaire")[0]);
 			this.strOperating = this._negStorage.memory.get("PreQuestionnaire")[1];
+			console.log(this.strOperating)
 			if (strQuestionnaire.QuestionnaireID != undefined) {
 				this.formControl.questionnaireID = strQuestionnaire.QuestionnaireID;
 			} else {
 				this.queryParaID = this._negStorage.memory.get("PreQuestionnaire")[2];
 			}
-			this.getQuestionnaireFromSession(strQuestionnaire);
+			this.formControl = strQuestionnaire
+			if (document.getElementsByClassName("nk-main-content")[0] == undefined) {
+				document.getElementById("backImg").style.backgroundImage = "url(" + this.formControl.BackgroundImageUrl + ")"
+				document.getElementById("backImg").style.backgroundSize = "cover";
+			}
+			else {
+				document.getElementsByClassName("nk-main-content")[0].style.backgroundImage = "url(" + this.formControl.BackgroundImageUrl + ")";
+				document.getElementsByClassName("nk-main-content")[0].style.backgroundSize = "cover";
+			}
+			document.getElementById("divDescription2").innerHTML = this.formControl.Description;
 		}
+		else{
+			// this._route.navigate(['/eggrolls/404'])
+			this.negMultiTab.openPage('/eggrolls/404', null, false)
+		}
+		this._negTranslate.set('preview', {
+			'en-us': {
+				questionnaire: {
+					realName: 'Real name',
+					anonymous:'Anonymous',
+					deadline: 'Deadline',
+					link:'Link'
+				},
+				topic: {
+					multiChoice: 'Multiple choice',
+					limit: 'Limit',
+					limitTip1: ', have to choose ',
+					limitTip2: ' options',
+					requiredTip: ' *'			
+				},
+				answer: {
+					back:'Back',
+					getFailed:'Get questionnaire failed, please ensure that the questionnaire exists or contact E.T. for help'
+				}
+			},
+			'zh-cn': {
+				questionnaire: {
+					realName: '实名',
+					anonymous:'匿名',
+					deadline: '截止时间',
+					link:'链接'
+				},
+				topic: {
+					multiChoice: '多选',
+					limit: '限选 ',
+					limitTip1: '， 必选 ',
+					limitTip2: ' 个',
+					requiredTip: ' *'
+				},
+				answer: {
+					back:'返回',
+					getFailed:'获取问卷失败，请确保该问卷未被删除或联系E.T.寻求帮助'
+				}
+			},
+			'zh-tw': {
+				questionnaire: {
+					realName: '实名',
+					anonymous:'匿名',
+					deadline: '截止时间：',
+					link:'链接'
+				},
+				topic: {
+					limit: 'Limit',
+					required: 'Required',
+					limitTip1: ', have to choose ',
+					limitTip2: ' options',
+					requiredTip: ' *',
+				},
+				answer: {
+					back:'Back',
+					getFailed:'获取问卷失败，请确保该问卷未被删除或联系E.T.寻求帮助'
+				}
+			}
+		});
 	}
 
-	//从Memory中读取数据，绑定到页面Model
 	public getQuestionnaireFromSession(strQuestionnaire) {
-
-		document.getElementById("back").style.backgroundImage = "url(" + strQuestionnaire.BackgroundImageUrl + ")";
-		document.getElementById("back").style.backgroundSize = "cover";
-		document.getElementById("divDescription2").innerHTML = strQuestionnaire.Description;
-
 		this.formControl.shortName = strQuestionnaire.ShortName.toString();
 		this.formControl.status = strQuestionnaire.Status;
 		this.formControl.title = strQuestionnaire.Title.toString();
@@ -97,71 +164,65 @@ export class PreviewComponent implements OnInit {
 				}
 			this.formControl.topics.push(tempTopic);
 		}
-		let divDescription = document.getElementById('1');
-		// divDescription.innerHTML = this.formControl.description;
-
-		let backgroundSet = document.getElementsByClassName('ntk-Preview');
-
-		this.setBackgroundImage = "url(" + this.formControl.backgroundImageUrl + ")";
-		this.setBackgroundSize = "cover";
 
 		this._negStorage.memory.remove("PreQuestionnaire");
 		this._negStorage.memory.remove("EditQuestionnaire");
 		this._negStorage.memory.remove("CreateQuestionnaire");
 	}
 
-	//get请求调查问卷：查询调查问卷的service方法调用
-	public getTheQuestionnaire(tempID: string) {
+	public getTheQuestionnaire(tempID: number) {
 		let getPara = tempID;
 		let getHeader = { useCustomErrorHandler: true };
-		this._queryService.getQuestionnaire(getPara, getHeader).then(({ data }) => {
-			if (data.Questionnaire != null) {
-				this.getQuestionnaireFromSession(data.Questionnaire);
+		this.questionnaireService.OnGet(getPara).then(({ data }) => {
+			if (data.Succeeded == true) {
+				this.formControl = data.Questionnaire
+				if (document.getElementsByClassName("nk-main-content")[0] == undefined) {
+					document.getElementById("backImg").style.backgroundImage = "url(" + this.formControl.BackgroundImageUrl + ")";
+					document.getElementById("backImg").style.backgroundSize = "cover";
+				}
+				else {
+					document.getElementsByClassName("nk-main-content")[0].style.backgroundImage = "url(" + this.formControl.BackgroundImageUrl + ")";
+					document.getElementsByClassName("nk-main-content")[0].style.backgroundSize = "cover";
+				}
+				document.getElementById("divDescription2").innerHTML = this.formControl.Description;
 			} else {
-				this._negAlert.error("编辑查询失败！！！");
+				this._negAlert.error(this._negTranslate.get('preview.answer.getFailed'))
 			}
-
 		},
-			error => this._negAlert.error("编辑界面初始化失败！"));
+			error => {
+				this._negAlert.error(this._negTranslate.get('preview.answer.getFailed'))
+			});
 	}
 
-	//返回按钮监听事件
 	public gobackCreateOrEdit() {
+		if (document.getElementsByClassName("nk-main-content")[0] != undefined) {
+			document.getElementsByClassName("nk-main-content")[0].style.backgroundImage = null;
+		}
 		switch (this.strOperating) {
-			case "edit":
-				this._negStorage.memory.set("EditQuestionnaire", JSON.stringify(this.formControl));
-				this._route.navigate(['/intern-eggrolls/' + this.strOperating, this.formControl.questionnaireID]);
-				break;
 			case "create":
-				this._negStorage.memory.set("CreateQuestionnaire", JSON.stringify(this.formControl));
-				this._route.navigate(['/intern-eggrolls/' + this.strOperating]);
-				break;
-			case "copy":
-				this._negStorage.memory.set("EditQuestionnaire", JSON.stringify(this.formControl));
-				this._route.navigate(['/intern-eggrolls/edit'], { queryParams: { 'id': this.queryParaID } });
+				this._negStorage.memory.set("CreateQuestionnaire", JSON.stringify(this.formControl))
+				// this._route.navigate(['/eggrolls/' + this.strOperating]);
+				this.negMultiTab.openPage('/eggrolls/' + this.strOperating, null, false)
 				break;
 			case "index":
-				this._route.navigate(['/intern-eggrolls/index']);
+				// this._route.navigate(['/eggrolls/index']);
+				this.negMultiTab.openPage('/eggrolls/index', null, false)
 				break;
 			default:
-				this._negAlert.error("返回失败！！");
+				this._negAlert.error("Failed");
 				break;
 		}
 	}
 
-
-
 	public mouseIn(topicID, optionID) {
-		if (document.getElementById('d' + topicID + optionID).style.backgroundColor == "") {
-			document.getElementById('d' + topicID + optionID).style.backgroundColor = 'rgba(0,0,0,0)'
+		if(this.opacity[topicID + optionID] == undefined){
+			this.opacity[topicID + optionID] = 0
 		}
 		clearInterval(this.selectionTimer[topicID + optionID]);
 		let temTimer = setInterval(function () {
-			var bgClr = document.getElementById('d' + topicID + optionID).style.backgroundColor;
-			var opacity = parseFloat(bgClr.substring(bgClr.lastIndexOf(',') + 1, bgClr.lastIndexOf(')'))) * 100;
-			if (opacity < 80) {
-				opacity += 2;
-				document.getElementById('d' + topicID + optionID).style.backgroundColor = 'rgba(255,255,255,' + opacity / 100 + ' )';
+			if (self.opacity[topicID + optionID] < 73) {
+				self.opacity[topicID + optionID] += 1;
+				document.getElementById('d' + topicID + optionID).style.backgroundColor = 'rgba(255,255,255,' + self.opacity[topicID + optionID]/100 + ' )';
 			}
 			else {
 				clearInterval(temTimer);
@@ -173,16 +234,29 @@ export class PreviewComponent implements OnInit {
 	public mouseOut(topicID, optionID) {
 		clearInterval(this.selectionTimer[topicID + optionID]);
 		let temTimer = setInterval(function () {
-			var bgClr = document.getElementById('d' + topicID + optionID).style.backgroundColor;
-			var opacity = parseFloat(bgClr.substring(bgClr.lastIndexOf(',') + 1, bgClr.lastIndexOf(')'))) * 100;
-			if (opacity != 0) {
-				opacity -= 2;
-				document.getElementById('d' + topicID + optionID).style.backgroundColor = 'rgba(255,255,255,' + opacity / 100 + ' )';
+			if (self.opacity[topicID + optionID] > 0) {
+				self.opacity[topicID + optionID] -= 1;			
+				document.getElementById('d' + topicID + optionID).style.backgroundColor = 'rgba(255,255,255,' + self.opacity[topicID + optionID] / 100 + ' )';
 			}
 			else {
 				clearInterval(temTimer);
 			}
-		}, 5);
+		}, 0);
 		this.selectionTimer[topicID + optionID] = temTimer;
+	}
+
+	public getStanderdDate(dateGet){
+		return dateGet.substr(0,6) == '/Date(' ? this.dmft(this.date(dateGet)) : this.dmft(new Date(dateGet));
+	}
+	public dmft(d) { 
+		return d.getFullYear() + '-' + this.pad(d.getMonth() + 1) + '-' + this.pad(d.getDate()) + ' ' + this.pad(d.getHours()) + ':' +  this.pad(d.getMinutes()); 
+	}
+
+	public date(s) { 
+		return new Date(parseFloat(/Date\(([^)]+)\)/.exec(s)[1])); 
+	}
+
+	public pad(d) { 
+		return d < 10 ? '0'+d : d; 
 	}
 }

@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
-import { NegStorage,NegAlert} from '@newkit/core';
+import { NegStorage, NegAlert, NegTranslate,NegMultiTab } from '@newkit/core';
 
-import { MyService } from '../../services';
+import { AnswerParticipatorService } from '../../services/AnswerParticipatorService'
 
 import './personnelList.component.css';
 
@@ -14,37 +14,90 @@ import './personnelList.component.css';
 
 export class PersonnelListComponent implements OnInit {
 	public personnelList: any = {};
-	public personnelListPara:any = {};
+	public personnelListPara: any = {};
 	constructor(
-		private _service: MyService,
 		private router: Router,
-		private _negStorage:NegStorage,
-		private negAlert:NegAlert
+		private _negStorage: NegStorage,
+		private negAlert: NegAlert,
+		private _negTranslate: NegTranslate,
+		private answerParticipatorService: AnswerParticipatorService,
+		private negMultiTab: NegMultiTab
 	) { }
+
 	ngOnInit() {
+		this.negMultiTab.setCurrentTabName('Egg Rolls')
 		this.personnelListPara = this._negStorage.memory.get("personnelListPara");
 		this._negStorage.memory.remove("personnelListPara");
-		if(this.personnelListPara != undefined){
+		if (this.personnelListPara != undefined) {
 			let topicID = this.personnelListPara.TopicID;
 			let optionID = this.personnelListPara.OptionID;
 			let questionnaireID = this.personnelListPara.QuestionnaireID;
 			if (this.personnelList.data == undefined) {
-				this._service.getPersonnelList(questionnaireID, topicID, optionID)
+				this.answerParticipatorService.OnGet(questionnaireID, topicID, optionID)
 					.then(({ data }) => {
-						this.personnelList.data = data;
+						if (data.Succeeded == true) {
+							this.personnelList = data;
+							var description:string = this._negTranslate.get('personnelList.main.description')
+							description = description.replace('_1',topicID )
+							description = description.replace('_2',optionID )
+							document.getElementById('description').innerHTML = description
+						}
+						else {
+							this.negAlert.error(this._negTranslate.get('personnelList.main.getFailed'))
+						}
 					},
-					error => this.negAlert.error("Get list failed."))
+					error => this.negAlert.error(this._negTranslate.get('personnelList.main.getFailed')))
 			}
 		}
+		else {
+			// this.router.navigate(['eggrolls/404'])
+			this.negMultiTab.openPage('/eggrolls/404', null, false)
+		}
+
+		this._negTranslate.set('personnelList', {
+			'en-us': {
+				main: {
+					shortname: 'Shortname',
+					fullname: 'Fullname',
+					department: 'Department',
+					back: 'Back',
+					getFailed: 'Get questionnaire failed, please ensure that the questionnaire exists or contact E.T. for help',
+					description:"List of people who chose option _2 of topic _1"
+				}
+			},
+			'zh-cn': {
+				main: {
+					shortname: '短名',
+					fullname: '完整名',
+					department: '部门',
+					back: '返回',
+					getFailed: '获取问卷失败，请确保该问卷未被删除或联系E.T.寻求帮助',
+					description:"选择了题目_1选项_2的人员名单"
+				}
+			},
+			'zh-tw': {
+				main: {
+					shortname: 'Shortname',
+					fullname: 'Fullname',
+					department: 'Department',
+					back: 'Back',
+					getFailed: '获取问卷失败，请确保该问卷未被删除或联系E.T.寻求帮助',
+					description:"List of people who chose option _2 of topic _1"
+				}
+			}
+		}
+		)
 	}
+
 	public getPersonnelList() {
-		if (this.personnelList.data != undefined) {
-			return this.personnelList.data.Answers;
+		if (this.personnelList != undefined) {
+			return this.personnelList.Answers;
 		}
 	}
-	public back(){
+
+	public back() {
 		this._negStorage.memory.set('sID', this.personnelListPara.QuestionnaireID);
-		// window.open("/intern-eggrolls/personnelList?" + paras, '_blank', 'width=800,height=700,top=' + iTop + ',left=' + iLeft);
-		this.router.navigate(['/intern-eggrolls/statistics']);
+		// this.router.navigate(['/eggrolls/statistics']);
+		this.negMultiTab.openPage('/eggrolls/statistics', null, false)
 	}
 }

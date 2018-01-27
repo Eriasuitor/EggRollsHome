@@ -8,5 +8,7 @@ import "./notFound.component.css"
 
 export class NotFoundComponent implements OnInit {
 
-	ngOnInit() { }
+
+	ngOnInit() { 
+	}
 }
